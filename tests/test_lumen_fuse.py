@@ -8,10 +8,12 @@ import cv2
 import numpy as np
 import pytest
 
+from backend.classical_cv.filters import guided_filter
 from backend.classical_cv.scan import scan
 from backend.fusion.lumen_fuse import (
     CANDIDATE_COUNT,
     LumenFuseConfig,
+    _refine_weight_channels,
     collapse_pyramid,
     compute_weights,
     fuse,
@@ -280,6 +282,36 @@ def test_odd_dimensions_are_preserved() -> None:
 
     assert result.image.shape == original.shape
     assert result.levels == pyramid_levels(101, 77)
+
+
+def test_batched_guided_filter_matches_single_channel_path() -> None:
+    rng = np.random.default_rng(11)
+    guide = rng.random((64, 96)).astype(np.float32)
+    weights = rng.random((64, 96, CANDIDATE_COUNT)).astype(np.float32)
+
+    batched = _refine_weight_channels(guide, weights, 8, 1e-2)
+    single = np.stack(
+        [
+            guided_filter(guide, weights[..., index], 8, 1e-2)
+            for index in range(CANDIDATE_COUNT)
+        ],
+        axis=2,
+    )
+
+    assert np.allclose(batched, single, atol=1e-5)
+    assert np.allclose(batched.sum(axis=2), single.sum(axis=2), atol=1e-5)
+
+
+def test_fuse_does_not_mutate_candidates() -> None:
+    original = _textured(0.1)
+    classical = _textured(0.4, seed=1)
+    deep = _textured(0.3, seed=2)
+    copies = (original.copy(), classical.copy(), deep.copy())
+
+    fuse(original, classical, deep)
+
+    for current, before in zip((original, classical, deep), copies, strict=True):
+        assert np.array_equal(current, before)
 
 
 # ---------------------------------------------------------------------------

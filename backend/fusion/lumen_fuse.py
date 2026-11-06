@@ -19,13 +19,13 @@ from dataclasses import dataclass
 import cv2
 import numpy as np
 
-from ..classical_cv.arrays import as_float_rgb, luminance
-from ..classical_cv.edge_guard import EdgeGuardConfig, effective_gain_map
-from ..classical_cv.filters import guided_filter
+from ..classical_cv.arrays import as_float_rgb
+from ..classical_cv.filters import box_filter, guided_filter
 from ..classical_cv.scan import LumenParameters, LumenScanResult, scan
 
 CANDIDATE_COUNT = 3
 EPSILON = 1e-6
+_DEFAULT_GUIDED_FILTER = guided_filter
 
 
 @dataclass(frozen=True)
@@ -141,7 +141,7 @@ def _validate_parameters(parameters: LumenParameters) -> None:
 
 def normalize_weights(weights: np.ndarray, *, epsilon: float = 0.0) -> np.ndarray:
     """Normalize per-pixel candidate weights with safe zero-sum handling."""
-    array = np.asarray(weights, dtype=np.float64)
+    array = np.asarray(weights)
     if array.ndim != 3 or array.shape[2] != CANDIDATE_COUNT:
         raise ValueError(f"weights must be HxWx{CANDIDATE_COUNT}, got {array.shape}.")
     if epsilon < 0.0:
@@ -149,13 +149,16 @@ def normalize_weights(weights: np.ndarray, *, epsilon: float = 0.0) -> np.ndarra
     if not np.isfinite(array).all():
         raise ValueError("weights contain NaN or infinite values.")
 
-    numerator = np.clip(array, 0.0, None) + epsilon
+    # Keep the weight math in float32: the inputs are float32 and the final
+    # pyramids are float32. The old float64 temporaries dominated memory traffic.
+    array = array.astype(np.float32, copy=False)
+    numerator = np.maximum(array, 0.0) + np.float32(epsilon)
     denominator = numerator.sum(axis=2, keepdims=True)
-    zero = denominator[..., 0] <= 0.0
-
     result = np.empty_like(numerator)
-    result[~zero] = numerator[~zero] / denominator[~zero]
-    result[zero] = 1.0 / CANDIDATE_COUNT
+    np.divide(numerator, denominator, out=result, where=denominator > 0.0)
+    zero = denominator[..., 0] <= 0.0
+    if zero.any():
+        result[zero] = np.float32(1.0 / CANDIDATE_COUNT)
     return result
 
 
@@ -212,44 +215,174 @@ def _resolve_scan(
     return scan_result or scan(original)
 
 
+def _luma(rgb: np.ndarray) -> np.ndarray:
+    """Rec. 601 luma for already-validated float32 RGB (no revalidation)."""
+    return np.ascontiguousarray(
+        (
+            0.299 * rgb[..., 0]
+            + 0.587 * rgb[..., 1]
+            + 0.114 * rgb[..., 2]
+        ),
+        dtype=np.float32,
+    )
+
+
+def _prepare_candidates(
+    original: np.ndarray,
+    classical: np.ndarray,
+    deep_learning: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    candidates = (
+        as_float_rgb(original, name="original"),
+        as_float_rgb(classical, name="classical"),
+        as_float_rgb(deep_learning, name="deep_learning"),
+    )
+    shape = candidates[0].shape
+    if any(candidate.shape != shape for candidate in candidates[1:]):
+        raise ValueError("All fusion candidates must have the same shape.")
+    return candidates
+
+
 def _candidate_weight(
     candidate: np.ndarray,
-    original: np.ndarray,
+    luma: np.ndarray,
+    original_luma_blur: np.ndarray,
     local_sigma: np.ndarray,
     parameters: LumenParameters,
     config: LumenFuseConfig,
-    edge_config: EdgeGuardConfig,
 ) -> np.ndarray:
-    luma = luminance(candidate)
     blurred = cv2.GaussianBlur(
         luma, (0, 0), sigmaX=float(config.contrast_blur_sigma)
     )
     contrast = np.abs(
         cv2.Laplacian(blurred, cv2.CV_32F, ksize=int(config.laplacian_kernel))
-    ).astype(np.float64)
-
-    saturation = np.std(candidate.astype(np.float64), axis=2)
-    exposure = np.exp(
-        -((luma.astype(np.float64) - config.exposure_target) ** 2)
-        / (2.0 * config.exposure_sigma**2)
     )
 
-    gain = effective_gain_map(candidate, original, edge_config).astype(np.float64)
-    noise = 1.0 / (
-        1.0
+    red = candidate[..., 0]
+    green = candidate[..., 1]
+    blue = candidate[..., 2]
+    channel_mean = (red + green + blue) / np.float32(3.0)
+    saturation = np.sqrt(
+        (
+            (red - channel_mean) ** 2
+            + (green - channel_mean) ** 2
+            + (blue - channel_mean) ** 2
+        )
+        / np.float32(3.0)
+    )
+    exposure = np.exp(
+        -((luma - np.float32(config.exposure_target)) ** 2)
+        / np.float32(2.0 * config.exposure_sigma**2)
+    )
+
+    # Same formula as effective_gain_map(), but the original luminance blur is
+    # shared across all three candidates and no validation copy is repeated.
+    kernel = int(config.effective_gain_kernel)
+    gain = cv2.blur(luma, (kernel, kernel)) / (
+        original_luma_blur + np.float32(config.effective_gain_epsilon)
+    )
+    gain = np.clip(gain, config.gain_min, config.gain_max).astype(
+        np.float32, copy=False
+    )
+    noise = np.float32(1.0) / (
+        np.float32(1.0)
         + (
             gain
-            * local_sigma.astype(np.float64)
-            / float(parameters.fusion_tau)
+            * local_sigma
+            / np.float32(parameters.fusion_tau)
         )
         ** 2
     )
 
     return (
-        np.power(contrast + config.epsilon, parameters.fusion_contrast)
-        * np.power(saturation + config.epsilon, parameters.fusion_saturation)
-        * np.power(exposure + config.epsilon, parameters.fusion_exposure)
+        np.power(contrast + np.float32(config.epsilon), parameters.fusion_contrast)
+        * np.power(
+            saturation + np.float32(config.epsilon), parameters.fusion_saturation
+        )
+        * np.power(exposure + np.float32(config.epsilon), parameters.fusion_exposure)
         * np.power(noise, parameters.fusion_noise)
+    )
+
+
+def _refine_weight_channels(
+    guide: np.ndarray,
+    weights: np.ndarray,
+    radius: int,
+    eps: float,
+) -> np.ndarray:
+    """Guided-filter all three weight channels with shared guide statistics."""
+    if guided_filter is not _DEFAULT_GUIDED_FILTER:
+        # Preserve the existing seam for callers/tests that replace the
+        # single-channel primitive.
+        return np.stack(
+            [
+                guided_filter(guide, weights[..., index], radius, eps)
+                for index in range(CANDIDATE_COUNT)
+            ],
+            axis=2,
+        )
+
+    mean_guide = box_filter(guide, radius)
+    mean_source = box_filter(weights, radius)
+    variance = box_filter(guide * guide, radius) - mean_guide * mean_guide
+    covariance = (
+        box_filter(guide[..., None] * weights, radius)
+        - mean_guide[..., None] * mean_source
+    )
+    a = covariance / (variance[..., None] + np.float32(eps))
+    b = mean_source - a * mean_guide[..., None]
+    return np.ascontiguousarray(
+        box_filter(a, radius) * guide[..., None] + box_filter(b, radius)
+    )
+
+
+def _compute_weights_from_candidates(
+    candidates: tuple[np.ndarray, np.ndarray, np.ndarray],
+    resolved: LumenScanResult,
+    config: LumenFuseConfig,
+) -> FusionWeights:
+    shape = candidates[0].shape
+    if resolved.noise_map.shape != shape[:2]:
+        raise ValueError(
+            f"noise_map shape {resolved.noise_map.shape} does not match "
+            f"the candidates {shape[:2]}."
+        )
+    _validate_parameters(resolved.parameters)
+
+    lumas = [_luma(candidate) for candidate in candidates]
+    kernel = int(config.effective_gain_kernel)
+    original_luma_blur = cv2.blur(lumas[0], (kernel, kernel))
+
+    raw = np.empty((*shape[:2], CANDIDATE_COUNT), dtype=np.float32)
+    for index, (candidate, luma) in enumerate(zip(candidates, lumas, strict=True)):
+        raw[..., index] = _candidate_weight(
+            candidate,
+            luma,
+            original_luma_blur,
+            resolved.noise_map,
+            resolved.parameters,
+            config,
+        )
+
+    highlight = candidates[0].max(axis=2) > np.float32(config.highlight_threshold)
+    raw[..., 0] *= np.where(highlight, np.float32(config.highlight_multiplier), 1.0)
+
+    initial = normalize_weights(raw, epsilon=config.epsilon)
+
+    guide = lumas[0]
+    refined = _refine_weight_channels(
+        guide,
+        initial,
+        config.weight_guided_radius,
+        config.weight_guided_eps,
+    )
+    refined = normalize_weights(refined)
+
+    return FusionWeights(
+        initial=initial,
+        refined=refined,
+        parameters=resolved.parameters,
+        sigma=float(resolved.features.noise_sigma),
     )
 
 
@@ -264,72 +397,9 @@ def compute_weights(
     """Compute raw candidate weights, normalize, refine and renormalize."""
     config = config or LumenFuseConfig()
     _validate_config(config)
-
-    candidates = (
-        as_float_rgb(original, name="original"),
-        as_float_rgb(classical, name="classical"),
-        as_float_rgb(deep_learning, name="deep_learning"),
-    )
-    shape = candidates[0].shape
-    if any(candidate.shape != shape for candidate in candidates[1:]):
-        raise ValueError("All fusion candidates must have the same shape.")
-
+    candidates = _prepare_candidates(original, classical, deep_learning)
     resolved = _resolve_scan(candidates[0], scan_result)
-    if resolved.noise_map.shape != shape[:2]:
-        raise ValueError(
-            f"noise_map shape {resolved.noise_map.shape} does not match "
-            f"the candidates {shape[:2]}."
-        )
-    _validate_parameters(resolved.parameters)
-
-    edge_config = EdgeGuardConfig(
-        effective_gain_kernel=config.effective_gain_kernel,
-        effective_gain_epsilon=config.effective_gain_epsilon,
-        gain_min=config.gain_min,
-        gain_max=config.gain_max,
-    )
-
-    raw = np.stack(
-        [
-            _candidate_weight(
-                candidate,
-                candidates[0],
-                resolved.noise_map,
-                resolved.parameters,
-                config,
-                edge_config,
-            )
-            for candidate in candidates
-        ],
-        axis=2,
-    )
-
-    highlight = candidates[0].max(axis=2) > config.highlight_threshold
-    raw[..., 0] *= np.where(highlight, config.highlight_multiplier, 1.0)
-
-    initial = normalize_weights(raw, epsilon=config.epsilon)
-
-    guide = luminance(candidates[0])
-    refined = np.stack(
-        [
-            guided_filter(
-                guide,
-                initial[..., index].astype(np.float32),
-                config.weight_guided_radius,
-                config.weight_guided_eps,
-            )
-            for index in range(CANDIDATE_COUNT)
-        ],
-        axis=2,
-    ).astype(np.float64)
-    refined = normalize_weights(refined)
-
-    return FusionWeights(
-        initial=initial.astype(np.float64),
-        refined=refined.astype(np.float32),
-        parameters=resolved.parameters,
-        sigma=float(resolved.features.noise_sigma),
-    )
+    return _compute_weights_from_candidates(candidates, resolved, config)
 
 
 def fuse(
@@ -357,19 +427,10 @@ def fuse(
     config = config or LumenFuseConfig()
     _validate_config(config)
 
-    candidates = (
-        as_float_rgb(original, name="original"),
-        as_float_rgb(classical, name="classical"),
-        as_float_rgb(deep_learning, name="deep_learning"),
-    )
-    shape = candidates[0].shape
-    if any(candidate.shape != shape for candidate in candidates[1:]):
-        raise ValueError("All fusion candidates must have the same shape.")
-
+    candidates = _prepare_candidates(original, classical, deep_learning)
     resolved = _resolve_scan(candidates[0], scan_result)
-    weights = compute_weights(
-        *candidates, scan_result=resolved, config=config
-    )
+    weights = _compute_weights_from_candidates(candidates, resolved, config)
+    shape = candidates[0].shape
 
     height, width = shape[:2]
     levels = pyramid_levels(width, height, config.max_levels)
@@ -384,8 +445,11 @@ def fuse(
 
     fused_laplacian: list[np.ndarray] = []
     for level in range(levels + 1):
-        blended = np.zeros_like(candidate_pyramids[0][level], dtype=np.float32)
-        for index in range(CANDIDATE_COUNT):
+        blended = (
+            weight_pyramids[0][level][..., None]
+            * candidate_pyramids[0][level]
+        )
+        for index in range(1, CANDIDATE_COUNT):
             blended += (
                 weight_pyramids[index][level][..., None]
                 * candidate_pyramids[index][level]
@@ -406,7 +470,7 @@ def fuse(
         levels=levels,
         parameters=weights.parameters,
         sigma=weights.sigma,
-        initial_weights=weights.initial.astype(np.float32),
+        initial_weights=weights.initial,
     )
 
 
