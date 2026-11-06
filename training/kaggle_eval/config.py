@@ -244,6 +244,7 @@ class EvalConfig:
     )
     latency_warmups: int = 1
     latency_runs: int = 3
+    share_stages: bool = True
 
     def __post_init__(self) -> None:
         if self.seed < 0:
@@ -312,6 +313,7 @@ class EvalConfig:
             "visual_limit": self.visual_limit,
             "latency_warmups": self.latency_warmups,
             "latency_runs": self.latency_runs,
+            "share_stages": self.share_stages,
             "skip_metrics": list(self.skip_metrics),
             "allow_missing_model": self.allow_missing_model,
             "notes": list(self.notes),
@@ -389,6 +391,7 @@ class EvalConfig:
             visual_limit=int(data.get("visual_limit", 10)),
             latency_warmups=int(data.get("latency_warmups", 1)),
             latency_runs=int(data.get("latency_runs", 3)),
+            share_stages=bool(data.get("share_stages", True)),
             skip_metrics=tuple(str(item) for item in (data.get("skip_metrics") or [])),
             allow_missing_model=bool(data.get("allow_missing_model", True)),
             notes=tuple(str(item) for item in (data.get("notes") or [])),

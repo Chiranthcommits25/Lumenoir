@@ -21,6 +21,7 @@ from ..config import Settings
 from ..inference.errors import InferenceError
 from ..inference.manager import ModelManager
 from ..timing import Stopwatch
+from .shared import SHARED_STAGES, CachedStage, SharedStageCache
 from .stages import PipelineStage, StageContext, StageNotImplemented, default_stages
 from .types import (
     ENHANCEMENT_MODES,
@@ -155,11 +156,16 @@ class EnhancementPipeline:
         *,
         mode: EnhancementMode = "hybrid",
         capture_diagnostics: bool = False,
+        cache: SharedStageCache | None = None,
     ) -> PipelineResult:
         """Run the stages required by ``mode`` and describe the outcome.
 
         ``capture_diagnostics`` only records additional intermediate images and
         scalar diagnostics; it does not alter any stage calculation or output.
+
+        ``cache`` reuses mode-independent prefix stages (analysis, classical,
+        deep learning and fusion) already computed for the same image. Create one
+        cache per image; it must never span images.
         """
         if mode not in ENHANCEMENT_MODES:
             raise ValueError(f"Unsupported enhancement mode: {mode!r}.")
@@ -187,6 +193,33 @@ class EnhancementPipeline:
                 )
                 continue
 
+            cached = self._cached(cache, stage)
+            if cached is not None:
+                if cached.error is not None:
+                    if isinstance(cached.error, InferenceError):
+                        raise cached.error
+                    failed = f"The '{stage.name.value}' stage failed: {cached.error}"
+                    watches.add(stage.name.value, cached.duration_ms)
+                    reports.append(
+                        StageReport(
+                            name=stage.name,
+                            status=stage.status,
+                            duration_ms=cached.duration_ms,
+                            detail=failed,
+                        )
+                    )
+                    break
+                cache.restore(stage.name, context)  # type: ignore[union-attr]
+                watches.add(stage.name.value, cached.duration_ms)
+                reports.append(
+                    StageReport(
+                        name=stage.name,
+                        status=stage.status,
+                        duration_ms=cached.duration_ms,
+                    )
+                )
+                continue
+
             try:
                 with watches.measure(stage.name.value):
                     stage.run(context)
@@ -194,11 +227,13 @@ class EnhancementPipeline:
                 reports.append(
                     StageReport(name=stage.name, status=stage.status, detail=str(exc))
                 )
-            except InferenceError:
+            except InferenceError as exc:
+                self._record_error(cache, stage, watches, exc)
                 raise
             except Exception as exc:
                 logger.exception("Pipeline stage %s failed", stage.name.value)
                 failed = f"The '{stage.name.value}' stage failed: {exc}"
+                self._record_error(cache, stage, watches, exc)
                 reports.append(
                     StageReport(
                         name=stage.name,
@@ -209,6 +244,7 @@ class EnhancementPipeline:
                 )
                 break
             else:
+                self._record_success(cache, stage, watches, context)
                 reports.append(
                     StageReport(
                         name=stage.name,
@@ -238,6 +274,47 @@ class EnhancementPipeline:
             diagnostic_images=dict(context.diagnostic_images)
             if capture_diagnostics
             else {},
+        )
+
+    # -- cache helpers -----------------------------------------------------
+
+    @staticmethod
+    def _cached(
+        cache: SharedStageCache | None, stage: PipelineStage
+    ) -> CachedStage | None:
+        if cache is None or stage.name not in SHARED_STAGES:
+            return None
+        return cache.get(stage.name)
+
+    @staticmethod
+    def _record_success(
+        cache: SharedStageCache | None,
+        stage: PipelineStage,
+        watches: Stopwatch,
+        context: StageContext,
+    ) -> None:
+        if cache is None or stage.name not in SHARED_STAGES:
+            return
+        cache.record(
+            stage.name,
+            duration_ms=watches.durations_ms.get(stage.name.value, 0.0),
+            context=context,
+            produced=stage.produces,
+        )
+
+    @staticmethod
+    def _record_error(
+        cache: SharedStageCache | None,
+        stage: PipelineStage,
+        watches: Stopwatch,
+        error: BaseException,
+    ) -> None:
+        if cache is None or stage.name not in SHARED_STAGES:
+            return
+        cache.record_error(
+            stage.name,
+            duration_ms=watches.durations_ms.get(stage.name.value, 0.0),
+            error=error,
         )
 
     # -- helpers -----------------------------------------------------------

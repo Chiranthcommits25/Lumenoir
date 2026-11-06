@@ -43,15 +43,31 @@ def evaluate_arrays(
     timings_ms: Mapping[str, float] | None = None,
     peak_rss_mb: float | None = None,
     extras: Mapping[str, float] | None = None,
+    assume_valid: bool = False,
 ) -> dict[str, MetricValue]:
-    """Compute metrics for one output array."""
-    output = to_float32_rgb(image, name="output")
-    reference_array = (
-        to_float32_rgb(reference, name="reference") if reference is not None else None
-    )
-    original_array = (
-        to_float32_rgb(original, name="original") if original is not None else None
-    )
+    """Compute metrics for one output array.
+
+    ``assume_valid`` skips the defensive re-conversion when every supplied array
+    is already float32 HxWx3 RGB in [0, 1] (for example, straight from
+    :func:`~backend.evaluation.images.to_float32_rgb`). It never changes metric
+    values; callers that have not validated their arrays must leave it false.
+    """
+    if assume_valid:
+        output = image
+        reference_array = reference
+        original_array = original
+    else:
+        output = to_float32_rgb(image, name="output")
+        reference_array = (
+            to_float32_rgb(reference, name="reference")
+            if reference is not None
+            else None
+        )
+        original_array = (
+            to_float32_rgb(original, name="original")
+            if original is not None
+            else None
+        )
 
     metric_input = MetricInput(
         image=output,
@@ -116,6 +132,7 @@ def evaluate_pair(
         reference=load_float32_rgb(reference) if reference is not None else None,
         original=load_float32_rgb(original) if original is not None else None,
         keys=keys,
+        assume_valid=True,
     )
 
 

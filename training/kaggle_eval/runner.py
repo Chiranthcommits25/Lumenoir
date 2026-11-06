@@ -28,6 +28,7 @@ from PIL import Image, ImageOps
 from backend import deep_learning  # noqa: F401  (registers zero_dce_plus_plus)
 from backend.config import DEFAULT_WEIGHTS_DIR, InferenceSettings
 from backend.enhancement.pipeline import EnhancementPipeline
+from backend.enhancement.shared import SharedStageCache
 from backend.evaluation.aggregate import summarise
 from backend.evaluation.harness import evaluate_arrays
 from backend.evaluation.images import to_float32_rgb
@@ -257,6 +258,7 @@ def _evaluate(
         reference=reference,
         original=low,
         keys=keys,
+        assume_valid=True,
     )
     metrics: dict[str, float | None] = {}
     notes: dict[str, str] = {}
@@ -803,6 +805,10 @@ def _run_record(
 
     low = to_float32_rgb(low_image)
 
+    cache: SharedStageCache | None = None
+    if config.share_stages and sum(mode != "original" for mode in modes) > 1:
+        cache = SharedStageCache()
+
     try:
         for mode in modes:
             output_image = None
@@ -813,7 +819,9 @@ def _run_record(
                     timings: dict[str, float] = {}
                     output_image = low_image.copy()
                 else:
-                    result = pipeline.run(low_image, mode=mode)  # type: ignore[arg-type]
+                    result = pipeline.run(  # type: ignore[arg-type]
+                        low_image, mode=mode, cache=cache
+                    )
                     if not result.completed or result.final_image is None:
                         failures.append(
                             FailureRecord(
@@ -903,6 +911,8 @@ def _run_record(
                 if output_image is not None:
                     output_image.close()
     finally:
+        if cache is not None:
+            cache.close()
         low_image.close()
 
     return metric_records, failures
