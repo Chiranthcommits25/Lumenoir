@@ -212,7 +212,7 @@ measured timings.
 
 ```bash
 pip install -r requirements-dev.txt        # runtime + eval + test tooling
-.venv/bin/python -m pytest -q              # 312 tests, 8 integration deselected
+.venv/bin/python -m pytest -q              # 317 tests, 8 integration deselected
 .venv/bin/python -m ruff check backend tests training
 
 cd frontend && npm run build && npm run lint

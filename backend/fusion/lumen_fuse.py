@@ -13,7 +13,10 @@ separate.
 
 from __future__ import annotations
 
+import importlib.util
+import logging
 import math
+from contextlib import nullcontext
 from dataclasses import dataclass
 
 import cv2
@@ -26,6 +29,7 @@ from ..classical_cv.scan import LumenParameters, LumenScanResult, scan
 CANDIDATE_COUNT = 3
 EPSILON = 1e-6
 _DEFAULT_GUIDED_FILTER = guided_filter
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -172,40 +176,56 @@ def pyramid_levels(width: int, height: int, max_levels: int = 5) -> int:
     return max(0, min(int(max_levels), computed))
 
 
-def gaussian_pyramid(image: np.ndarray, levels: int) -> list[np.ndarray]:
-    """Gaussian pyramid with ``levels + 1`` entries."""
+def _gaussian_pyramid_core(image, levels: int, ops):
+    """Backend-agnostic Gaussian pyramid construction."""
     if levels < 0:
         raise ValueError("levels must be non-negative.")
-    array = np.asarray(image, dtype=np.float32)
-    pyramid = [array]
+    pyramid = [image]
     for _ in range(levels):
-        pyramid.append(cv2.pyrDown(pyramid[-1]))
+        pyramid.append(ops.pyr_down(pyramid[-1]))
     return pyramid
 
 
-def laplacian_pyramid(image: np.ndarray, levels: int) -> list[np.ndarray]:
-    """Laplacian pyramid; the last entry is the Gaussian residual."""
+def _laplacian_pyramid_core(image, levels: int, ops):
+    """Backend-agnostic Laplacian pyramid construction."""
     if levels < 0:
         raise ValueError("levels must be non-negative.")
-    gaussian = gaussian_pyramid(image, levels)
-    pyramid: list[np.ndarray] = []
+    gaussian = _gaussian_pyramid_core(image, levels, ops)
+    pyramid = []
     for index in range(levels):
         height, width = gaussian[index].shape[:2]
-        expanded = cv2.pyrUp(gaussian[index + 1], dstsize=(width, height))
+        expanded = ops.pyr_up(gaussian[index + 1], (width, height))
         pyramid.append(gaussian[index] - expanded)
     pyramid.append(gaussian[-1])
     return pyramid
 
 
-def collapse_pyramid(pyramid: list[np.ndarray]) -> np.ndarray:
-    """Reconstruct an image from a Laplacian pyramid."""
+def _collapse_pyramid_core(pyramid, ops):
+    """Backend-agnostic Laplacian pyramid reconstruction."""
     if not pyramid:
         raise ValueError("pyramid must not be empty.")
     result = pyramid[-1]
     for index in range(len(pyramid) - 2, -1, -1):
         height, width = pyramid[index].shape[:2]
-        result = cv2.pyrUp(result, dstsize=(width, height)) + pyramid[index]
+        result = ops.pyr_up(result, (width, height)) + pyramid[index]
     return result
+
+
+def gaussian_pyramid(image: np.ndarray, levels: int) -> list[np.ndarray]:
+    """Gaussian pyramid with ``levels + 1`` entries."""
+    array = np.asarray(image, dtype=np.float32)
+    return _gaussian_pyramid_core(array, levels, _NUMPY_OPS)
+
+
+def laplacian_pyramid(image: np.ndarray, levels: int) -> list[np.ndarray]:
+    """Laplacian pyramid; the last entry is the Gaussian residual."""
+    array = np.asarray(image, dtype=np.float32)
+    return _laplacian_pyramid_core(array, levels, _NUMPY_OPS)
+
+
+def collapse_pyramid(pyramid: list[np.ndarray]) -> np.ndarray:
+    """Reconstruct an image from a Laplacian pyramid."""
+    return _collapse_pyramid_core(pyramid, _NUMPY_OPS)
 
 
 def _resolve_scan(
@@ -243,67 +263,6 @@ def _prepare_candidates(
     return candidates
 
 
-def _candidate_weight(
-    candidate: np.ndarray,
-    luma: np.ndarray,
-    original_luma_blur: np.ndarray,
-    local_sigma: np.ndarray,
-    parameters: LumenParameters,
-    config: LumenFuseConfig,
-) -> np.ndarray:
-    blurred = cv2.GaussianBlur(
-        luma, (0, 0), sigmaX=float(config.contrast_blur_sigma)
-    )
-    contrast = np.abs(
-        cv2.Laplacian(blurred, cv2.CV_32F, ksize=int(config.laplacian_kernel))
-    )
-
-    red = candidate[..., 0]
-    green = candidate[..., 1]
-    blue = candidate[..., 2]
-    channel_mean = (red + green + blue) / np.float32(3.0)
-    saturation = np.sqrt(
-        (
-            (red - channel_mean) ** 2
-            + (green - channel_mean) ** 2
-            + (blue - channel_mean) ** 2
-        )
-        / np.float32(3.0)
-    )
-    exposure = np.exp(
-        -((luma - np.float32(config.exposure_target)) ** 2)
-        / np.float32(2.0 * config.exposure_sigma**2)
-    )
-
-    # Same formula as effective_gain_map(), but the original luminance blur is
-    # shared across all three candidates and no validation copy is repeated.
-    kernel = int(config.effective_gain_kernel)
-    gain = cv2.blur(luma, (kernel, kernel)) / (
-        original_luma_blur + np.float32(config.effective_gain_epsilon)
-    )
-    gain = np.clip(gain, config.gain_min, config.gain_max).astype(
-        np.float32, copy=False
-    )
-    noise = np.float32(1.0) / (
-        np.float32(1.0)
-        + (
-            gain
-            * local_sigma
-            / np.float32(parameters.fusion_tau)
-        )
-        ** 2
-    )
-
-    return (
-        np.power(contrast + np.float32(config.epsilon), parameters.fusion_contrast)
-        * np.power(
-            saturation + np.float32(config.epsilon), parameters.fusion_saturation
-        )
-        * np.power(exposure + np.float32(config.epsilon), parameters.fusion_exposure)
-        * np.power(noise, parameters.fusion_noise)
-    )
-
-
 def _refine_weight_channels(
     guide: np.ndarray,
     weights: np.ndarray,
@@ -336,53 +295,271 @@ def _refine_weight_channels(
     )
 
 
+class _NumpyOps:
+    """CPU backend: the existing NumPy/OpenCV primitives, unchanged."""
+
+    name = "numpy"
+
+    def context(self):
+        return nullcontext()
+
+    def scalar(self, value: float):
+        return np.float32(value)
+
+    def luma(self, rgb):
+        return _luma(rgb)
+
+    def gaussian_blur(self, image, sigma):
+        return cv2.GaussianBlur(image, (0, 0), sigmaX=float(sigma))
+
+    def laplacian(self, image, ksize):
+        return cv2.Laplacian(image, cv2.CV_32F, ksize=int(ksize))
+
+    def box_blur(self, image, size):
+        return cv2.blur(image, (int(size), int(size)))
+
+    def box_filter(self, image, radius):
+        return box_filter(image, int(radius))
+
+    def clip(self, image, low, high):
+        return np.clip(image, low, high)
+
+    def power(self, image, exponent):
+        return np.power(image, exponent)
+
+    def exp(self, image):
+        return np.exp(image)
+
+    def sqrt(self, image):
+        return np.sqrt(image)
+
+    def abs(self, image):
+        return np.abs(image)
+
+    def maximum(self, image, value):
+        return np.maximum(image, value)
+
+    def where(self, condition, first, second):
+        return np.where(condition, first, second)
+
+    def sum(self, image, axis, keepdims=False):
+        return np.sum(image, axis=axis, keepdims=keepdims)
+
+    def max(self, image, axis):
+        return np.max(image, axis=axis)
+
+    def stack(self, values, axis):
+        return np.stack(values, axis=axis)
+
+    def iadd(self, left, right):
+        left += right
+        return left
+
+    def normalize(self, weights, epsilon):
+        return normalize_weights(weights, epsilon=float(epsilon))
+
+    def refine(self, guide, weights, radius, eps):
+        return _refine_weight_channels(
+            guide, weights, int(radius), float(eps)
+        )
+
+    def gaussian_pyramid(self, image, levels):
+        return _gaussian_pyramid_core(image, levels, self)
+
+    def laplacian_pyramid(self, image, levels):
+        return _laplacian_pyramid_core(image, levels, self)
+
+    def collapse_pyramid(self, pyramid):
+        return _collapse_pyramid_core(pyramid, self)
+
+    def pyr_down(self, image):
+        return cv2.pyrDown(image)
+
+    def pyr_up(self, image, dst_size):
+        return cv2.pyrUp(image, dstsize=dst_size)
+
+    def prepare(self, candidates, noise_map):
+        return candidates, noise_map
+
+    def finalize_image(self, image):
+        return np.ascontiguousarray(image.astype(np.float32))
+
+    def to_numpy(self, value):
+        return value
+
+
+_NUMPY_OPS = _NumpyOps()
+
+
+def _candidate_weight_core(
+    candidate, luma, original_luma_blur, local_sigma, parameters, config, ops
+):
+    blurred = ops.gaussian_blur(luma, float(config.contrast_blur_sigma))
+    contrast = ops.abs(ops.laplacian(blurred, int(config.laplacian_kernel)))
+
+    red = candidate[..., 0]
+    green = candidate[..., 1]
+    blue = candidate[..., 2]
+    channel_mean = (red + green + blue) / ops.scalar(3.0)
+    saturation = ops.sqrt(
+        (
+            (red - channel_mean) ** 2
+            + (green - channel_mean) ** 2
+            + (blue - channel_mean) ** 2
+        )
+        / ops.scalar(3.0)
+    )
+    exposure = ops.exp(
+        -((luma - ops.scalar(config.exposure_target)) ** 2)
+        / ops.scalar(2.0 * config.exposure_sigma**2)
+    )
+
+    kernel = int(config.effective_gain_kernel)
+    gain = ops.box_blur(luma, kernel) / (
+        original_luma_blur + ops.scalar(config.effective_gain_epsilon)
+    )
+    gain = ops.clip(gain, config.gain_min, config.gain_max)
+    noise = ops.scalar(1.0) / (
+        ops.scalar(1.0)
+        + (gain * local_sigma / ops.scalar(parameters.fusion_tau)) ** 2
+    )
+
+    return (
+        ops.power(contrast + ops.scalar(config.epsilon), parameters.fusion_contrast)
+        * ops.power(saturation + ops.scalar(config.epsilon), parameters.fusion_saturation)
+        * ops.power(exposure + ops.scalar(config.epsilon), parameters.fusion_exposure)
+        * ops.power(noise, parameters.fusion_noise)
+    )
+
+
+def _compute_weights_core(candidates, noise_map, parameters, config, ops):
+    """Backend-agnostic weight generation shared by CPU and torch."""
+    shape = candidates[0].shape
+    if noise_map.shape != shape[:2]:
+        raise ValueError(
+            f"noise_map shape {noise_map.shape} does not match "
+            f"the candidates {shape[:2]}."
+        )
+    _validate_parameters(parameters)
+
+    lumas = [ops.luma(candidate) for candidate in candidates]
+    kernel = int(config.effective_gain_kernel)
+    original_luma_blur = ops.box_blur(lumas[0], kernel)
+
+    raw_channels = [
+        _candidate_weight_core(
+            candidate,
+            luma,
+            original_luma_blur,
+            noise_map,
+            parameters,
+            config,
+            ops,
+        )
+        for candidate, luma in zip(candidates, lumas, strict=True)
+    ]
+
+    highlight = ops.max(candidates[0], axis=2) > ops.scalar(config.highlight_threshold)
+    raw_channels[0] = raw_channels[0] * ops.where(
+        highlight,
+        ops.scalar(config.highlight_multiplier),
+        ops.scalar(1.0),
+    )
+
+    initial = ops.normalize(ops.stack(raw_channels, axis=2), config.epsilon)
+    refined = ops.refine(
+        lumas[0],
+        initial,
+        int(config.weight_guided_radius),
+        float(config.weight_guided_eps),
+    )
+    refined = ops.normalize(refined, 0.0)
+    return initial, refined
+
+
+def _fuse_core(candidates, refined, levels: int, ops):
+    """Backend-agnostic multiscale fusion shared by CPU and torch."""
+    weight_pyramids = [
+        ops.gaussian_pyramid(refined[..., index], levels)
+        for index in range(CANDIDATE_COUNT)
+    ]
+    candidate_pyramids = [
+        ops.laplacian_pyramid(candidate, levels) for candidate in candidates
+    ]
+
+    fused_laplacian = []
+    for level in range(levels + 1):
+        blended = (
+            weight_pyramids[0][level][..., None] * candidate_pyramids[0][level]
+        )
+        for index in range(1, CANDIDATE_COUNT):
+            blended = ops.iadd(
+                blended,
+                weight_pyramids[index][level][..., None]
+                * candidate_pyramids[index][level],
+            )
+        fused_laplacian.append(blended)
+
+    return ops.clip(ops.collapse_pyramid(fused_laplacian), 0.0, 1.0)
+
+
+def _select_ops(backend: str, device: str | None, precision: str):
+    """Choose the CPU or torch backend, falling back safely for ``auto``."""
+    choice = (backend or "cpu").strip().lower()
+    if choice == "cpu":
+        return _NUMPY_OPS
+    if choice not in {"auto", "torch"}:
+        raise ValueError(
+            f"Unsupported fusion backend {backend!r}; use 'cpu', 'torch' or 'auto'."
+        )
+
+    try:
+        if choice == "auto" and importlib.util.find_spec("torch") is None:
+            return _NUMPY_OPS
+        from .torch_backend import TorchFusionOps
+
+        if choice == "auto":
+            requested = (device or "").strip().lower()
+            if requested == "cpu":
+                return _NUMPY_OPS
+            if not requested and not TorchFusionOps.cuda_available():
+                return _NUMPY_OPS
+        return TorchFusionOps(device=device, precision=precision)
+    except Exception as exc:
+        if choice == "auto":
+            logger.warning(
+                "LumenFuse GPU backend unavailable; using the CPU backend: %s", exc
+            )
+            return _NUMPY_OPS
+        raise
+
+
+def _weights_from_ops(
+    candidates, noise_map, parameters, config, ops, sigma: float
+) -> FusionWeights:
+    initial, refined = _compute_weights_core(
+        candidates, noise_map, parameters, config, ops
+    )
+    return FusionWeights(
+        initial=ops.to_numpy(initial),
+        refined=ops.to_numpy(refined),
+        parameters=parameters,
+        sigma=sigma,
+    )
+
+
 def _compute_weights_from_candidates(
     candidates: tuple[np.ndarray, np.ndarray, np.ndarray],
     resolved: LumenScanResult,
     config: LumenFuseConfig,
 ) -> FusionWeights:
-    shape = candidates[0].shape
-    if resolved.noise_map.shape != shape[:2]:
-        raise ValueError(
-            f"noise_map shape {resolved.noise_map.shape} does not match "
-            f"the candidates {shape[:2]}."
-        )
-    _validate_parameters(resolved.parameters)
-
-    lumas = [_luma(candidate) for candidate in candidates]
-    kernel = int(config.effective_gain_kernel)
-    original_luma_blur = cv2.blur(lumas[0], (kernel, kernel))
-
-    raw = np.empty((*shape[:2], CANDIDATE_COUNT), dtype=np.float32)
-    for index, (candidate, luma) in enumerate(zip(candidates, lumas, strict=True)):
-        raw[..., index] = _candidate_weight(
-            candidate,
-            luma,
-            original_luma_blur,
-            resolved.noise_map,
-            resolved.parameters,
-            config,
-        )
-
-    highlight = candidates[0].max(axis=2) > np.float32(config.highlight_threshold)
-    raw[..., 0] *= np.where(highlight, np.float32(config.highlight_multiplier), 1.0)
-
-    initial = normalize_weights(raw, epsilon=config.epsilon)
-
-    guide = lumas[0]
-    refined = _refine_weight_channels(
-        guide,
-        initial,
-        config.weight_guided_radius,
-        config.weight_guided_eps,
-    )
-    refined = normalize_weights(refined)
-
-    return FusionWeights(
-        initial=initial,
-        refined=refined,
-        parameters=resolved.parameters,
-        sigma=float(resolved.features.noise_sigma),
+    return _weights_from_ops(
+        candidates,
+        resolved.noise_map,
+        resolved.parameters,
+        config,
+        _NUMPY_OPS,
+        float(resolved.features.noise_sigma),
     )
 
 
@@ -393,13 +570,32 @@ def compute_weights(
     *,
     scan_result: LumenScanResult | None = None,
     config: LumenFuseConfig | None = None,
+    backend: str = "cpu",
+    device: str | None = None,
+    precision: str = "float32",
 ) -> FusionWeights:
-    """Compute raw candidate weights, normalize, refine and renormalize."""
+    """Compute raw candidate weights, normalize, refine and renormalize.
+
+    ``backend`` is ``"cpu"`` (default, existing NumPy/OpenCV path), ``"torch"``
+    (explicit torch backend) or ``"auto"`` (CUDA when available, CPU otherwise).
+    ``device`` and ``precision`` only apply to the torch backend.
+    """
     config = config or LumenFuseConfig()
     _validate_config(config)
     candidates = _prepare_candidates(original, classical, deep_learning)
     resolved = _resolve_scan(candidates[0], scan_result)
-    return _compute_weights_from_candidates(candidates, resolved, config)
+
+    ops = _select_ops(backend, device, precision)
+    backend_candidates, backend_noise = ops.prepare(candidates, resolved.noise_map)
+    with ops.context():
+        return _weights_from_ops(
+            backend_candidates,
+            backend_noise,
+            resolved.parameters,
+            config,
+            ops,
+            float(resolved.features.noise_sigma),
+        )
 
 
 def fuse(
@@ -409,6 +605,9 @@ def fuse(
     *,
     scan_result: LumenScanResult | None = None,
     config: LumenFuseConfig | None = None,
+    backend: str = "cpu",
+    device: str | None = None,
+    precision: str = "float32",
 ) -> LumenFuseResult:
     """Fuse the three candidates into one float32 RGB image.
 
@@ -419,6 +618,12 @@ def fuse(
         scan_result: LumenScan output for the original. Computed when omitted;
             its full-resolution noise map drives the noise penalty.
         config: fusion constants from §4.
+        backend: ``"cpu"`` (default), ``"torch"`` or ``"auto"``. ``auto`` uses
+            the CUDA torch backend when available and otherwise the CPU path.
+        device: torch device override (``"cuda"``, ``"cuda:0"``, ``"cpu"``,
+            ``"mps"``). Ignored by the CPU backend.
+        precision: ``"float32"`` (default) or ``"float16"`` for the torch
+            backend.
 
     Returns:
         ``LumenFuseResult`` with the fused image, refined weights, pyramid level
@@ -429,48 +634,41 @@ def fuse(
 
     candidates = _prepare_candidates(original, classical, deep_learning)
     resolved = _resolve_scan(candidates[0], scan_result)
-    weights = _compute_weights_from_candidates(candidates, resolved, config)
     shape = candidates[0].shape
 
     height, width = shape[:2]
     levels = pyramid_levels(width, height, config.max_levels)
 
-    weight_pyramids = [
-        gaussian_pyramid(weights.refined[..., index], levels)
-        for index in range(CANDIDATE_COUNT)
-    ]
-    candidate_pyramids = [
-        laplacian_pyramid(candidate, levels) for candidate in candidates
-    ]
+    ops = _select_ops(backend, device, precision)
+    backend_candidates, backend_noise = ops.prepare(candidates, resolved.noise_map)
+    sigma = float(resolved.features.noise_sigma)
 
-    fused_laplacian: list[np.ndarray] = []
-    for level in range(levels + 1):
-        blended = (
-            weight_pyramids[0][level][..., None]
-            * candidate_pyramids[0][level]
+    with ops.context():
+        initial, refined = _compute_weights_core(
+            backend_candidates,
+            backend_noise,
+            resolved.parameters,
+            config,
+            ops,
         )
-        for index in range(1, CANDIDATE_COUNT):
-            blended += (
-                weight_pyramids[index][level][..., None]
-                * candidate_pyramids[index][level]
-            )
-        fused_laplacian.append(blended)
+        fused = _fuse_core(backend_candidates, refined, levels, ops)
+        fused = ops.finalize_image(fused)
+        initial_np = ops.to_numpy(initial)
+        refined_np = ops.to_numpy(refined)
+        fused_np = ops.to_numpy(fused)
 
-    fused = collapse_pyramid(fused_laplacian)
-    fused = np.ascontiguousarray(np.clip(fused, 0.0, 1.0).astype(np.float32))
-
-    if fused.shape != shape:
+    if fused_np.shape != shape:
         raise RuntimeError(
-            f"LumenFuse changed the image shape: {shape} -> {fused.shape}."
+            f"LumenFuse changed the image shape: {shape} -> {fused_np.shape}."
         )
 
     return LumenFuseResult(
-        image=fused,
-        weights=weights.refined,
+        image=fused_np,
+        weights=refined_np,
         levels=levels,
-        parameters=weights.parameters,
-        sigma=weights.sigma,
-        initial_weights=weights.initial,
+        parameters=resolved.parameters,
+        sigma=sigma,
+        initial_weights=initial_np,
     )
 
 

@@ -235,6 +235,7 @@ def _metric_values(
         reference=reference_array,
         original=original_array,
         keys=metrics,
+        assume_valid=True,
     )
     result: dict[str, float | None] = {}
     notes: dict[str, str] = {}

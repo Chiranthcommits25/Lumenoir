@@ -54,6 +54,26 @@ def test_identical_images_are_perfect() -> None:
     assert values["halo_rate"].value == pytest.approx(0.0)
 
 
+def test_assume_valid_matches_default_validation() -> None:
+    original = _image(seed=1)
+    reference = _image(seed=2)
+    output = np.clip(_image(seed=3) * 1.1, 0.0, 1.0).astype(np.float32)
+    keys = ("psnr", "ssim", "delta_e00", "edge_preservation", "new_clipping")
+
+    default = evaluate_arrays(output, reference=reference, original=original, keys=keys)
+    trusted = evaluate_arrays(
+        output,
+        reference=reference,
+        original=original,
+        keys=keys,
+        assume_valid=True,
+    )
+
+    for key in keys:
+        assert trusted[key].value == default[key].value
+        assert trusted[key].notes == default[key].notes
+
+
 def test_psnr_matches_the_closed_form() -> None:
     reference = np.full((16, 16, 3), 0.4, dtype=np.float32)
     output = np.full((16, 16, 3), 0.5, dtype=np.float32)

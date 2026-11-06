@@ -70,6 +70,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--no-visuals", action="store_true")
     parser.add_argument(
+        "--no-share-stages",
+        action="store_true",
+        help=(
+            "Disable per-image reuse of the shared pipeline prefix stages "
+            "(A/B benchmarking only; reproduces the previous behaviour)."
+        ),
+    )
+    parser.add_argument(
         "--strict-model",
         action="store_true",
         help="Fail instead of skipping DL/hybrid modes when the model is unavailable.",
@@ -115,6 +123,8 @@ def _apply_cli(config: EvalConfig, args: argparse.Namespace) -> EvalConfig:
         changes["latency_runs"] = args.latency_runs
     if args.no_visuals:
         changes["save_visuals"] = False
+    if args.no_share_stages:
+        changes["share_stages"] = False
     if args.strict_model:
         changes["allow_missing_model"] = False
     return config.replace(**changes) if changes else config

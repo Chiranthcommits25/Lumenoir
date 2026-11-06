@@ -17,6 +17,7 @@ the implemented stages only.
 
 from __future__ import annotations
 
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
@@ -263,6 +264,9 @@ class FusionStage(ImplementedStage):
             context.classical,
             context.deep_learning,
             scan_result=context.scan_result,
+            backend=os.getenv("LUMENOIR_FUSE_BACKEND", "auto"),
+            device=os.getenv("LUMENOIR_FUSE_DEVICE") or None,
+            precision=os.getenv("LUMENOIR_FUSE_PRECISION", "float32"),
         )
         context.fused = result.image
         context.enhanced = result.image

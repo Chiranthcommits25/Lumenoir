@@ -22,6 +22,7 @@ training/
 │   ├── pipeline.py           # orchestration
 │   └── cli.py                # command line entry point
 ├── kaggle_eval/              # Kaggle discovery, runner, notebook, samples
+├── benchmarks/               # reproducible LumenFuse backend benchmarks
 ├── experiments/              # stage attribution instrumentation/reporting
 ├── evaluate.py               # wrapper for backend.evaluation.cli
 ├── splits/                   # committed split spec / split files
@@ -69,6 +70,19 @@ python -m training.evaluate --pairs pairs.json --output reports/eval
 
 See [`../docs/evaluation.md`](../docs/evaluation.md) for the metric definitions,
 aggregation and the integration-test split.
+
+## LumenFuse backend benchmark
+
+```bash
+python -m training.benchmarks.benchmark_lumen_fuse \
+  --device auto --warmups 2 --runs 10
+```
+
+On Kaggle T4, use `--device cuda`. The script compares the OpenCV CPU backend
+with torch FP32/FP16 on identical candidates and reports cold/warm/median/mean/P90
+latency, peak memory where available, utilization where measurable, and output
+quality differences. See [`../docs/fusion_benchmarks.md`](../docs/fusion_benchmarks.md)
+for measured local results and limitations; local MPS numbers are not T4 results.
 
 ## Kaggle evaluation
 

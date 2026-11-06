@@ -18,6 +18,7 @@
   "visual_limit": 10,
   "latency_warmups": 1,
   "latency_runs": 3,
+  "share_stages": true,
   "skip_metrics": [],
   "allow_missing_model": true,
   "notes": [

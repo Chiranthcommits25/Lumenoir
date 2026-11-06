@@ -8,6 +8,7 @@ LumenScan, LumenRetinex, Zero-DCE++, LumenFuse, EdgeGuard and HueLock modules.
 from __future__ import annotations
 
 from .pipeline import REQUIRED_STAGES_BY_MODE, EnhancementPipeline, PipelineCapabilities
+from .shared import SHARED_STAGES, SharedStageCache
 from .stages import (
     PendingStage,
     PipelineStage,
@@ -37,6 +38,7 @@ __all__ = [
     "MODE_LABELS",
     "PLANNED_ARTIFACTS",
     "REQUIRED_STAGES_BY_MODE",
+    "SHARED_STAGES",
     "Artifact",
     "ArtifactDescriptor",
     "ArtifactKind",
@@ -48,6 +50,7 @@ __all__ = [
     "PipelineResult",
     "PipelineStage",
     "ProcessingStatus",
+    "SharedStageCache",
     "StageCapability",
     "StageContext",
     "StageName",

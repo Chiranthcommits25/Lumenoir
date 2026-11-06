@@ -167,6 +167,40 @@ duplicated. `deep_learning` and `hybrid` require a ready checkpoint and PyTorch.
 If the model is unavailable and `allow_missing_model` is true, those modes are
 skipped and logged in `failures/` and `run_config.json`.
 
+### Shared computation across modes
+
+For one image, the analysis (LumenScan), classical (LumenRetinex) and
+deep-learning (Zero-DCE++) stages depend only on the image, not on the selected
+mode. The runner therefore computes each of them once per image and replays the
+measured result for the modes that require it. Fusion (LumenFuse) runs only for
+hybrid and consumes the reused classical and deep-learning candidates. Only the
+downstream stages (EdgeGuard, HueLock, alpha blend) run per mode, because their
+input differs by mode.
+
+The cache is per image and is released before the next image, so only one
+image's intermediates are retained. Outputs and metric values are unchanged;
+per-stage timings are replayed so each mode still reports the same stage-cost
+attribution. A failure in a shared stage only affects modes that require that
+stage. `share_stages` (default `true`) can be set to `false`, or
+`--no-share-stages` passed on the CLI, to reproduce the previous behaviour for
+an A/B comparison.
+
+### Benchmarking the optimisation
+
+`training.kaggle_eval.benchmark` runs the harness twice on the same images, once
+with per-mode recomputation and once with shared stages, and writes
+`benchmark.json` / `benchmark.md` with total runtime, per-mode recorded
+processing time, execution counts, peak GPU memory and output equivalence
+(metrics plus saved visuals):
+
+```bash
+python -m training.kaggle_eval.benchmark \
+  --config /kaggle/working/eval_config.json --images 10
+```
+
+Run it on the same GPU, checkpoint and dataset configuration used for the real
+evaluation. Report only measured numbers from that run.
+
 ## Metrics
 
 Paired datasets (LOL-v1, LOL-v2 Real/Synthetic, SICE P1 with valid pairs):

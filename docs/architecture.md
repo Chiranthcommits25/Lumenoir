@@ -30,7 +30,7 @@ research system. Anything not listed as implemented is a placeholder.
 | LumenRetinex | `backend/classical_cv/retinex.py` | §3.3 adaptive gain, highlight shoulder, §3.4 CLAHE; wired into the pipeline |
 | EdgeGuard | `backend/classical_cv/edge_guard.py` | §3.5 gain-aware luma guided filter + chroma bilateral; wired into the pipeline |
 | HueLock | `backend/classical_cv/hue_lock.py` | §3.7 guarded LAB cast correction; wired into the pipeline |
-| LumenFuse | `backend/fusion/lumen_fuse.py` | §4 noise-aware weights, guided refinement and Laplacian-pyramid fusion; wired into the pipeline |
+| LumenFuse | `backend/fusion/lumen_fuse.py`, `backend/fusion/torch_backend.py` | §4 noise-aware weights, guided refinement and Laplacian-pyramid fusion; shared core with OpenCV CPU and PyTorch CUDA backends |
 | Frontend shell | `frontend/src/App.tsx` | Header, view switching, footer |
 | Landing page | `frontend/src/pages/LandingPage.tsx` | Product overview and honest status |
 | Upload workspace | `frontend/src/pages/WorkspacePage.tsx` | Upload, validation, methods, results, downloads |
@@ -47,7 +47,7 @@ research system. Anything not listed as implemented is a placeholder.
 | `analysis` | LumenScan | Features, illumination and noise maps, rule-based parameters, do-no-harm bypass decision |
 | `classical_cv` | LumenRetinex | Adaptive gain, highlight shoulder, CLAHE on L\* → candidate C |
 | `deep_learning` | Zero-DCE++ through ModelManager | Curve-network inference → candidate D; skipped when the bypass gate fires |
-| `fusion` | LumenFuse | Pixel-wise noise-aware weights, guided refinement, Laplacian-pyramid blend → F |
+| `fusion` | LumenFuse | Pixel-wise noise-aware weights, guided refinement, Laplacian-pyramid blend → F; OpenCV CPU or PyTorch CUDA backend |
 | `denoising` | EdgeGuard | Gain-aware luma guided filter and chroma bilateral filter → F′ |
 | `colour_correction` | HueLock | Guarded LAB cast correction → F″ |
 | `quality_assessment` | Adaptive alpha blend | `out = (1−α)I + αF″`, or the original when α = 0 / bypass; final size/range validation |
@@ -55,6 +55,14 @@ research system. Anything not listed as implemented is a placeholder.
 The stage classes are orchestration only; algorithm decisions stay in the
 modules. `PendingStage` remains available for custom partial pipelines but is
 not used by `default_stages()`.
+
+LumenFuse has one shared algorithm implementation in `fusion/lumen_fuse.py` and
+two primitive backends: the original NumPy/OpenCV CPU path and a PyTorch path in
+`fusion/torch_backend.py`. The hybrid stage requests `backend="auto"`, which
+uses CUDA when PyTorch reports it available and otherwise the CPU path. The
+`LUMENOIR_FUSE_BACKEND`, `LUMENOIR_FUSE_DEVICE` and `LUMENOIR_FUSE_PRECISION`
+environment variables override this for deployment and benchmarking. The torch
+module is imported lazily, so importing the pipeline never requires PyTorch.
 
 ## Not implemented
 

@@ -64,26 +64,106 @@ from backend.fusion.lumen_fuse import fuse
 scan_result = scan(original)
 result = fuse(original, classical, deep_learning, scan_result=scan_result)
 result.image, result.weights, result.levels
+
+# Explicit backends (the pipeline uses "auto")
+cpu = fuse(original, classical, deep_learning, backend="cpu")
+gpu = fuse(
+    original,
+    classical,
+    deep_learning,
+    backend="torch",
+    device="cuda:0",
+    precision="float32",
+)
 ```
 
 `compute_weights` is public for diagnostics; `pyramid_levels`,
 `gaussian_pyramid`, `laplacian_pyramid`, `collapse_pyramid` and
 `normalize_weights` are testable helpers.
 
+## Backends
+
+`backend/fusion/lumen_fuse.py` owns the algorithm: candidate validation, the
+four weight factors, highlight protection, normalization, guided refinement,
+Gaussian/Laplacian pyramids, level blending and reconstruction. Backend-specific
+numeric primitives are separated behind a small ops interface:
+
+| Backend | Module | Primitives |
+| --- | --- | --- |
+| `cpu` | `lumen_fuse.py` (`_NumpyOps`) | The existing `cv2.GaussianBlur`, `cv2.Laplacian`, `cv2.blur`, `box_filter`, `cv2.pyrDown`, `cv2.pyrUp` calls |
+| `torch` | `torch_backend.py` (`TorchFusionOps`) | CUDA/CPU/MPS tensors, `conv2d`, reflect padding, torch elementwise ops |
+
+`fuse(..., backend=...)` accepts:
+
+- `"cpu"` — default; the original OpenCV path. Works without PyTorch.
+- `"torch"` — explicit torch backend. `device` may be `"cuda"`, `"cuda:N"`,
+  `"cpu"` or `"mps"`; `precision` may be `"float32"` or `"float16"`.
+- `"auto"` — uses CUDA when available and the CPU path otherwise. GPU
+  initialization failures fall back to the CPU path with a warning.
+
+The hybrid pipeline stage requests `"auto"`, so CPU-only deployments keep the
+original path and CUDA deployments accelerate fusion automatically. The
+optional overrides are `LUMENOIR_FUSE_BACKEND`, `LUMENOIR_FUSE_DEVICE` and
+`LUMENOIR_FUSE_PRECISION`.
+
+### GPU requirements
+
+The torch backend requires the optional inference stack (`torch>=2.4`) and a
+working CUDA/MPS device. `auto` only selects CUDA; MPS is available only when
+requested explicitly (`backend="torch", device="mps"`). The CPU backend has no
+extra requirements beyond the existing NumPy/OpenCV stack.
+
+### Numerical equivalence
+
+The torch backend mirrors OpenCV's borders (reflect vs reflect-101), derives the
+Gaussian/Laplacian kernels from the installed OpenCV build, and uses the
+standard 5-tap pyramid kernels. On the local validation set (textured, dark,
+noisy, colour-cast, all-black, highlighted, odd-sized images and sizes from
+17×19 to 640×640):
+
+- CPU vs torch FP32 image MAE ≤ 1.3e-6, max absolute difference ≤ 7.9e-5,
+  PSNR ≥ 103 dB, SSIM = 1.0.
+- Refined weights: MAE ≤ 5e-7, max absolute difference ≤ 7e-6.
+- A sharp highlight edge is the hardest case: image MAE ≈ 6e-8, max difference
+  ≈ 7e-7. The diagnostic pre-refinement weights can differ by ≈ 1e-3 at
+  individual flat pixels because the weight exponents amplify tiny contrast
+  differences.
+- FP16 is numerically safe on the measured images (MAE ≤ 5.6e-4, max difference
+  ≤ 2.8e-3, PSNR ≥ 62 dB, SSIM = 1.0), but remains opt-in; production defaults
+  to FP32.
+
+These are measured local results, not Kaggle T4 results. See
+[`fusion_benchmarks.md`](fusion_benchmarks.md) for the benchmark methodology and
+the exact CUDA command.
+
 ## Tests
 
-`tests/test_lumen_fuse.py` covers: normalization and zero-weight fallback,
-identical-candidate reconstruction, well-exposed preference, dark-region
-enhancement, noise penalty, non-uniform regional selection, highlight
-protection, colour-distorted candidates, extremely dark/noisy and all-black
-stability, halo rate at a strong edge, odd dimensions, pyramid round-trip and
-level count, invalid candidates/configurations and mismatched LumenScan data.
+`tests/test_lumen_fuse.py` covers the original CPU behaviour: normalization and
+zero-weight fallback, identical-candidate reconstruction, well-exposed
+preference, dark-region enhancement, noise penalty, non-uniform regional
+selection, highlight protection, colour-distorted candidates, extremely
+dark/noisy and all-black stability, halo rate at a strong edge, odd dimensions,
+pyramid round-trip and level count, invalid candidates/configurations and
+mismatched LumenScan data. `tests/test_lumen_fuse_torch.py` adds CPU-vs-torch
+parity, odd and tiny dimensions, dark/noisy/highlight/colour-cast inputs, weight
+parity, CUDA-unavailable and initialization-failure fallbacks, FP16 checks and
+the pipeline environment selector.
 
-## Not verified / limitations
+## Limitations
 
-- No real photographs, dataset or end-to-end pipeline; tests are synthetic.
-- No PSNR/SSIM/LPIPS/NIQE comparison; fusion quality is unmeasured.
-- No latency or memory benchmark.
+- CPU/GPU parity was measured on synthetic and local LOL-v2 images, not on a
+  large held-out photograph corpus. The output targets (MAE ≤ 1e-3, SSIM ≥
+  0.999) are met on the measured set; a sharp highlight edge reaches ~1.8e-3
+  maximum difference at a few boundary pixels while keeping image MAE ≈ 1e-4.
+- No Kaggle T4 measurement has been performed in this environment. Local
+  measurements use Apple MPS and must not be presented as T4 results.
+- The torch backend includes CPU-to-GPU input copies and a GPU-to-CPU output
+  copy each call. On small images that overhead can make it slower than OpenCV;
+  `auto` is intended for CUDA and falls back to CPU when CUDA is absent.
+- FP16 is opt-in. It stayed within the measured quality targets, but FP32 is the
+  default because FP16 quality on a wider image set has not been established.
+- MPS peak memory is reported as the post-call allocated amount; CUDA uses
+  `max_memory_allocated`. CPU memory is not reported by the benchmark.
 - `blur(...,5)` is implemented as a 5×5 kernel, matching EdgeGuard's
   interpretation; the spec does not distinguish kernel size from radius.
 - `L` is interpreted as the top pyramid index (L+1 levels), matching the
@@ -98,4 +178,3 @@ level count, invalid candidates/configurations and mismatched LumenScan data.
   same penalty (as specified).
 - The API pipeline applies EdgeGuard, HueLock and the adaptive alpha blend after
   fusion. The optional closed-loop passes are not implemented.
-- No quality comparison has been run, so the fusion contribution is unmeasured.

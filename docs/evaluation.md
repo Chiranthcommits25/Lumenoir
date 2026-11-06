@@ -129,7 +129,7 @@ Unit tests (default, network-free) mock model construction and verify the lazy
 plumbing:
 
 ```bash
-python -m pytest -q          # 312 tests, 8 integration tests deselected
+python -m pytest -q          # 317 tests, 8 integration tests deselected
 ```
 
 Real LPIPS/NIQE tests are marked `integration`, excluded by `pytest.ini`, and
