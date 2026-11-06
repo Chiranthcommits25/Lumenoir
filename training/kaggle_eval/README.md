@@ -1,33 +1,49 @@
 # Kaggle evaluation
 
 This package evaluates the already-implemented LUMENOIR pipeline on datasets
-mounted under `/kaggle/input` and the extracted additional datasets under
-`/kaggle/working/lumenoir_additional/extracted`. It does **not** reimplement
-enhancement, tune parameters, fine-tune the model or download datasets.
+mounted under `/kaggle/input` and datasets transferred into `/kaggle/working`.
+The permanent Kaggle dataset is
+`/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets`; ExDark and
+DICM use their own mounts; SICE/NPE/LIME/MEF/VV are transferred into
+`/kaggle/working` (or an extracted temporary root) when needed. It does **not**
+reimplement enhancement, tune parameters, fine-tune the model or download
+datasets.
 
 ## Quick start
 
-1. Attach the paired datasets under `/kaggle/input` and extract the additional
-   unpaired datasets under `/kaggle/working/lumenoir_additional/extracted/`.
-2. Attach the LUMENOIR repository (or clone it into `/kaggle/working/LUMENOIR`)
+1. Attach the permanent dataset at
+   `/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets`.
+   ExDark is at `/kaggle/input/datasets/washingtongold/exdark-dataset`; DICM is
+   at `/kaggle/input/datasets/twozeb/dicm-img`.
+2. Transfer SICE and NPE/NPE-ex1/NPE-ex2/NPE-ex3, LIME, MEF and VV into
+   `/kaggle/working` when they are needed. Do not assume an
+   additional-test-datasets mount exists.
+3. Attach the LUMENOIR repository (or clone it into `/kaggle/working/LUMENOIR`)
    and the Zero-DCE++ checkpoint (`zero_dce_plus_plus.pth` or `Epoch99.pth`).
-3. Install the evaluation dependencies if they are not already present:
+4. Install the evaluation dependencies if they are not already present:
 
    ```bash
    pip install -r requirements-eval.txt
    pip install -r requirements-metrics.txt   # optional: LPIPS, NIQE, torch
    ```
 
-4. Inspect the discovered layout before running:
+5. Inspect the discovered layout before running:
 
    ```bash
    python -m training.kaggle_eval --discover-only \
-     --input-root /kaggle/input \
+     --input-root /kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets \
+     --additional-root /kaggle/input/datasets/washingtongold/exdark-dataset \
+     --additional-root /kaggle/input/datasets/twozeb/dicm-img \
+     --additional-root /kaggle/working \
      --additional-root /kaggle/working/lumenoir_additional/extracted \
      --output-dir /kaggle/working/lumenoir-evaluation
    ```
 
-5. Copy `example_config.json`, edit the roots/pairs/weights, and run:
+   Locally the equivalent roots are `datasets/raw`, the automatic
+   `datasets/raw/additional_test_datasets/data`, and optionally
+   `datasets/raw/additional_test_datasets`.
+
+6. Copy `example_config.json`, edit the roots/pairs/weights, and run:
 
    ```bash
    python -m training.kaggle_eval \
@@ -43,12 +59,16 @@ root. It proposes roots and low/high pair directories; it is a convenience, not
 a guarantee:
 
 - Roots are found under each search root and one nested level.
-- LOL-v1 prefers `eval15`/test; LOL-v2 prefers `Test`; training splits
-  (`our485`, `Train`) are excluded by default.
-- Pairs are matched by filename stem. A missing reference is reported and the
-  image is excluded; paired metrics are never computed without a reference.
-- SICE Part 1 is paired only when valid low/high directories exist. It is
-  Zero-DCE++ pre-training data, so it is not a held-out test set.
+- LOL-v1 prefers `eval15`/test; LOL-v2 prefers `Test`; both train and test
+  layouts are discovered for count verification. Only test/eval records are
+  evaluated; training records are never passed to the runner.
+- Pairs are matched by filename stem, with `low*`/`normal*` prefixes normalized
+  (`low00690.png` ↔ `normal00690.png`).
+- Missing references are reported and excluded; paired metrics are never
+  computed without a reference.
+- SICE supports `train/samples/*/{Input,GT}.jpg` and
+  `test/samples/*/{Input,GT}.jpg`. Only test samples are evaluated; training
+  samples are kept out of the evaluation set.
 - Unpaired datasets are read recursively, filtered by image extension.
 - JPG, JPEG, PNG and BMP are supported. Other known image formats (for example
   WebP, GIF or HEIC) are not silently dropped: discovery records a warning.
@@ -58,15 +78,15 @@ a guarantee:
 The extracted datasets are handled as four logical unpaired datasets; the
 seven source folders are retained as subgroup information where applicable:
 
-| Logical dataset | Source path | Images | Format |
+| Logical dataset | Local source path | Images | Format |
 | --- | --- | ---: | --- |
-| `lime` | `/kaggle/working/lumenoir_additional/extracted/LIME/data/LIME/` | 10 | BMP |
-| `mef` | `/kaggle/working/lumenoir_additional/extracted/MEF/data/MEF/` | 17 | PNG |
-| `npe` | `/kaggle/working/lumenoir_additional/extracted/NPE/data/NPE/` | 8 | mixed |
-| `npe` (subgroup `npe_ex1`) | `/kaggle/working/lumenoir_additional/extracted/NPE-ex1/data/NPE-ex1/` | 29 | mixed |
-| `npe` (subgroup `npe_ex2`) | `/kaggle/working/lumenoir_additional/extracted/NPE-ex2/data/NPE-ex2/` | 18 | mixed |
-| `npe` (subgroup `npe_ex3`) | `/kaggle/working/lumenoir_additional/extracted/NPE-ex3/data/NPE-ex3/` | 30 | mixed |
-| `vv` | `/kaggle/working/lumenoir_additional/extracted/VV/data/VV/` | 24 | mixed |
+| `lime` | `datasets/raw/additional_test_datasets/data/LIME/` | 10 | BMP |
+| `mef` | `datasets/raw/additional_test_datasets/data/MEF/` | 17 | PNG |
+| `npe` | `datasets/raw/additional_test_datasets/data/NPE/` | 8 | mixed |
+| `npe` (subgroup `npe_ex1`) | `datasets/raw/additional_test_datasets/data/NPE-ex1/` | 29 | mixed |
+| `npe` (subgroup `npe_ex2`) | `datasets/raw/additional_test_datasets/data/NPE-ex2/` | 18 | mixed |
+| `npe` (subgroup `npe_ex3`) | `datasets/raw/additional_test_datasets/data/NPE-ex3/` | 30 | mixed |
+| `vv` | `datasets/raw/additional_test_datasets/data/VV/` | 24 | mixed |
 
 NPE total: **85** images. NPE and its three extensions produce one `npe`
 manifest and one set of dataset-level aggregates; every record retains its
@@ -79,25 +99,59 @@ is:
 
 ```json
 {
-  "additional_roots": ["/kaggle/working/lumenoir_additional/extracted"],
+  "additional_roots": [
+    "/kaggle/input/datasets/washingtongold/exdark-dataset",
+    "/kaggle/input/datasets/twozeb/dicm-img",
+    "/kaggle/working"
+  ],
   "datasets": {
     "lol_v1": {
-      "root": "/kaggle/input/lol-v1",
+      "root": "/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets",
       "pairs": [{"low": "eval15/low", "high": "eval15/high", "split": "test"}]
     },
-    "npe": {"root": "/kaggle/working/lumenoir_additional/extracted"},
-    "exdark": {"root": "/kaggle/input/exdark", "images": [""]}
+    "npe": {"root": "/kaggle/working"},
+    "exdark": {"root": "/kaggle/input/datasets/washingtongold/exdark-dataset", "images": [""]}
   }
 }
 ```
 
-Pointing `npe.root` at the extracted parent groups `NPE`, `NPE-ex1`,
-`NPE-ex2` and `NPE-ex3`. Pointing it at one subgroup evaluates only that
-subgroup while keeping the `npe` dataset key.
+NPE auto-groups from the transferred `/kaggle/working` folders. LIME, MEF and
+VV are discovered automatically from `/kaggle/working` or an extracted
+additional root. No permanent additional-test dataset is assumed.
 
-`allow_training_split` is intentionally false: explicit training paths are
-skipped unless you deliberately set it to true (and the report records that the
-results are not held out).
+Training records are present in manifests for count verification but are never
+returned by the evaluation runner. `allow_training_split` is retained as a
+legacy configuration field but no longer enables evaluation on a training
+split.
+
+## Evaluation configurations
+
+Two prepared configurations cover the controlled experiment:
+
+- `configs/classical_baseline.json`: `original`, `classical`, `hybrid`
+- `configs/deep_learning.json`: `original`, `deep_learning`, `hybrid`
+
+Both include PSNR, SSIM, LPIPS, NIQE, CIEDE2000, noise, edge and latency. Paired
+and unpaired results are written separately by dataset kind. Both expect the
+Zero-DCE++ checkpoint at `/kaggle/working/zero_dce_plus_plus.pth` unless edited.
+
+SICE is native-resolution and expensive. See
+[`../../docs/sice_evaluation.md`](../../docs/sice_evaluation.md) and run it as a
+separate batch with `--latency-runs 0`.
+
+## Leakage check
+
+The read-only leakage audit consumes a manifest and never writes splits:
+
+```bash
+python -m training.kaggle_eval.leakage_check \
+  --manifest /kaggle/working/lumenoir-evaluation/manifests/manifest.json \
+  --output /kaggle/working/lumenoir-leakage.json
+```
+
+See [`../../docs/leakage.md`](../../docs/leakage.md) for the actual local result
+and the warning that pHash/SSIM exclusions have not been applied to the
+evaluation set without approval.
 
 ## Evaluation modes
 
@@ -117,7 +171,7 @@ skipped and logged in `failures/` and `run_config.json`.
 
 Paired datasets (LOL-v1, LOL-v2 Real/Synthetic, SICE P1 with valid pairs):
 
-- PSNR, SSIM, LPIPS.
+- PSNR, SSIM, LPIPS, CIEDE2000 colour distortion.
 
 Unpaired datasets (ExDark, DICM, NPE including NPE-ex1/2/3, LIME, MEF, VV):
 
@@ -134,17 +188,20 @@ Definitions and assumptions:
 - **LOE** is the NPE-paper lightness-order error on 50×50 max-RGB maps: the
   fraction of valid pixel pairs whose relative lightness order changes. It
   requires the low-light input and is therefore reported for unpaired sets.
-- **Noise** is `σ̂_flat / mean(Y_out[flat])` (relative noise) from the Immerkaer
-  estimator.
+- **Noise** is `σ̂_flat / mean(Y_out[flat])` (absolute relative noise) from the
+  Immerkaer estimator. It is not a suppression ratio; compare the original and
+  enhanced modes (or the paired `noise_residual`) to assess suppression.
 - **Edge preservation** is the Pearson correlation of gradient magnitudes on the
   strongest 10% of edges; unpaired comparisons use the input.
-- **Colour distortion** for unpaired sets is the mean wrapped hue difference on
-  pixels with `C* > 10`; paired sets can additionally use CIEDE2000 in the
-  framework.
+- **Colour distortion** is CIEDE2000 for paired sets and mean wrapped hue
+  difference on `C* > 10` pixels for unpaired sets.
 - **New clipping** is `frac(out max-channel ≥ 0.98) − frac(in max-channel ≥ 0.98)`.
 - **Black-level crushing** is `frac(out max-channel ≤ 0.02) − frac(in max-channel ≤ 0.02)`.
 - **Halo rate** is the gradient-reversal rate on the strongest 5% of input
   edges.
+- **Latency** includes per-image total processing time, per-stage aggregates,
+  and a warm-up benchmark (`latency_warmups`/`latency_runs`) for the first
+  evaluation image of each dataset/mode.
 
 Missing optional dependencies or a failed metric produce a `null` value with a
 note in the per-image JSONL record, never a fabricated number.
@@ -165,7 +222,8 @@ records/
 reports/<dataset>/<mode>/
   image_metrics.json|.csv|.md   # per-image rows, summary, worst five
 aggregate.json|.csv|.md         # dataset/mode/metric aggregates
-latency.json|.csv|.md           # per-stage latency
+latency.json|.csv|.md           # stage, total and warm-up benchmark latency
+latency_totals.csv
 failures/
   failures.jsonl|.csv
 visuals/<dataset>/<image>_<mode>.png
@@ -174,36 +232,42 @@ run_config.json                 # config, seed, git commit, device, model status
 ```
 
 Every manifest entry contains absolute image paths, `record_count`,
-`image_count`, `format_counts`, `subgroup_counts` and the source `roots`.
+`image_count`, `evaluation_count`, `training_count`, `split_counts`,
+`format_counts`, `subgroup_counts` and the source `roots`.
 Visuals are side-by-side low-light/input and output images, capped by
 `visual_limit` per dataset.
 
 ## Reproducibility
 
 - Manifest records are sorted by relative path; reruns are deterministic.
+- Both train and test records are present in manifests for count verification;
+  the runner validates each manifest and evaluates only test/eval/unpaired
+  records. Training records are never passed to the pipeline.
 - `max_images` sampling uses `random.Random(seed)` and is recorded in the
   manifest warnings.
 - `seed`, config, additional roots and git commit are in `run_config.json`.
-- Per-image records and per-stage timings are retained, so aggregates can be
-  recomputed.
+- Per-image records, total processing time and per-stage timings are retained.
 - No parameter is tuned on evaluation data.
 - Counts are never inferred from filenames: manifests report the discovered
-  image count, per-format counts and NPE subgroup counts. Unsupported image
-  formats, empty directories and missing NPE subgroups are warned about rather
-  than silently ignored.
+  image count, evaluation count, training count, split counts, per-format
+  counts and NPE subgroup counts. Unsupported image formats, empty directories
+  and missing NPE subgroups are warned about rather than silently ignored.
 
 ## Assumptions and limitations
 
 - No dataset is downloaded. Paths must already exist under `/kaggle/input`,
-  `/kaggle/working/lumenoir_additional/extracted`, or be supplied explicitly.
+  `/kaggle/input/datasets`, `/kaggle/working`, or be supplied explicitly.
 - Unpaired datasets (including LIME, MEF, NPE/NPE-ex1/2/3 and VV) have no ground
   truth, so PSNR/SSIM/LPIPS are not reported.
 - SICE Part 1 is not held out for Zero-DCE++ (the model was pre-trained on it);
   paired SICE results must be labelled accordingly.
-- LOL training splits are excluded. Explicit training paths require
-  `allow_training_split` and are flagged.
+- LOL and SICE training records are discovered for counts but excluded from
+  evaluation. Explicit training paths do not enter the evaluation set.
 - Paired images must have identical dimensions; mismatches are logged as
   failures rather than resized silently.
+- SICE test images in the local Hugging Face copy are about 5997×3999; full
+  SSIM/CIEDE2000/LOE evaluation and the warm-up benchmark can be slow. Run SICE
+  in a separate batch, or set `--latency-runs 0` for that batch.
 - LPIPS/NIQE require optional packages and model files; on a network-isolated
   Kaggle run, skip them or pre-cache the model files.
 - Metrics are only as comparable as their library versions; keep the same

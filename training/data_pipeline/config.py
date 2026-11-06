@@ -306,8 +306,8 @@ DATASET_SPECS: tuple[DatasetSpec, ...] = (
                 "all",
                 "",
                 pairing=Pairing.FLAT,
-                expected_count=84,
-                description="84 no-reference images.",
+                expected_count=85,
+                description="85 no-reference images (NPE plus NPE-ex1/ex2/ex3).",
             ),
         ),
     ),
@@ -430,7 +430,7 @@ class SplitRules:
             "dicm": 64,
             "lime": 10,
             "mef": 17,
-            "npe": 84,
+            "npe": 85,
             "vv": 24,
         }
     )

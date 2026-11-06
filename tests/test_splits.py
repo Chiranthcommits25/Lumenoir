@@ -63,7 +63,7 @@ def test_pool_totals_match_the_specification(full_scans: list[DatasetScan]) -> N
         "fine_tune": 3496,
         "validation": 800,
         "test": 415,
-        "unseen": 459,
+        "unseen": 460,
         "do_no_harm": 100,
     }
 
@@ -84,7 +84,7 @@ def test_per_dataset_composition(full_scans: list[DatasetScan]) -> None:
         "exdark": 200,
         "lime": 10,
         "mef": 17,
-        "npe": 84,
+        "npe": 85,
         "own": 60,
         "vv": 24,
     }
@@ -143,7 +143,7 @@ def test_split_spec_needs_no_data(tmp_path: Path) -> None:
     assert spec["seed"] == 42
     assert spec["pools"]["fine_tune"]["base_total"] == 3496
     assert spec["pools"]["test"]["composition"]["lol_v1/test"] == 15
-    assert spec["pools"]["unseen"]["total"] == 459
+    assert spec["pools"]["unseen"]["total"] == 460
 
     path = write_split_spec(tmp_path)
     assert path.is_file()

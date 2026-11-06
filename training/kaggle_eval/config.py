@@ -17,13 +17,17 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 KAGGLE_INPUT = Path("/kaggle/input")
 KAGGLE_WORKING = Path("/kaggle/working")
+KAGGLE_DATASETS_ROOT = KAGGLE_INPUT / "datasets"
 DEFAULT_ADDITIONAL_ROOT = KAGGLE_WORKING / "lumenoir_additional" / "extracted"
+LOCAL_ADDITIONAL_ROOT = (
+    PROJECT_ROOT / "datasets" / "raw" / "additional_test_datasets" / "data"
+)
 DEFAULT_WEIGHTS = PROJECT_ROOT / "backend" / "weights" / "zero_dce_plus_plus.pth"
 
 MODES = ("original", "classical", "deep_learning", "hybrid")
 PIPELINE_MODES = ("classical", "deep_learning", "hybrid")
 
-PAIRED_METRICS = ("psnr", "ssim", "lpips")
+PAIRED_METRICS = ("psnr", "ssim", "lpips", "delta_e00")
 UNPAIRED_METRICS = (
     "niqe",
     "loe",
@@ -177,9 +181,16 @@ def _default_input_root() -> Path:
 
 
 def _default_additional_roots() -> tuple[Path, ...]:
+    roots: list[Path] = []
+    if LOCAL_ADDITIONAL_ROOT.is_dir():
+        roots.append(LOCAL_ADDITIONAL_ROOT)
     if DEFAULT_ADDITIONAL_ROOT.is_dir():
-        return (DEFAULT_ADDITIONAL_ROOT,)
-    return ()
+        roots.append(DEFAULT_ADDITIONAL_ROOT)
+    if KAGGLE_DATASETS_ROOT.is_dir():
+        roots.append(KAGGLE_DATASETS_ROOT)
+    if KAGGLE_WORKING.is_dir():
+        roots.append(KAGGLE_WORKING)
+    return tuple(dict.fromkeys(roots))
 
 
 def _default_output_dir() -> Path:
@@ -231,6 +242,8 @@ class EvalConfig:
     additional_roots: tuple[Path, ...] = field(
         default_factory=_default_additional_roots
     )
+    latency_warmups: int = 1
+    latency_runs: int = 3
 
     def __post_init__(self) -> None:
         if self.seed < 0:
@@ -239,6 +252,10 @@ class EvalConfig:
             raise ValueError("max_images must be positive when set.")
         if self.visual_limit < 0:
             raise ValueError("visual_limit must be non-negative.")
+        if self.latency_warmups < 0:
+            raise ValueError("latency_warmups must be non-negative.")
+        if self.latency_runs < 0:
+            raise ValueError("latency_runs must be non-negative.")
         unknown_modes = set(self.modes) - set(MODES)
         if unknown_modes:
             raise ValueError(
@@ -293,6 +310,8 @@ class EvalConfig:
             "device": self.device,
             "save_visuals": self.save_visuals,
             "visual_limit": self.visual_limit,
+            "latency_warmups": self.latency_warmups,
+            "latency_runs": self.latency_runs,
             "skip_metrics": list(self.skip_metrics),
             "allow_missing_model": self.allow_missing_model,
             "notes": list(self.notes),
@@ -368,6 +387,8 @@ class EvalConfig:
             device=str(data.get("device", "auto")),
             save_visuals=bool(data.get("save_visuals", True)),
             visual_limit=int(data.get("visual_limit", 10)),
+            latency_warmups=int(data.get("latency_warmups", 1)),
+            latency_runs=int(data.get("latency_runs", 3)),
             skip_metrics=tuple(str(item) for item in (data.get("skip_metrics") or [])),
             allow_missing_model=bool(data.get("allow_missing_model", True)),
             notes=tuple(str(item) for item in (data.get("notes") or [])),

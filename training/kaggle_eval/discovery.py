@@ -54,6 +54,10 @@ class EvalRecord:
     notes: str = ""
     subgroup: str | None = None
 
+    @property
+    def is_evaluation(self) -> bool:
+        return self.kind is DatasetKind.UNPAIRED or self.split == "test"
+
     def to_dict(self) -> dict[str, object]:
         return {
             "dataset": self.dataset,
@@ -88,6 +92,56 @@ class DatasetManifest:
         return len(self.records)
 
     @property
+    def evaluation_records(self) -> tuple[EvalRecord, ...]:
+        return tuple(record for record in self.records if record.is_evaluation)
+
+    def validated_evaluation_records(self) -> tuple[EvalRecord, ...]:
+        """Return test/unpaired records after local safety checks.
+
+        Training records are never returned. Paired test records must have a
+        reference, and an evaluation path must not also appear in the training
+        split of the same manifest.
+        """
+        training_paths = {
+            record.low.resolve()
+            for record in self.records
+            if record.split == "train"
+        }
+        seen: set[tuple[Path, Path | None]] = set()
+        selected: list[EvalRecord] = []
+        for record in self.evaluation_records:
+            if record.split == "train":
+                raise ValueError(f"{self.key}: training record in evaluation set")
+            if not record.low.is_file():
+                raise ValueError(f"{self.key}: missing image {record.low}")
+            if record.kind is DatasetKind.PAIRED:
+                if record.high is None or not record.high.is_file():
+                    raise ValueError(f"{self.key}: missing reference for {record.low}")
+            if record.low.resolve() in training_paths:
+                raise ValueError(
+                    f"{self.key}: evaluation image also appears in training: {record.low}"
+                )
+            key = (record.low.resolve(), None if record.high is None else record.high.resolve())
+            if key in seen:
+                raise ValueError(f"{self.key}: duplicate evaluation record {record.low}")
+            seen.add(key)
+            selected.append(record)
+        return tuple(selected)
+
+    @property
+    def evaluation_count(self) -> int:
+        return len(self.evaluation_records)
+
+    @property
+    def training_count(self) -> int:
+        return sum(1 for record in self.records if record.split == "train")
+
+    @property
+    def split_counts(self) -> dict[str, int]:
+        counts = Counter(record.split for record in self.records)
+        return dict(sorted(counts.items()))
+
+    @property
     def format_counts(self) -> dict[str, int]:
         counts = Counter(record.low.suffix.lower().lstrip(".") for record in self.records)
         return dict(sorted(counts.items()))
@@ -112,6 +166,9 @@ class DatasetManifest:
             "roots": [str(root) for root in self.source_roots],
             "record_count": len(self.records),
             "image_count": self.image_count,
+            "evaluation_count": self.evaluation_count,
+            "training_count": self.training_count,
+            "split_counts": self.split_counts,
             "format_counts": self.format_counts,
             "subgroup_counts": self.subgroup_counts,
             "skipped_reason": self.skipped_reason,
@@ -149,6 +206,25 @@ def _normalise(value: str) -> str:
 def _is_training_path(relative: str) -> bool:
     normalised = _normalise(relative)
     return any(token in normalised for token in TRAINING_TOKENS)
+
+
+def _classify_split(value: str) -> str:
+    normalised = _normalise(value)
+    if any(token in normalised for token in ("our485", "train")):
+        return "train"
+    if any(token in normalised for token in ("eval15", "test", "eval")):
+        return "test"
+    if "val" in normalised:
+        return "validation"
+    if normalised == "unpaired":
+        return "unpaired"
+    return normalised or "unknown"
+
+
+def _pair_key(path: Path) -> str:
+    """Match ``low00690``/``normal00690`` and ordinary identical stems."""
+    match = re.match(r"^(?:low|normal|high|gt|input)[-_]?(\d.*)$", path.stem, re.I)
+    return match.group(1) if match else path.stem
 
 
 def _iter_images(directory: Path) -> list[Path]:
@@ -268,6 +344,13 @@ def _candidate_roots(input_root: Path) -> list[Path]:
     return candidates
 
 
+def _root_name_matches(spec: DatasetSpec, root: Path) -> bool:
+    name = _normalise(root.name)
+    if name in {"input", "datasets", "working", "kaggle"}:
+        return False
+    return any(alias and _normalise(alias) in name for alias in spec.aliases)
+
+
 def find_dataset_root(
     search_roots: Path | str | Sequence[Path],
     spec: DatasetSpec,
@@ -278,6 +361,8 @@ def find_dataset_root(
     else:
         roots = search_roots
     for search_root in roots:
+        if search_root.is_dir() and _root_name_matches(spec, search_root):
+            return search_root.resolve()
         for candidate in _candidate_roots(search_root):
             if _root_matches(spec, candidate):
                 return candidate.resolve()
@@ -382,36 +467,15 @@ def _auto_pair_layouts(
             continue
         relative_low = low.relative_to(root).as_posix()
         relative_high = high.relative_to(root).as_posix()
-        if _is_training_path(relative_low):
-            continue
         layouts.append(
             PairLayout(
                 low=relative_low,
                 high=relative_high,
-                split=low.parent.name or "test",
+                split=_classify_split(relative_low),
             )
         )
 
-    unique = _deduplicate_layouts(layouts)
-    if spec.split_preferences and unique:
-        preferred = tuple(
-            layout
-            for layout in unique
-            if any(
-                preference in _normalise(layout.low)
-                for preference in spec.split_preferences
-            )
-        )
-        if preferred:
-            unique = preferred
-        else:
-            warnings.append(
-                f"{spec.key}: found pair layouts but none matched a held-out split "
-                f"{spec.split_preferences}; refusing to evaluate training data."
-            )
-            unique = ()
-
-    return unique, tuple(warnings)
+    return _deduplicate_layouts(layouts), tuple(warnings)
 
 
 def _explicit_layouts(
@@ -422,15 +486,9 @@ def _explicit_layouts(
 
     for layout in override.pairs:
         if _is_training_path(layout.low) or _is_training_path(layout.high):
-            if not override.allow_training_split:
-                warnings.append(
-                    f"{spec.key}: explicit pair '{layout.low}' looks like a training "
-                    "split; skipped (set allow_training_split to override)."
-                )
-                continue
             warnings.append(
-                f"{spec.key}: explicit training split '{layout.low}' included; "
-                "these results are not held out."
+                f"{spec.key}: explicit training-split pair '{layout.low}' is discovered "
+                "for counts but excluded from evaluation."
             )
         low_dir = _resolve_inside(root, layout.low)
         high_dir = _resolve_inside(root, layout.high)
@@ -440,9 +498,31 @@ def _explicit_layouts(
                 f"{layout.low} / {layout.high}"
             )
             continue
-        layouts.append(layout)
+        layouts.append(
+            PairLayout(
+                low=layout.low,
+                high=layout.high,
+                split=_classify_split(layout.split or layout.low),
+            )
+        )
 
     return tuple(layouts), tuple(warnings)
+
+
+def _index_pairs(directory: Path) -> tuple[dict[str, Path], list[str]]:
+    index: dict[str, Path] = {}
+    problems: list[str] = []
+    for path in _iter_images(directory):
+        key = _pair_key(path)
+        existing = index.get(key)
+        if existing is not None:
+            problems.append(
+                f"duplicate pair key '{key}' in {directory}: "
+                f"{existing.name} and {path.name}"
+            )
+            continue
+        index[key] = path
+    return index, problems
 
 
 def _paired_records(
@@ -459,11 +539,14 @@ def _paired_records(
     for layout in layouts:
         low_dir = _resolve_inside(root, layout.low)
         high_dir = _resolve_inside(root, layout.high)
-        low_files = _iter_images(low_dir)
-        high_files = {path.stem: path for path in _iter_images(high_dir)}
+        low_files, low_problems = _index_pairs(low_dir)
+        high_files, high_problems = _index_pairs(high_dir)
+        warnings.extend(f"{spec.key}: {problem}" for problem in low_problems)
+        warnings.extend(f"{spec.key}: {problem}" for problem in high_problems)
 
-        for low in low_files:
-            high = high_files.get(low.stem)
+        for key in sorted(low_files):
+            low = low_files[key]
+            high = high_files.get(key)
             if high is None:
                 missing_high += 1
                 continue
@@ -474,7 +557,7 @@ def _paired_records(
                     image_id=low.relative_to(root).as_posix(),
                     low=low,
                     high=high,
-                    split=layout.split,
+                    split=_classify_split(layout.split),
                     kind=kind,
                     notes=notes,
                 )
@@ -550,6 +633,131 @@ def _sample_records(
     return sorted(selected, key=lambda record: record.image_id), [warning]
 
 
+def _sample_file(sample_dir: Path, names: Sequence[str]) -> Path | None:
+    wanted = {name.lower() for name in names}
+    for path in _iter_images(sample_dir):
+        if path.stem.lower() in wanted:
+            return path
+    return None
+
+
+def _sample_pair_records(
+    root: Path,
+    spec: DatasetSpec,
+) -> tuple[list[EvalRecord], list[str]]:
+    """Support Hugging Face SICE layouts: samples/<id>/{Input,GT}.jpg."""
+    records: list[EvalRecord] = []
+    warnings: list[str] = []
+    missing = 0
+    samples_dirs = _named_dirs(root, ("samples",), max_depth=3)
+
+    for samples_dir in samples_dirs:
+        split = _classify_split(samples_dir.parent.name)
+        for sample_dir in sorted(
+            path for path in samples_dir.iterdir() if path.is_dir()
+        ):
+            low = _sample_file(sample_dir, ("input", "low"))
+            high = _sample_file(sample_dir, ("gt", "groundtruth", "normal", "target"))
+            if low is None or high is None:
+                missing += 1
+                continue
+            records.append(
+                EvalRecord(
+                    dataset=spec.key,
+                    image_id=low.relative_to(root).as_posix(),
+                    low=low,
+                    high=high,
+                    split=split,
+                    kind=DatasetKind.PAIRED,
+                    notes=spec.notes,
+                )
+            )
+
+    if missing:
+        warnings.append(
+            f"{spec.key}: {missing} sample folder(s) lacked Input/GT images and "
+            "were excluded."
+        )
+    return records, warnings
+
+
+def _build_sice_manifest(
+    spec: DatasetSpec,
+    override: DatasetOverride,
+    config: EvalConfig,
+) -> DatasetManifest:
+    roots: list[Path] = []
+    if override.root:
+        root = Path(override.root).resolve()
+        roots = [root]
+    else:
+        for search_root in config.search_roots():
+            if search_root.is_dir() and _root_name_matches(spec, search_root):
+                roots.append(search_root.resolve())
+            for candidate in _candidate_roots(search_root):
+                if _root_matches(spec, candidate):
+                    resolved = candidate.resolve()
+                    if resolved not in roots:
+                        roots.append(resolved)
+
+    if not roots:
+        return DatasetManifest(
+            key=spec.key,
+            label=spec.label,
+            kind=spec.kind,
+            root=None,
+            records=(),
+            skipped_reason="SICE root not found; provide an explicit root",
+            notes=spec.notes,
+        )
+
+    records: list[EvalRecord] = []
+    warnings: list[str] = []
+    roots_with_records: list[Path] = []
+    for root in roots:
+        root_records: list[EvalRecord] = []
+        layouts, layout_warnings = _auto_pair_layouts(root, spec)
+        warnings.extend(layout_warnings)
+        paired, paired_warnings = _paired_records(
+            root, spec, layouts, kind=DatasetKind.PAIRED
+        )
+        root_records.extend(paired)
+        warnings.extend(paired_warnings)
+        samples, sample_warnings = _sample_pair_records(root, spec)
+        root_records.extend(samples)
+        warnings.extend(sample_warnings)
+        if root_records:
+            roots_with_records.append(root)
+            records.extend(root_records)
+
+    limit = override.max_images if override.max_images is not None else config.max_images
+    records, sample_warnings = _sample_records(records, limit, config.seed, spec.key)
+    warnings.extend(sample_warnings)
+
+    if records:
+        warnings.append(
+            "SICE Part 1 is Zero-DCE++ pre-training data; paired results are "
+            "not held out."
+        )
+
+    manifest_root = roots_with_records[0] if roots_with_records else roots[0]
+    skipped_reason = None
+    if not records:
+        skipped_reason = "no valid SICE Input/GT or low/high pairs discovered"
+
+    return DatasetManifest(
+        key=spec.key,
+        label=spec.label,
+        kind=spec.kind,
+        root=manifest_root,
+        records=tuple(records),
+        warnings=tuple(warnings),
+        skipped_reason=skipped_reason,
+        notes=spec.notes,
+        roots=tuple(roots_with_records) if roots_with_records else (manifest_root,),
+    )
+
+
 def _build_npe_manifest(
     spec: DatasetSpec,
     override: DatasetOverride,
@@ -616,6 +824,8 @@ def _build_manifest(
 ) -> DatasetManifest:
     if spec.key == "npe":
         return _build_npe_manifest(spec, override, config)
+    if spec.key == "sice_p1":
+        return _build_sice_manifest(spec, override, config)
 
     root = Path(override.root).resolve() if override.root else find_dataset_root(
         config.search_roots(), spec
@@ -741,6 +951,9 @@ def write_manifests(
                         "present": manifest.present,
                         "records": len(manifest.records),
                         "image_count": manifest.image_count,
+                        "evaluation_count": manifest.evaluation_count,
+                        "training_count": manifest.training_count,
+                        "split_counts": manifest.split_counts,
                         "format_counts": manifest.format_counts,
                         "subgroup_counts": manifest.subgroup_counts,
                         "roots": [str(root) for root in manifest.source_roots],

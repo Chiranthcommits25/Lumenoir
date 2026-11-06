@@ -7,6 +7,7 @@ import json
 import numpy as np
 from PIL import Image
 
+from backend.inference.registry import available_models
 from training.kaggle_eval.cli import main
 from training.kaggle_eval.config import EvalConfig
 from training.kaggle_eval.runner import run_evaluation
@@ -46,6 +47,8 @@ def _config(tmp_path) -> EvalConfig:
         skip_metrics=("lpips", "niqe"),
         save_visuals=True,
         visual_limit=2,
+        latency_warmups=0,
+        latency_runs=0,
     )
 
 
@@ -94,6 +97,7 @@ def test_runner_writes_records_aggregates_failures_and_visuals(tmp_path) -> None
     assert paired["kind"] == "paired"
     assert "psnr" in paired["metrics"]
     assert "ssim" in paired["metrics"]
+    assert "delta_e00" in paired["metrics"]
     assert "lpips" not in paired["metrics"]
 
     unpaired = next(
@@ -278,3 +282,74 @@ def test_npe_subgroups_are_reported_as_one_unpaired_dataset(tmp_path) -> None:
         "npe_ex3": 1,
     }
 
+
+def test_runner_import_registers_zero_dce_plus_plus() -> None:
+    assert "zero_dce_plus_plus" in available_models()
+
+
+def test_runner_evaluates_only_test_split(tmp_path) -> None:
+    _image(tmp_path / "input" / "LOL-v1" / "our485" / "low" / "1.png", seed=1)
+    _image(tmp_path / "input" / "LOL-v1" / "our485" / "high" / "1.png", seed=2)
+    _image(tmp_path / "input" / "LOL-v1" / "eval15" / "low" / "1.png", seed=3)
+    _image(tmp_path / "input" / "LOL-v1" / "eval15" / "high" / "1.png", seed=4)
+
+    config = _config(tmp_path).replace(
+        output_dir=tmp_path / "split-out",
+        selected_datasets=("lol_v1",),
+        modes=("original",),
+    )
+    run_evaluation(config)
+
+    records = _load_jsonl(config.output_dir / "records" / "records.jsonl")
+    assert len(records) == 1
+    assert "eval15" in records[0]["image_id"]
+    assert records[0]["split"] == "test"
+
+    manifest = json.loads(
+        (config.output_dir / "manifests" / "manifest.json").read_text(encoding="utf-8")
+    )
+    lol = next(dataset for dataset in manifest["datasets"] if dataset["dataset"] == "lol_v1")
+    assert lol["split_counts"] == {"test": 1, "train": 1}
+    assert lol["evaluation_count"] == 1
+
+
+def test_runner_evaluates_sice_test_samples_only(tmp_path) -> None:
+    root = tmp_path / "input" / "SICE_Paired"
+    for split in ("train", "test"):
+        sample = root / split / "samples" / "sample_001"
+        _image(sample / "Input.jpg", seed=10)
+        _image(sample / "GT.jpg", seed=11)
+
+    config = _config(tmp_path).replace(
+        output_dir=tmp_path / "sice-out",
+        selected_datasets=("sice_p1",),
+        modes=("original",),
+    )
+    run_evaluation(config)
+
+    records = _load_jsonl(config.output_dir / "records" / "records.jsonl")
+    assert len(records) == 1
+    assert "test/samples" in records[0]["image_id"]
+    assert records[0]["split"] == "test"
+
+
+def test_latency_totals_and_warmup_benchmark_are_written(tmp_path) -> None:
+    _build_fixture(tmp_path / "input")
+    config = _config(tmp_path).replace(
+        output_dir=tmp_path / "latency-out",
+        selected_datasets=("lime",),
+        modes=("classical",),
+        latency_warmups=1,
+        latency_runs=2,
+    )
+    run_evaluation(config)
+
+    latency = json.loads(
+        (config.output_dir / "latency.json").read_text(encoding="utf-8")
+    )
+    assert latency["totals"]
+    assert latency["benchmarks"]
+    assert (config.output_dir / "latency_totals.csv").is_file()
+    assert all(row["mode"] == "classical" for row in latency["totals"])
+    assert all(row["runs"] == 2 for row in latency["benchmarks"])
+    assert all(row["warmups"] == 1 for row in latency["benchmarks"])

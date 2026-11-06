@@ -2,8 +2,9 @@
 
 Status checked on 6 November 2026 with `python -m training.data_pipeline check`:
 
-- No dataset is present locally (`datasets/` does not exist).
-- Free disk space on the project volume: about 80 GB.
+- Local data is present under `datasets/raw`: LOL-v1, LOL-v2 Real/Synthetic,
+  `SICE_Paired`, and the extracted additional NPE/LIME/MEF/VV folders.
+- ExDark and DICM are not present locally.
 - Nothing is downloaded automatically by this repository.
 
 The dataset strategy, counts and seeds come from `final_decision.md` §1. This
@@ -30,7 +31,7 @@ datasets/raw/
 ├── dicm/                              # 64 images
 ├── lime/                              # 10 images
 ├── mef/                               # 17 images
-├── npe/                               # 84 images
+├── npe/                               # 85 images (NPE + NPE-ex1/ex2/ex3)
 ├── vv/                                # 24 images
 ├── exdark/<lighting-condition>/       # 7363 images across 10 conditions
 └── own/
@@ -56,7 +57,7 @@ checks the counts and refuses to guess.
 | Fine-tune | SICE P1 train 2422 + LOL-v1 train 485 + LOL-v2-Real train minus 100 val | 3496 |
 | Validation | SICE P1 val 600 + 100 LOL-v2-Real train + 100 LOL-v2-Syn train | 800 |
 | Test (with GT) | LOL-v1 15 + LOL-v2-Real 100 + LOL-v2-Syn 100 + SICE P2 200 of 767 | 415 |
-| Unseen (no GT) | DICM 64, LIME 10, MEF 17, NPE 84, VV 24, ExDark 20×10, own 60 | 459 |
+| Unseen (no GT) | DICM 64, LIME 10, MEF 17, NPE 85, VV 24, ExDark 20×10, own 60 | 460 |
 | Do-no-harm | SICE 0EV/+1EV frames | 100 |
 
 - Seed 42 for every sampled subset, matching `final_decision.md`.

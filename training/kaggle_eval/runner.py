@@ -25,11 +25,13 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageOps
 
+from backend import deep_learning  # noqa: F401  (registers zero_dce_plus_plus)
 from backend.config import DEFAULT_WEIGHTS_DIR, InferenceSettings
 from backend.enhancement.pipeline import EnhancementPipeline
 from backend.evaluation.aggregate import summarise
 from backend.evaluation.harness import evaluate_arrays
 from backend.evaluation.images import to_float32_rgb
+from backend.evaluation.latency import LatencyBenchmark
 from backend.evaluation.report import write_csv, write_json, write_markdown
 from backend.inference.errors import InferenceError
 from backend.inference.manager import ModelManager, ModelStatus
@@ -501,10 +503,130 @@ def _latency_rows(records: list[MetricRecord]) -> list[dict[str, object]]:
     return rows
 
 
-def _write_latency(rows: list[dict[str, object]], output_dir: Path) -> list[Path]:
+def _latency_total_rows(records: list[MetricRecord]) -> list[dict[str, object]]:
+    grouped: dict[tuple[str, str], list[float]] = {}
+    for record in records:
+        if not record.success or record.processing_time_ms is None:
+            continue
+        grouped.setdefault((record.dataset, record.mode), []).append(
+            float(record.processing_time_ms)
+        )
+
+    rows: list[dict[str, object]] = []
+    for (dataset, mode), values in sorted(grouped.items()):
+        summary = summarise(values)
+        if summary is None:
+            continue
+        rows.append(
+            {
+                "dataset": dataset,
+                "mode": mode,
+                "count": summary.count,
+                "mean_ms": summary.mean,
+                "median_ms": summary.median,
+                "p95_ms": float(np.percentile(values, 95.0)),
+                "min_ms": summary.minimum,
+                "max_ms": summary.maximum,
+            }
+        )
+    return rows
+
+
+def _benchmark_image(
+    pipeline: EnhancementPipeline,
+    image: Image.Image,
+    mode: str,
+    config: EvalConfig,
+) -> dict[str, object] | None:
+    if config.latency_runs <= 0:
+        return None
+
+    def timed() -> dict[str, float]:
+        result = pipeline.run(image, mode=mode)  # type: ignore[arg-type]
+        if not result.completed or result.final_image is None:
+            result.release()
+            raise RuntimeError(result.message)
+        timings = dict(result.timings_ms)
+        timings["total"] = float(result.total_ms)
+        result.release()
+        return timings
+
+    try:
+        benchmark = LatencyBenchmark(
+            timed,
+            warmups=config.latency_warmups,
+            runs=config.latency_runs,
+            threads=1,
+            sample_memory=False,
+        ).run()
+    except Exception:
+        return None
+
+    return {
+        "warmups": benchmark.warmups,
+        "runs": benchmark.runs,
+        "median_ms": benchmark.median_ms,
+        "mean_ms": benchmark.mean_ms,
+        "p95_ms": benchmark.p95_ms,
+        "min_ms": benchmark.min_ms,
+        "max_ms": benchmark.max_ms,
+        "per_stage_ms": benchmark.per_stage_ms,
+        "peak_rss_mb": benchmark.peak_rss_mb,
+    }
+
+
+def _benchmark_rows(
+    manifests: list[DatasetManifest],
+    pipeline: EnhancementPipeline,
+    modes: tuple[str, ...],
+    config: EvalConfig,
+) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for manifest in manifests:
+        try:
+            records = manifest.validated_evaluation_records()
+        except ValueError:
+            continue
+        if not records:
+            continue
+        image = None
+        try:
+            image = _load_image(records[0].low)
+            for mode in modes:
+                if mode == "original":
+                    continue
+                result = _benchmark_image(pipeline, image, mode, config)
+                if result is not None:
+                    rows.append(
+                        {
+                            "dataset": manifest.key,
+                            "mode": mode,
+                            **result,
+                        }
+                    )
+        except Exception:
+            continue
+        finally:
+            if image is not None:
+                image.close()
+    return rows
+
+
+def _write_latency(
+    rows: list[dict[str, object]],
+    totals: list[dict[str, object]],
+    benchmarks: list[dict[str, object]],
+    output_dir: Path,
+) -> list[Path]:
     written: list[Path] = []
     json_path = output_dir / "latency.json"
-    json_path.write_text(json.dumps({"stages": rows}, indent=2), encoding="utf-8")
+    json_path.write_text(
+        json.dumps(
+            {"stages": rows, "totals": totals, "benchmarks": benchmarks},
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     written.append(json_path)
 
     csv_path = output_dir / "latency.csv"
@@ -525,6 +647,23 @@ def _write_latency(rows: list[dict[str, object]], output_dir: Path) -> list[Path
         writer.writerows(rows)
     written.append(csv_path)
 
+    totals_csv = output_dir / "latency_totals.csv"
+    total_fields = [
+        "dataset",
+        "mode",
+        "count",
+        "mean_ms",
+        "median_ms",
+        "p95_ms",
+        "min_ms",
+        "max_ms",
+    ]
+    with totals_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=total_fields)
+        writer.writeheader()
+        writer.writerows(totals)
+    written.append(totals_csv)
+
     lines = ["# Per-stage latency", ""]
     lines.append("| Dataset | Mode | Stage | n | Mean ms | Median ms | P95 ms |")
     lines.append("| --- | --- | --- | ---: | ---: | ---: | ---: |")
@@ -533,6 +672,23 @@ def _write_latency(rows: list[dict[str, object]], output_dir: Path) -> list[Path
             f"| {row['dataset']} | {row['mode']} | {row['stage']} | {row['count']} | "
             f"{row['mean_ms']:.1f} | {row['median_ms']:.1f} | {row['p95_ms']:.1f} |"
         )
+    lines.extend(["", "## Total processing latency", ""])
+    lines.append("| Dataset | Mode | n | Mean ms | Median ms | P95 ms |")
+    lines.append("| --- | --- | ---: | ---: | ---: | ---: |")
+    for row in totals:
+        lines.append(
+            f"| {row['dataset']} | {row['mode']} | {row['count']} | "
+            f"{row['mean_ms']:.1f} | {row['median_ms']:.1f} | {row['p95_ms']:.1f} |"
+        )
+    if benchmarks:
+        lines.extend(["", "## Warm-up benchmark", ""])
+        lines.append("| Dataset | Mode | Warm-ups | Runs | Median ms | P95 ms |")
+        lines.append("| --- | --- | ---: | ---: | ---: | ---: |")
+        for row in benchmarks:
+            lines.append(
+                f"| {row['dataset']} | {row['mode']} | {row['warmups']} | "
+                f"{row['runs']} | {row['median_ms']:.1f} | {row['p95_ms']:.1f} |"
+            )
     markdown_path = output_dir / "latency.md"
     markdown_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     written.append(markdown_path)
@@ -793,7 +949,21 @@ def run_evaluation(config: EvalConfig) -> RunSummary:
     for manifest in discovery.manifests:
         if not manifest.present:
             continue
-        for record in manifest.records:
+        try:
+            evaluation_records = manifest.validated_evaluation_records()
+        except ValueError as exc:
+            failures.append(
+                FailureRecord(manifest.key, "*", "*", "manifest_invalid", str(exc))
+            )
+            warnings.append(f"{manifest.key}: manifest validation failed: {exc}")
+            continue
+        if manifest.records and not evaluation_records:
+            warnings.append(
+                f"{manifest.key}: discovered {len(manifest.records)} training-only "
+                "record(s); no evaluation-split records were evaluated."
+            )
+            continue
+        for record in evaluation_records:
             metric_records, record_failures = _run_record(
                 record,
                 manifest.label,
@@ -820,7 +990,12 @@ def run_evaluation(config: EvalConfig) -> RunSummary:
     )
     aggregate_paths = _write_aggregate_files(aggregate_rows, output_dir)
 
-    latency_paths = _write_latency(_latency_rows(records), output_dir)
+    latency_paths = _write_latency(
+        _latency_rows(records),
+        _latency_total_rows(records),
+        _benchmark_rows(list(discovery.manifests), pipeline, active_modes, config),
+        output_dir,
+    )
 
     device_report = _device_report(config, manager)
     device_path = output_dir / "device.json"

@@ -27,7 +27,7 @@ Definitions follow `final_decision.md` §6.
 | `delta_e00` | Colour distortion | yes | Mean CIEDE2000 difference |
 | `hue_shift_deg` | Hue shift | input/GT | Mean wrapped hue difference on `C* > 10` |
 | `niqe` | NIQE | no | `pyiqa.create_metric('niqe')` |
-| `noise_relative` | Relative noise | no | Immerkaer σ on flat 50% ÷ mean luminance |
+| `noise_relative` | Relative noise | no | Immerkaer σ on flat 50% ÷ mean luminance (absolute noise, not a suppression ratio) |
 | `noise_residual` | Noise residual | yes | Mean absolute residual in flat regions |
 | `edge_preservation` | Edge preservation | input/GT | Gradient correlation on the strongest 10% edges |
 | `texture_retention` | Texture retention | input/GT | Local-std ratio in the top 10% textured patches |
@@ -129,7 +129,7 @@ Unit tests (default, network-free) mock model construction and verify the lazy
 plumbing:
 
 ```bash
-python -m pytest -q          # 301 tests, 8 integration tests deselected
+python -m pytest -q          # 312 tests, 8 integration tests deselected
 ```
 
 Real LPIPS/NIQE tests are marked `integration`, excluded by `pytest.ini`, and
@@ -144,11 +144,14 @@ when the download is acceptable).
 
 ## Kaggle evaluation
 
-The Kaggle runner lives in `training/kaggle_eval/`. It discovers datasets under
-`/kaggle/input` and `/kaggle/working/lumenoir_additional/extracted`, evaluates
-original/classical/deep-learning/hybrid modes with the existing pipeline, and
-writes deterministic manifests, per-image records, aggregates, latency,
-failures and before/after visuals. LIME, MEF, NPE/NPE-ex1/2/3 and VV are
-unpaired; NPE and its extensions are one logical report with subgroup metadata.
-See [`training/kaggle_eval/README.md`](../training/kaggle_eval/README.md) and
+The Kaggle runner lives in `training/kaggle_eval/`. It discovers the permanent
+dataset under `/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets`,
+the ExDark and DICM mounts, and datasets transferred into `/kaggle/working`;
+it evaluates original/classical/deep-learning/hybrid modes with the existing
+pipeline and writes deterministic manifests, per-image records, aggregates,
+latency, failures and before/after visuals. LIME, MEF, NPE/NPE-ex1/2/3 and VV
+are unpaired; NPE and its extensions are one logical report with subgroup
+metadata. Training and test records are both discovered for count verification;
+only test samples are evaluated. See
+[`training/kaggle_eval/README.md`](../training/kaggle_eval/README.md) and
 `example_config.json`.

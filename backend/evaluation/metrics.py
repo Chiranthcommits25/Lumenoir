@@ -104,13 +104,14 @@ METRIC_SPECS: tuple[MetricSpec, ...] = (
     ),
     MetricSpec(
         MetricName.NOISE_SUPPRESSION,
-        "Noise suppression",
+        "Relative noise (absolute)",
         MetricStatus.IMPLEMENTED,
         requires_reference=False,
         requires_dependency="numpy + opencv",
         description=(
-            "Immerkaer sigma on flat regions divided by their mean luminance, plus a "
-            "paired residual in flat regions."
+            "Absolute Immerkaer sigma on flat regions divided by their mean "
+            "luminance. This is not a suppression ratio; compare original and "
+            "enhanced modes, or use the paired flat-region residual."
         ),
     ),
     MetricSpec(

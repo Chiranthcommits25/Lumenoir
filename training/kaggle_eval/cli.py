@@ -56,6 +56,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", type=str, default=None, help="cpu, cuda, mps or auto.")
     parser.add_argument("--skip-metrics", type=str, default=None)
     parser.add_argument("--visual-limit", type=int, default=None)
+    parser.add_argument(
+        "--latency-warmups",
+        type=int,
+        default=None,
+        help="Warm-up iterations for the latency benchmark (default: 1).",
+    )
+    parser.add_argument(
+        "--latency-runs",
+        type=int,
+        default=None,
+        help="Timed iterations for the latency benchmark; 0 disables it (default: 3).",
+    )
     parser.add_argument("--no-visuals", action="store_true")
     parser.add_argument(
         "--strict-model",
@@ -97,6 +109,10 @@ def _apply_cli(config: EvalConfig, args: argparse.Namespace) -> EvalConfig:
         changes["skip_metrics"] = skip_metrics
     if args.visual_limit is not None:
         changes["visual_limit"] = args.visual_limit
+    if args.latency_warmups is not None:
+        changes["latency_warmups"] = args.latency_warmups
+    if args.latency_runs is not None:
+        changes["latency_runs"] = args.latency_runs
     if args.no_visuals:
         changes["save_visuals"] = False
     if args.strict_model:
@@ -122,6 +138,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             status = "present" if manifest.present else "skipped"
             counts = (
                 f"images={manifest.image_count:<5} "
+                f"eval={manifest.evaluation_count:<5} "
+                f"train={manifest.training_count:<5} "
                 f"formats={manifest.format_counts} "
                 f"subgroups={manifest.subgroup_counts}"
             )

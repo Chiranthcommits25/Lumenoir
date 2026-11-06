@@ -155,7 +155,7 @@ DATASET_SOURCES: tuple[DatasetSource, ...] = (
         verified=True,
         access="Same collection as DICM (BIMEF repository, Google Drive archive).",
         licence="Research use; cite Wang et al., TIP 2013.",
-        approx_size="Tens of MB (84 images).",
+        approx_size="Tens of MB (85 images; NPE plus NPE-ex1/ex2/ex3).",
         expected_layout="datasets/raw/npe/ (flat image folder)",
     ),
     DatasetSource(

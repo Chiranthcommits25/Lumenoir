@@ -57,26 +57,32 @@ def _config(tmp_path) -> EvalConfig:
     )
 
 
-def test_auto_discovery_uses_held_out_splits_only(tmp_path) -> None:
+def test_auto_discovery_keeps_train_and_test_splits_separate(tmp_path) -> None:
     _build_tree(tmp_path / "input")
     result = discover(_config(tmp_path))
     manifests = {manifest.key: manifest for manifest in result.manifests}
 
     lol_v1 = manifests["lol_v1"]
     assert lol_v1.kind is DatasetKind.PAIRED
-    assert len(lol_v1.records) == 2
-    assert all("eval15" in record.image_id for record in lol_v1.records)
-    assert not any("our485" in record.image_id for record in lol_v1.records)
+    assert len(lol_v1.records) == 4
+    assert lol_v1.split_counts == {"test": 2, "train": 2}
+    assert lol_v1.evaluation_count == 2
+    assert lol_v1.training_count == 2
+    assert any("eval15" in record.image_id for record in lol_v1.evaluation_records)
+    assert not any("our485" in record.image_id for record in lol_v1.evaluation_records)
     assert any("orphan" in warning or "no matching" in warning for warning in lol_v1.warnings)
 
     lol_v2 = manifests["lol_v2_real"]
-    assert len(lol_v2.records) == 1
-    assert all("Test" in record.image_id for record in lol_v2.records)
-    assert not any("Train" in record.image_id for record in lol_v2.records)
+    assert len(lol_v2.records) == 2
+    assert lol_v2.split_counts == {"test": 1, "train": 1}
+    assert lol_v2.evaluation_count == 1
+    assert all("Test" in record.image_id for record in lol_v2.evaluation_records)
+    assert not any("Train" in record.image_id for record in lol_v2.evaluation_records)
 
     assert len(manifests["exdark"].records) == 2
     assert manifests["exdark"].kind is DatasetKind.UNPAIRED
     assert len(manifests["lime"].records) == 1
+    assert manifests["lime"].evaluation_count == 1
 
 
 def test_sice_without_reference_pairs_is_skipped(tmp_path) -> None:
@@ -272,4 +278,122 @@ def test_additional_roots_config_round_trip(tmp_path) -> None:
 
     assert config.search_roots() == (tmp_path / "input", additional)
     assert config.to_dict()["additional_roots"] == [str(additional)]
+
+
+def test_lol_v2_real_low_and_normal_prefix_pairing(tmp_path) -> None:
+    root = tmp_path / "input" / "LOL-v2-Real"
+    for split in ("Train", "Test"):
+        for index in range(2):
+            _image(root / split / "Low" / f"low{index:05d}.png", seed=400 + index)
+            _image(root / split / "Normal" / f"normal{index:05d}.png", seed=500 + index)
+
+    manifest = next(
+        item for item in discover(_config(tmp_path)).manifests if item.key == "lol_v2_real"
+    )
+
+    assert len(manifest.records) == 4
+    assert manifest.split_counts == {"test": 2, "train": 2}
+    assert manifest.evaluation_count == 2
+    assert all(record.high is not None for record in manifest.records)
+    assert {record.high.name for record in manifest.records if record.high} == {
+        "normal00000.png",
+        "normal00001.png",
+    }
+
+
+def test_sice_huggingface_input_gt_samples(tmp_path) -> None:
+    root = tmp_path / "input" / "SICE_Paired"
+    for split in ("train", "test"):
+        for index in range(2):
+            sample = root / split / "samples" / f"sample_{index:03d}"
+            _image(sample / "Input.jpg", seed=600 + index)
+            _image(sample / "GT.jpg", seed=700 + index)
+    # Make the other SICE root look matching but unusable.
+    (tmp_path / "input" / "SICE-Part1").mkdir(parents=True)
+    (tmp_path / "input" / "SICE-Part1" / "Dataset_Part1.rar").write_bytes(b"not extracted")
+
+    manifest = next(item for item in discover(_config(tmp_path)).manifests if item.key == "sice_p1")
+
+    assert manifest.present
+    assert manifest.root.name == "SICE_Paired"
+    assert len(manifest.records) == 4
+    assert manifest.split_counts == {"test": 2, "train": 2}
+    assert manifest.evaluation_count == 2
+    assert manifest.training_count == 2
+    assert all(record.high is not None for record in manifest.records)
+
+
+def test_exdark_and_dicm_discovery_when_present(tmp_path) -> None:
+    root = tmp_path / "input"
+    _image(root / "ExDark" / "class_a" / "one.jpg", seed=800)
+    _image(root / "ExDark" / "class_b" / "two.jpg", seed=801)
+    _image(root / "DICM" / "one.jpg", seed=810)
+
+    manifests = {item.key: item for item in discover(_config(tmp_path)).manifests}
+
+    assert manifests["exdark"].present
+    assert manifests["exdark"].kind is DatasetKind.UNPAIRED
+    assert len(manifests["exdark"].records) == 2
+    assert len(manifests["exdark"].evaluation_records) == 2
+    assert manifests["dicm"].present
+    assert len(manifests["dicm"].records) == 1
+    assert len(manifests["dicm"].evaluation_records) == 1
+
+
+def test_kaggle_mount_nested_under_datasets_user_slug(tmp_path) -> None:
+    base = tmp_path / "input" / "datasets" / "chiranth25x"
+    low_light = base / "lumenoir-low-light-datasets"
+    additional = base / "lumenoir-additional-test-datasets"
+    _image(low_light / "LOL-v1" / "eval15" / "low" / "1.png", seed=900)
+    _image(low_light / "LOL-v1" / "eval15" / "high" / "1.png", seed=901)
+    _image(additional / "data" / "LIME" / "1.bmp", seed=910)
+
+    config = _config(tmp_path).replace(
+        input_root=tmp_path / "input",
+        additional_roots=(low_light, additional),
+    )
+    manifests = {item.key: item for item in discover(config).manifests}
+
+    assert manifests["lol_v1"].present
+    assert manifests["lol_v1"].evaluation_count == 1
+    assert manifests["lime"].present
+    assert manifests["lime"].image_count == 1
+
+
+def test_exact_exdark_and_dicm_mount_roots_are_discovered(tmp_path) -> None:
+    exdark = tmp_path / "mounts" / "exdark-dataset"
+    dicm = tmp_path / "mounts" / "dicm-img"
+    _image(exdark / "class_a" / "one.jpg", seed=920)
+    _image(dicm / "one.jpg", seed=930)
+
+    config = _config(tmp_path).replace(
+        additional_roots=(exdark, dicm),
+    )
+    manifests = {item.key: item for item in discover(config).manifests}
+
+    assert manifests["exdark"].present
+    assert manifests["exdark"].image_count == 1
+    assert manifests["dicm"].present
+    assert manifests["dicm"].image_count == 1
+
+
+def test_kaggle_working_root_discovers_transferred_sice_and_npe(tmp_path) -> None:
+    working = tmp_path / "working"
+    sice = working / "SICE_Paired"
+    for split in ("train", "test"):
+        sample = sice / split / "samples" / "sample_001"
+        _image(sample / "Input.jpg", seed=940)
+        _image(sample / "GT.jpg", seed=941)
+    _image(working / "NPE" / "npe.jpg", seed=950)
+    _image(working / "LIME" / "lime.bmp", seed=951)
+
+    config = _config(tmp_path).replace(additional_roots=(working,))
+    manifests = {item.key: item for item in discover(config).manifests}
+
+    assert manifests["sice_p1"].present
+    assert manifests["sice_p1"].evaluation_count == 1
+    assert manifests["npe"].present
+    assert manifests["npe"].image_count == 1
+    assert manifests["lime"].present
+    assert manifests["lime"].image_count == 1
 

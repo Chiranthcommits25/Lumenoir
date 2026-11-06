@@ -55,9 +55,10 @@ python -m training.data_pipeline all
 Raw images are read-only. Generated crops go to `datasets/processed/`; split
 files and reports go to `training/splits/` and `training/reports/`.
 
-No dataset is present yet. See [`../docs/datasets.md`](../docs/datasets.md) for
-the expected tree, the exact counts, the sources to download manually and the
-cleaning rules.
+Local data is present under `datasets/raw` (LOL-v1, LOL-v2, SICE_Paired and
+extracted NPE/LIME/MEF/VV); ExDark/DICM are absent. See
+[`../docs/datasets.md`](../docs/datasets.md) for the expected tree, the exact
+counts, the sources to download manually and the cleaning rules.
 
 ## Evaluation
 
@@ -71,8 +72,11 @@ aggregation and the integration-test split.
 ## Kaggle evaluation
 
 ```bash
-python -m training.kaggle_eval --discover-only --input-root /kaggle/input \
-  --additional-root /kaggle/working/lumenoir_additional/extracted \
+python -m training.kaggle_eval --discover-only \
+  --input-root /kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets \
+  --additional-root /kaggle/input/datasets/washingtongold/exdark-dataset \
+  --additional-root /kaggle/input/datasets/twozeb/dicm-img \
+  --additional-root /kaggle/working \
   --output-dir /kaggle/working/lumenoir-evaluation
 python -m training.kaggle_eval --config /kaggle/working/eval_config.json
 ```
@@ -81,9 +85,10 @@ The runner reuses `backend.enhancement` and `backend.evaluation`. It writes
 deterministic manifests, image-level records, aggregates, latency, failure logs,
 device information and before/after visuals under `/kaggle/working/`. LIME,
 MEF, NPE/NPE-ex1/2/3 and VV are unpaired; NPE and its extensions are grouped
-into one `npe` report with subgroup metadata. See
-[`kaggle_eval/README.md`](kaggle_eval/README.md) for the explicit dataset
-configuration and limitations.
+into one `npe` report with subgroup metadata. Both train and test records are
+discovered, but the runner validates manifests and evaluates only test/eval
+records. See [`kaggle_eval/README.md`](kaggle_eval/README.md) for the explicit
+dataset configuration and limitations.
 
 ## Training (not implemented)
 

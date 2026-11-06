@@ -1,0 +1,30 @@
+{
+  "input_root": "/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets",
+  "additional_roots": [
+    "/kaggle/input/datasets/washingtongold/exdark-dataset",
+    "/kaggle/input/datasets/twozeb/dicm-img",
+    "/kaggle/working",
+    "/kaggle/working/lumenoir_additional/extracted"
+  ],
+  "output_dir": "/kaggle/working/lumenoir-eval-deep-learning",
+  "selected_datasets": [],
+  "modes": ["original", "deep_learning", "hybrid"],
+  "seed": 42,
+  "max_images": null,
+  "weights": "/kaggle/working/zero_dce_plus_plus.pth",
+  "model_id": "zero_dce_plus_plus",
+  "device": "auto",
+  "save_visuals": true,
+  "visual_limit": 10,
+  "latency_warmups": 1,
+  "latency_runs": 3,
+  "skip_metrics": [],
+  "allow_missing_model": true,
+  "notes": [
+    "Deep-learning evaluation: original + Zero-DCE++ + hybrid.",
+    "Paired and unpaired metrics are reported separately by the runner.",
+    "SICE is native-resolution and expensive; run it in a separate batch with latency_runs=0.",
+    "Place the Zero-DCE++ checkpoint at /kaggle/working/zero_dce_plus_plus.pth or edit weights."
+  ],
+  "datasets": {}
+}

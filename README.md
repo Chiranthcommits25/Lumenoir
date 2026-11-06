@@ -14,8 +14,10 @@ desktops.
 > the evaluation framework, the **Kaggle evaluation runner** and the frontend
 > workspace are implemented. **`POST /api/enhance` now returns an enhanced
 > PNG.** Classical mode works without a model; deep-learning and hybrid modes
-> require a ready Zero-DCE++ checkpoint. No dataset is present locally and no
-> quality benchmark has been run yet.
+> require a ready Zero-DCE++ checkpoint. Local datasets are present under
+> `datasets/raw` (LOL-v1, LOL-v2 Real/Synthetic, SICE_Paired and the additional
+> NPE/LIME/MEF/VV folders); ExDark and DICM are not local. No full evaluation
+> has been run.
 
 ---
 
@@ -42,8 +44,8 @@ desktops.
 | API: health, limits, upload, pipeline status, enhance, metrics | **Implemented** |
 | Frontend: upload, methods, comparison, intermediate gallery, downloads | **Implemented** |
 | Evaluation framework (PSNR, SSIM, LPIPS, NIQE, artifact metrics, latency) | **Implemented** (no benchmark run yet) |
-| Kaggle evaluation runner (discovery, four modes, reports, visuals) | **Implemented** (no dataset run yet) |
-| Dataset preparation pipeline (validation, pHash dedupe, leakage, splits, crops) | **Implemented** (no dataset downloaded yet) |
+| Kaggle evaluation runner (discovery, four modes, reports, visuals) | **Implemented** (local discovery verified; no full evaluation run) |
+| Dataset preparation pipeline (validation, pHash dedupe, leakage, splits, crops) | **Implemented** (local data present; real splits not generated) |
 | Retinex / CLAHE / denoising / colour correction | **Implemented** |
 | Deep learning architecture, weights, inference | **Implemented** (pretrained Zero-DCE++, wired into the pipeline) |
 | Adaptive fusion, fusion weights, parameter selection | **Implemented** |
@@ -210,7 +212,7 @@ measured timings.
 
 ```bash
 pip install -r requirements-dev.txt        # runtime + eval + test tooling
-.venv/bin/python -m pytest -q              # 301 tests, 8 integration deselected
+.venv/bin/python -m pytest -q              # 312 tests, 8 integration deselected
 .venv/bin/python -m ruff check backend tests training
 
 cd frontend && npm run build && npm run lint
@@ -239,25 +241,31 @@ python -m training.data_pipeline all               # validate, dedupe, split, re
 python -m training.evaluate --pairs pairs.json --output reports/eval
 ```
 
-No dataset is present in the repository. See [`docs/datasets.md`](docs/datasets.md)
+Local datasets are present under `datasets/raw`; ExDark and DICM are not local.
+See [`docs/datasets.md`](docs/datasets.md)
 for the exact folder tree, the sources to download manually and the split
 protocol, and [`docs/evaluation.md`](docs/evaluation.md) for the metric
 definitions and report format.
 
 ### 6. Kaggle evaluation
 
-The Kaggle runner discovers datasets under `/kaggle/input` and
-`/kaggle/working/lumenoir_additional/extracted`, evaluates the four modes
-(original, classical, Zero-DCE++ only, hybrid) with the existing pipeline, and
-writes deterministic manifests, per-image metrics, aggregates, latency,
-failures and before/after visuals. LIME, MEF, NPE/NPE-ex1/2/3 and VV are
-unpaired; NPE and its extensions are one logical `npe` report with subgroup
-metadata.
+The Kaggle runner discovers the permanent dataset under
+`/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets`, the ExDark
+and DICM mounts, and datasets transferred into `/kaggle/working`, evaluates the
+four modes (original, classical, Zero-DCE++ only, hybrid) with the existing
+pipeline, and writes deterministic manifests, per-image metrics, aggregates,
+latency, failures and before/after visuals. LIME, MEF, NPE/NPE-ex1/2/3 and VV
+are unpaired; NPE and its extensions are one logical `npe` report with subgroup
+metadata. LOL/SICE training records are discovered for counts but only test
+samples are evaluated.
 
 ```bash
 # Inspect the proposed dataset layout first
 python -m training.kaggle_eval --discover-only \
-  --input-root /kaggle/input \
+  --input-root /kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets \
+  --additional-root /kaggle/input/datasets/washingtongold/exdark-dataset \
+  --additional-root /kaggle/input/datasets/twozeb/dicm-img \
+  --additional-root /kaggle/working \
   --additional-root /kaggle/working/lumenoir_additional/extracted \
   --output-dir /kaggle/working/lumenoir-evaluation
 

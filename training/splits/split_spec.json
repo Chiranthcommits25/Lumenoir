@@ -32,7 +32,7 @@
       "dicm": 64,
       "lime": 10,
       "mef": 17,
-      "npe": 84,
+      "npe": 85,
       "vv": 24
     }
   },
@@ -201,7 +201,7 @@
           "name": "all",
           "relative": "",
           "pairing": "flat",
-          "expected_count": 84
+          "expected_count": 85
         }
       ]
     },
@@ -305,14 +305,14 @@
         "dicm": 64,
         "lime": 10,
         "mef": 17,
-        "npe": 84,
+        "npe": 85,
         "vv": 24,
         "exdark (stratified)": 200,
         "own/extremely_dark": 20,
         "own/non_uniform": 20,
         "own/normal": 20
       },
-      "total": 459
+        "total": 460
     },
     "do_no_harm": {
       "count": 100

@@ -292,7 +292,8 @@ register_metric(
         requires_reference=False,
         unit="ratio",
         higher_is_better=False,
-        description="Immerkaer sigma on flat regions divided by their mean luminance.",
+        description="Immerkaer sigma on flat regions divided by their mean luminance "
+        "(absolute relative noise; not a suppression ratio).",
     )
 )
 register_metric(
