@@ -1,0 +1,20 @@
+# ---------------------------------------------------------------------------
+# Optional inference dependencies for the pretrained Zero-DCE++ (NoirNet) model.
+#
+# The API image installs only requirements.txt, so it keeps booting without
+# these. Install this file when the model is enabled:
+#
+#   pip install -r requirements-inference.txt
+#   LUMENOIR_MODEL_ID=zero_dce_plus_plus \
+#   LUMENOIR_INFERENCE_DEVICE=cpu \
+#   uvicorn backend.main:app
+#
+# Zero-DCE++ inference needs torch and NumPy only. torchvision, OpenCV, lpips
+# and pyiqa are evaluation dependencies (requirements-eval.txt /
+# requirements-metrics.txt), not inference dependencies.
+# ---------------------------------------------------------------------------
+
+-r requirements.txt
+
+torch>=2.4
+numpy>=2.1

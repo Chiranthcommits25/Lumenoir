@@ -1,0 +1,13 @@
+# Ruff configuration for the LUMENOIR backend and tests.
+# FastAPI passes dependency defaults (Depends/File/Form), which B008 flags as a
+# false positive, so that rule is disabled rather than suppressed per call.
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "RUF"]
+ignore = ["B008"]
+
+[lint.per-file-ignores]
+"tests/*" = ["B011"]

@@ -1,0 +1,16 @@
+# ---------------------------------------------------------------------------
+# LUMENOIR backend runtime dependencies
+#
+# The API now runs the full classical/hybrid pipeline, so NumPy and OpenCV are
+# required at runtime. PyTorch is only needed for Zero-DCE++ inference and stays
+# optional in requirements-inference.txt; the API starts without it and reports
+# model_not_available/torch_missing when a deep-learning mode is requested.
+# ---------------------------------------------------------------------------
+
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+python-multipart>=0.0.9
+pillow>=10.4
+python-dotenv>=1.0
+numpy>=2.1
+opencv-python-headless>=4.10

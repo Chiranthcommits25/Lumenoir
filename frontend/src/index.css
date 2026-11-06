@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink-950: #07080a;
+  --color-ink-900: #0b0d10;
+  --color-ink-850: #101317;
+  --color-ink-800: #14181d;
+  --color-ink-700: #1e242b;
+  --color-ink-600: #2b323b;
+  --color-ink-500: #39424d;
+
+  --color-mist-500: #7d8590;
+  --color-mist-400: #98a1ac;
+  --color-mist-200: #c9cfd6;
+  --color-mist-50: #f2f4f6;
+
+  --color-accent: #e6bd93;
+  --color-accent-soft: #f1d8bb;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 font-sans text-mist-200 antialiased;
+    margin: 0;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-accent) 30%, transparent);
+    color: var(--color-mist-50);
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "input_root": "/kaggle/input",
+  "additional_roots": [
+    "/kaggle/working/lumenoir_additional/extracted"
+  ],
+  "output_dir": "/kaggle/working/lumenoir-evaluation",
+  "selected_datasets": [],
+  "modes": ["original", "classical", "deep_learning", "hybrid"],
+  "seed": 42,
+  "max_images": null,
+  "weights": "/kaggle/input/zero-dce-plus-plus/Epoch99.pth",
+  "model_id": "zero_dce_plus_plus",
+  "device": "auto",
+  "save_visuals": true,
+  "visual_limit": 10,
+  "skip_metrics": [],
+  "allow_missing_model": true,
+  "notes": [
+    "Edit roots, pair directories and weights for your Kaggle mounts.",
+    "LIME, MEF, NPE/NPE-ex1/NPE-ex2/NPE-ex3 and VV are unpaired datasets.",
+    "Set skip_metrics to ['lpips', 'niqe'] when those dependencies are unavailable."
+  ],
+  "datasets": {
+    "lol_v1": {
+      "root": "/kaggle/input/lol-v1",
+      "pairs": [
+        {"low": "eval15/low", "high": "eval15/high", "split": "test"}
+      ]
+    },
+    "lol_v2_real": {
+      "root": "/kaggle/input/lol-v2-real",
+      "pairs": [
+        {"low": "Real_captured/Test/low", "high": "Real_captured/Test/high", "split": "test"}
+      ]
+    },
+    "lol_v2_syn": {
+      "root": "/kaggle/input/lol-v2-syn",
+      "pairs": [
+        {"low": "Synthetic/Test/low", "high": "Synthetic/Test/high", "split": "test"}
+      ]
+    },
+    "sice_p1": {
+      "root": "/kaggle/input/sice",
+      "notes": "Paired metrics only if valid low/high pairs are explicitly configured."
+    },
+    "exdark": {"root": "/kaggle/input/exdark"},
+    "dicm": {"root": "/kaggle/input/dicm"},
+    "npe": {
+      "root": "/kaggle/working/lumenoir_additional/extracted",
+      "notes": "NPE, NPE-ex1, NPE-ex2 and NPE-ex3 are grouped from this parent."
+    },
+    "lime": {"root": "/kaggle/working/lumenoir_additional/extracted/LIME"},
+    "mef": {"root": "/kaggle/working/lumenoir_additional/extracted/MEF"},
+    "vv": {"root": "/kaggle/working/lumenoir_additional/extracted/VV"}
+  }
+}

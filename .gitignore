@@ -1,0 +1,76 @@
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ---------------------------------------------------------------------------
+# Node / frontend
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# ---------------------------------------------------------------------------
+# Secrets and environment configuration
+# Never commit API keys, tokens or credentials.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------------------------------------
+# Model weights and large artefacts
+# Weights are produced by remote training and must not be committed.
+# ---------------------------------------------------------------------------
+backend/weights/*
+!backend/weights/.gitkeep
+!backend/weights/README.md
+*.pth
+*.pt
+*.onnx
+*.ckpt
+*.h5
+*.tflite
+*.zip
+*.tar
+*.tar.gz
+
+# ---------------------------------------------------------------------------
+# Datasets (LOL, LOL-v2, MIT-Adobe FiveK) and generated data
+# ---------------------------------------------------------------------------
+datasets/
+data/
+dataset/
+outputs/
+uploads/
+tmp/
+*.log
+training/reports/kaggle_eval/
+
+# ---------------------------------------------------------------------------
+# OS / editor
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local AI coding assistant data
+.commandcode/
+
+# Generated frontend build
+frontend/dist/

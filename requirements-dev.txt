@@ -1,0 +1,11 @@
+# ---------------------------------------------------------------------------
+# Development / verification dependencies (not installed in the Docker image)
+# ---------------------------------------------------------------------------
+
+-r requirements.txt
+-r requirements-eval.txt
+
+pytest>=8.2
+pytest-timeout>=2.3
+httpx>=0.27
+ruff>=0.6

@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# Optional metric dependencies for LPIPS and NIQE.
+#
+# LPIPS (Zhang et al., CVPR 2018) and NIQE via IQA-PyTorch both run on torch.
+# They are kept out of requirements-eval.txt so a CPU-only machine can still
+# run the dataset pipeline, PSNR, SSIM, the artifact metrics and the tests.
+#
+#   pip install -r requirements-metrics.txt
+#
+# The evaluation code imports these lazily: when a wheel is unavailable the
+# metric reports a dependency note instead of crashing the harness.
+# ---------------------------------------------------------------------------
+
+-r requirements-eval.txt
+
+torch>=2.4
+torchvision>=0.19
+lpips>=0.1.4
+pyiqa>=0.1.13

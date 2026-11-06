@@ -1,0 +1,4 @@
+dataset,label,kind,mode,metric,count,mean,std,median,p10,p90,min,max
+lol_v1,LOL-v1,paired,hybrid,psnr,0,,,,,,
+lime,LIME,unpaired,hybrid,niqe,0,,,,,,
+lime,LIME,unpaired,hybrid,loe,0,,,,,,

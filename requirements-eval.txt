@@ -1,0 +1,22 @@
+# ---------------------------------------------------------------------------
+# Offline dataset pipeline + evaluation harness dependencies.
+#
+# NOT installed in the API image (see requirements.txt). The FastAPI service
+# must keep booting without numpy/opencv, so these are installed only for
+# dataset preparation, metric computation and the test suite.
+#
+#   pip install -r requirements-eval.txt
+#
+# LPIPS and NIQE additionally need the torch stack:
+#
+#   pip install -r requirements-metrics.txt
+# ---------------------------------------------------------------------------
+
+-r requirements.txt
+
+numpy>=2.1
+opencv-python-headless>=4.10
+scikit-image>=0.24
+imagehash>=4.3
+scipy>=1.14
+psutil>=6.0

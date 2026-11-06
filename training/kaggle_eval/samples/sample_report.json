@@ -1,0 +1,84 @@
+{
+  "example": true,
+  "note": "Illustrative JSON schema only. Values are placeholders, not evaluation results.",
+  "run_config": {
+    "config": {
+      "seed": 42,
+      "modes": ["original", "classical", "deep_learning", "hybrid"],
+      "device": "auto",
+      "skip_metrics": []
+    },
+    "git_commit": null,
+    "device": {
+      "configured_device": "auto",
+      "resolved_device": "cpu",
+      "torch_version": null,
+      "cuda_available": false,
+      "mps_available": false
+    },
+    "skipped_modes": []
+  },
+  "records": [
+    {
+      "dataset": "lol_v1",
+      "label": "LOL-v1",
+      "kind": "paired",
+      "split": "test",
+      "image_id": "eval15/low/example.png",
+      "mode": "hybrid",
+      "success": true,
+      "metrics": {
+        "psnr": null,
+        "ssim": null,
+        "lpips": null
+      },
+      "metric_notes": {
+        "lpips": "example placeholder; a real run records the measured value or a dependency note"
+      },
+      "processing_time_ms": null,
+      "stage_timings_ms": {},
+      "error": null
+    },
+    {
+      "dataset": "lime",
+      "label": "LIME",
+      "kind": "unpaired",
+      "split": "unpaired",
+      "image_id": "example.png",
+      "mode": "hybrid",
+      "success": true,
+      "metrics": {
+        "niqe": null,
+        "loe": null,
+        "noise_relative": null,
+        "edge_preservation": null,
+        "hue_shift_deg": null,
+        "new_clipping": null,
+        "black_crushing": null
+      },
+      "metric_notes": {},
+      "processing_time_ms": null,
+      "stage_timings_ms": {},
+      "error": null
+    }
+  ],
+  "aggregate": {
+    "metrics": [
+      {
+        "dataset": "lol_v1",
+        "label": "LOL-v1",
+        "kind": "paired",
+        "mode": "hybrid",
+        "metric": "psnr",
+        "count": 0,
+        "mean": null,
+        "std": null,
+        "median": null,
+        "p10": null,
+        "p90": null,
+        "min": null,
+        "max": null
+      }
+    ]
+  }
+}

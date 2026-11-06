@@ -1,0 +1,328 @@
+{
+  "version": 1,
+  "generated_by": "training.data_pipeline.splits",
+  "seed": 42,
+  "rules": {
+    "seed": 42,
+    "sice_part1_total": 3022,
+    "sice_part1_fine_tune": 2422,
+    "sice_part1_validation": 600,
+    "lol_v1_train": 485,
+    "lol_v1_test": 15,
+    "lol_v2_real_train": 689,
+    "lol_v2_real_test": 100,
+    "lol_v2_real_validation": 100,
+    "lol_v2_syn_train": 900,
+    "lol_v2_syn_test": 100,
+    "lol_v2_syn_validation": 100,
+    "sice_part2_lowlight_total": 767,
+    "sice_part2_test": 200,
+    "exdark_total": 7363,
+    "exdark_per_class": 20,
+    "exdark_classes": 10,
+    "exdark_unseen": 200,
+    "own_groups": [
+      "extremely_dark",
+      "non_uniform",
+      "normal"
+    ],
+    "own_per_group": 20,
+    "do_no_harm": 100,
+    "unseen_counts": {
+      "dicm": 64,
+      "lime": 10,
+      "mef": 17,
+      "npe": 84,
+      "vv": 24
+    }
+  },
+  "datasets": [
+    {
+      "key": "lol_v1",
+      "label": "LOL-v1",
+      "role": "fine_tune",
+      "gt_available": true,
+      "aliases": [
+        "lol",
+        "lol-v1",
+        "lol_v1",
+        "lol_dataset"
+      ],
+      "groups": [
+        {
+          "name": "train",
+          "relative": "our485",
+          "pairing": "paired_subdirs",
+          "expected_count": 485
+        },
+        {
+          "name": "test",
+          "relative": "eval15",
+          "pairing": "paired_subdirs",
+          "expected_count": 15
+        }
+      ]
+    },
+    {
+      "key": "lol_v2_real",
+      "label": "LOL-v2-Real",
+      "role": "fine_tune",
+      "gt_available": true,
+      "aliases": [
+        "lol_v2_real",
+        "lol-v2-real",
+        "lolv2_real",
+        "lol_v2_real_captured"
+      ],
+      "groups": [
+        {
+          "name": "train",
+          "relative": "Real_captured/Train",
+          "pairing": "paired_subdirs",
+          "expected_count": 689
+        },
+        {
+          "name": "test",
+          "relative": "Real_captured/Test",
+          "pairing": "paired_subdirs",
+          "expected_count": 100
+        }
+      ]
+    },
+    {
+      "key": "lol_v2_syn",
+      "label": "LOL-v2-Synthetic",
+      "role": "validation",
+      "gt_available": true,
+      "aliases": [
+        "lol_v2_syn",
+        "lol-v2-syn",
+        "lolv2_syn",
+        "lol_v2_synthetic"
+      ],
+      "groups": [
+        {
+          "name": "train",
+          "relative": "Synthetic/Train",
+          "pairing": "paired_subdirs",
+          "expected_count": 900
+        },
+        {
+          "name": "test",
+          "relative": "Synthetic/Test",
+          "pairing": "paired_subdirs",
+          "expected_count": 100
+        }
+      ]
+    },
+    {
+      "key": "sice",
+      "label": "SICE",
+      "role": "fine_tune",
+      "gt_available": true,
+      "aliases": [
+        "sice",
+        "sice_dataset"
+      ],
+      "groups": [
+        {
+          "name": "part1",
+          "relative": "part1",
+          "pairing": "flat",
+          "expected_count": 3022
+        },
+        {
+          "name": "part2_lowlight",
+          "relative": "part2_lowlight",
+          "pairing": "flat",
+          "expected_count": 767
+        },
+        {
+          "name": "do_no_harm",
+          "relative": "do_no_harm",
+          "pairing": "flat",
+          "expected_count": 100
+        }
+      ]
+    },
+    {
+      "key": "dicm",
+      "label": "DICM",
+      "role": "unseen",
+      "gt_available": false,
+      "aliases": [],
+      "groups": [
+        {
+          "name": "all",
+          "relative": "",
+          "pairing": "flat",
+          "expected_count": 64
+        }
+      ]
+    },
+    {
+      "key": "lime",
+      "label": "LIME",
+      "role": "unseen",
+      "gt_available": false,
+      "aliases": [],
+      "groups": [
+        {
+          "name": "all",
+          "relative": "",
+          "pairing": "flat",
+          "expected_count": 10
+        }
+      ]
+    },
+    {
+      "key": "mef",
+      "label": "MEF",
+      "role": "unseen",
+      "gt_available": false,
+      "aliases": [],
+      "groups": [
+        {
+          "name": "all",
+          "relative": "",
+          "pairing": "flat",
+          "expected_count": 17
+        }
+      ]
+    },
+    {
+      "key": "npe",
+      "label": "NPE",
+      "role": "unseen",
+      "gt_available": false,
+      "aliases": [],
+      "groups": [
+        {
+          "name": "all",
+          "relative": "",
+          "pairing": "flat",
+          "expected_count": 84
+        }
+      ]
+    },
+    {
+      "key": "vv",
+      "label": "VV",
+      "role": "unseen",
+      "gt_available": false,
+      "aliases": [],
+      "groups": [
+        {
+          "name": "all",
+          "relative": "",
+          "pairing": "flat",
+          "expected_count": 24
+        }
+      ]
+    },
+    {
+      "key": "exdark",
+      "label": "ExDark",
+      "role": "unseen",
+      "gt_available": false,
+      "aliases": [],
+      "groups": [
+        {
+          "name": "all",
+          "relative": "",
+          "pairing": "flat",
+          "expected_count": 7363
+        }
+      ]
+    },
+    {
+      "key": "own",
+      "label": "Own captures",
+      "role": "unseen",
+      "gt_available": false,
+      "aliases": [],
+      "groups": [
+        {
+          "name": "extremely_dark",
+          "relative": "extremely_dark",
+          "pairing": "flat",
+          "expected_count": 20
+        },
+        {
+          "name": "non_uniform",
+          "relative": "non_uniform",
+          "pairing": "flat",
+          "expected_count": 20
+        },
+        {
+          "name": "normal",
+          "relative": "normal",
+          "pairing": "flat",
+          "expected_count": 20
+        },
+        {
+          "name": "paired",
+          "relative": "paired",
+          "pairing": "paired_subdirs",
+          "expected_count": 20
+        }
+      ]
+    }
+  ],
+  "pools": {
+    "fine_tune": {
+      "seed": 42,
+      "composition": {
+        "sice/part1/train": 2422,
+        "lol_v1/train": 485,
+        "lol_v2_real/train (excluding validation)": 589
+      },
+      "base_total": 3496,
+      "augmentation": "synth_dark applied on the fly with probability 0.5"
+    },
+    "validation": {
+      "seed": 42,
+      "composition": {
+        "sice/part1/validation": 600,
+        "lol_v2_real/train (validation sample)": 100,
+        "lol_v2_syn/train (validation sample)": 100
+      },
+      "total": 800
+    },
+    "test": {
+      "seed": 42,
+      "composition": {
+        "lol_v1/test": 15,
+        "lol_v2_real/test": 100,
+        "lol_v2_syn/test": 100,
+        "sice/part2_lowlight (sample)": 200
+      },
+      "total": 415
+    },
+    "unseen": {
+      "seed": 42,
+      "composition": {
+        "dicm": 64,
+        "lime": 10,
+        "mef": 17,
+        "npe": 84,
+        "vv": 24,
+        "exdark (stratified)": 200,
+        "own/extremely_dark": 20,
+        "own/non_uniform": 20,
+        "own/normal": 20
+      },
+      "total": 459
+    },
+    "do_no_harm": {
+      "count": 100
+    }
+  },
+  "duplicate_rules": {
+    "hash_bits": 64,
+    "phash_hamming_threshold": 8,
+    "ssim_threshold": 0.9,
+    "ssim_size": 64
+  },
+  "generated_at": "2026-11-06T12:32:35+00:00"
+}
