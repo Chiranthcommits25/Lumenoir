@@ -185,6 +185,8 @@ class PipelineResult:
     total_ms: float = 0.0
     final_image: Image.Image | None = None
     message: str = ""
+    diagnostics: dict[str, object] = field(default_factory=dict)
+    diagnostic_images: dict[str, Image.Image] = field(default_factory=dict)
 
     @property
     def completed(self) -> bool:
@@ -195,5 +197,7 @@ class PipelineResult:
         for artifact in self.artifacts:
             if artifact.image is not None:
                 artifact.image.close()
+        for image in self.diagnostic_images.values():
+            image.close()
         if self.final_image is not None:
             self.final_image.close()

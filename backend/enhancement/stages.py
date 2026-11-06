@@ -59,6 +59,9 @@ class StageContext:
     fused: np.ndarray | None = None
     enhanced: np.ndarray | None = None
     model_manager: ModelManager | None = None
+    capture_diagnostics: bool = False
+    diagnostics: dict[str, object] = field(default_factory=dict)
+    diagnostic_images: dict[str, Image.Image] = field(default_factory=dict)
 
     def publish(self, kind: ArtifactKind, image: Image.Image) -> None:
         """Record an intermediate result so it can be reported to the client."""
@@ -163,6 +166,8 @@ class AnalysisStage(ImplementedStage):
         context.rgb = _to_array(context.image)
         context.scan_result = scan(context.rgb)
         context.bypass = bool(context.scan_result.parameters.bypass_gate)
+        if context.capture_diagnostics:
+            context.diagnostics["scan"] = context.scan_result.as_dict()
 
         context.publish(ArtifactKind.ORIGINAL, context.image.copy())
         context.publish(
@@ -261,6 +266,13 @@ class FusionStage(ImplementedStage):
         )
         context.fused = result.image
         context.enhanced = result.image
+        if context.capture_diagnostics:
+            context.diagnostics["fusion"] = result.as_dict()
+            context.diagnostics["fusion_weights"] = result.weights.copy()
+            if result.initial_weights is not None:
+                context.diagnostics["fusion_weights_initial"] = (
+                    result.initial_weights.copy()
+                )
         context.publish(ArtifactKind.FUSION_OUTPUT, _to_pil(result.image))
         strength = 1.0 - result.weights[..., 0]
         context.publish(
@@ -289,6 +301,9 @@ class DenoisingStage(ImplementedStage):
             scan_result=context.scan_result,
         )
         context.enhanced = result.image
+        if context.capture_diagnostics:
+            context.diagnostics["edge_guard"] = result.as_dict()
+            context.diagnostic_images["edge_guard"] = _to_pil(result.image)
         return context
 
 
@@ -307,6 +322,9 @@ class ColourCorrectionStage(ImplementedStage):
             context.enhanced, scan_result=context.scan_result
         )
         context.enhanced = result.image
+        if context.capture_diagnostics:
+            context.diagnostics["hue_lock"] = result.as_dict()
+            context.diagnostic_images["hue_lock"] = _to_pil(result.image)
         return context
 
 
@@ -324,8 +342,12 @@ class QualityAssessmentStage(ImplementedStage):
 
         if context.bypass:
             final_image = context.image.copy()
+            if context.capture_diagnostics:
+                context.diagnostics["output_blend_alpha"] = 0.0
         else:
             alpha = float(context.scan_result.parameters.output_blend_alpha)
+            if context.capture_diagnostics:
+                context.diagnostics["output_blend_alpha"] = alpha
             if alpha <= 0.0:
                 final_image = context.image.copy()
             else:

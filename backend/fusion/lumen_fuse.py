@@ -81,6 +81,7 @@ class LumenFuseResult:
     levels: int
     parameters: LumenParameters
     sigma: float
+    initial_weights: np.ndarray | None = None
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -405,6 +406,7 @@ def fuse(
         levels=levels,
         parameters=weights.parameters,
         sigma=weights.sigma,
+        initial_weights=weights.initial.astype(np.float32),
     )
 
 

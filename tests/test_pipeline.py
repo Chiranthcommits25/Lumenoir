@@ -66,6 +66,31 @@ def test_every_default_stage_is_implemented() -> None:
     assert capabilities.ready is True
 
 
+def test_diagnostic_capture_preserves_final_output_and_records_stages() -> None:
+    pipeline = EnhancementPipeline(model_manager=StubModelManager())
+    image = _dark_image()
+    before = np.asarray(image.convert("RGB")).copy()
+
+    normal = pipeline.run(image, mode="hybrid")
+    captured = pipeline.run(image, mode="hybrid", capture_diagnostics=True)
+    try:
+        normal_array = np.asarray(normal.final_image.convert("RGB"))
+        captured_array = np.asarray(captured.final_image.convert("RGB"))
+        assert np.array_equal(normal_array, captured_array)
+        assert np.array_equal(before, np.asarray(image.convert("RGB")))
+        assert captured.diagnostic_images["edge_guard"].size == image.size
+        assert captured.diagnostic_images["hue_lock"].size == image.size
+        assert "scan" in captured.diagnostics
+        assert "fusion_weights" in captured.diagnostics
+        assert "fusion_weights_initial" in captured.diagnostics
+        assert "edge_guard" in captured.diagnostics
+        assert "hue_lock" in captured.diagnostics
+        assert normal.diagnostic_images == {}
+    finally:
+        normal.release()
+        captured.release()
+
+
 def test_modes_report_required_stages_and_availability() -> None:
     capabilities = EnhancementPipeline(
         model_manager=StubModelManager()

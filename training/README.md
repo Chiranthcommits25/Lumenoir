@@ -22,6 +22,7 @@ training/
 │   ├── pipeline.py           # orchestration
 │   └── cli.py                # command line entry point
 ├── kaggle_eval/              # Kaggle discovery, runner, notebook, samples
+├── experiments/              # stage attribution instrumentation/reporting
 ├── evaluate.py               # wrapper for backend.evaluation.cli
 ├── splits/                   # committed split spec / split files
 └── reports/                  # committed cleaning reports
@@ -89,6 +90,24 @@ into one `npe` report with subgroup metadata. Both train and test records are
 discovered, but the runner validates manifests and evaluates only test/eval
 records. See [`kaggle_eval/README.md`](kaggle_eval/README.md) for the explicit
 dataset configuration and limitations.
+
+## Stage attribution experiment
+
+```bash
+python -m training.experiments.stage_attribution \
+  --validation-manifest /path/to/validation.json \
+  --data-root /path/to/datasets/raw \
+  --output-dir /tmp/lumenoir-stage-attribution \
+  --metrics psnr,ssim,lpips,delta_e00
+```
+
+This captures the actual original, raw Zero-DCE++, classical, fusion,
+EdgeGuard, HueLock, final and ground-truth images and writes stage/dataset/
+per-image/weight/latency reports. It refuses to run without an explicit
+validation manifest; no validation split is created automatically. Manifest
+paths are dataset-relative and resolved against `--data-root`, so the same
+manifest can use `/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets`
+on Kaggle. See [`experiments/README.md`](experiments/README.md).
 
 ## Training (not implemented)
 

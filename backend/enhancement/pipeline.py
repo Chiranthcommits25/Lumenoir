@@ -150,13 +150,16 @@ class EnhancementPipeline:
     # -- execution ---------------------------------------------------------
 
     def run(
-        self, image: Image.Image, *, mode: EnhancementMode = "hybrid"
+        self,
+        image: Image.Image,
+        *,
+        mode: EnhancementMode = "hybrid",
+        capture_diagnostics: bool = False,
     ) -> PipelineResult:
         """Run the stages required by ``mode`` and describe the outcome.
 
-        A stage that raises :class:`StageNotImplemented` is recorded as skipped,
-        not as an error: its absence is expected in the current build. Any other
-        exception is a genuine failure and is reported as such.
+        ``capture_diagnostics`` only records additional intermediate images and
+        scalar diagnostics; it does not alter any stage calculation or output.
         """
         if mode not in ENHANCEMENT_MODES:
             raise ValueError(f"Unsupported enhancement mode: {mode!r}.")
@@ -167,6 +170,7 @@ class EnhancementPipeline:
             mode=mode,
             original_size=(image.width, image.height),
             model_manager=self.model_manager,
+            capture_diagnostics=capture_diagnostics,
         )
         reports: list[StageReport] = []
 
@@ -230,6 +234,10 @@ class EnhancementPipeline:
             total_ms=watches.total_ms,
             final_image=final_image,
             message=message,
+            diagnostics=dict(context.diagnostics) if capture_diagnostics else {},
+            diagnostic_images=dict(context.diagnostic_images)
+            if capture_diagnostics
+            else {},
         )
 
     # -- helpers -----------------------------------------------------------

@@ -1,0 +1,3136 @@
+{
+  "pool": "validation",
+  "seed": 42,
+  "created_at": "2026-11-06T19:31:50+00:00",
+  "data_root": "datasets/raw",
+  "records": [
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/101.png",
+      "low": "LOL-v1/our485/low/101.png",
+      "high": "LOL-v1/our485/high/101.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/102.png",
+      "low": "LOL-v1/our485/low/102.png",
+      "high": "LOL-v1/our485/high/102.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/12.png",
+      "low": "LOL-v1/our485/low/12.png",
+      "high": "LOL-v1/our485/high/12.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/127.png",
+      "low": "LOL-v1/our485/low/127.png",
+      "high": "LOL-v1/our485/high/127.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/128.png",
+      "low": "LOL-v1/our485/low/128.png",
+      "high": "LOL-v1/our485/high/128.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/13.png",
+      "low": "LOL-v1/our485/low/13.png",
+      "high": "LOL-v1/our485/high/13.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/139.png",
+      "low": "LOL-v1/our485/low/139.png",
+      "high": "LOL-v1/our485/high/139.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/14.png",
+      "low": "LOL-v1/our485/low/14.png",
+      "high": "LOL-v1/our485/high/14.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/140.png",
+      "low": "LOL-v1/our485/low/140.png",
+      "high": "LOL-v1/our485/high/140.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/141.png",
+      "low": "LOL-v1/our485/low/141.png",
+      "high": "LOL-v1/our485/high/141.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/162.png",
+      "low": "LOL-v1/our485/low/162.png",
+      "high": "LOL-v1/our485/high/162.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/169.png",
+      "low": "LOL-v1/our485/low/169.png",
+      "high": "LOL-v1/our485/high/169.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/17.png",
+      "low": "LOL-v1/our485/low/17.png",
+      "high": "LOL-v1/our485/high/17.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/18.png",
+      "low": "LOL-v1/our485/low/18.png",
+      "high": "LOL-v1/our485/high/18.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/184.png",
+      "low": "LOL-v1/our485/low/184.png",
+      "high": "LOL-v1/our485/high/184.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/185.png",
+      "low": "LOL-v1/our485/low/185.png",
+      "high": "LOL-v1/our485/high/185.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/191.png",
+      "low": "LOL-v1/our485/low/191.png",
+      "high": "LOL-v1/our485/high/191.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/193.png",
+      "low": "LOL-v1/our485/low/193.png",
+      "high": "LOL-v1/our485/high/193.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/200.png",
+      "low": "LOL-v1/our485/low/200.png",
+      "high": "LOL-v1/our485/high/200.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/201.png",
+      "low": "LOL-v1/our485/low/201.png",
+      "high": "LOL-v1/our485/high/201.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/202.png",
+      "low": "LOL-v1/our485/low/202.png",
+      "high": "LOL-v1/our485/high/202.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/210.png",
+      "low": "LOL-v1/our485/low/210.png",
+      "high": "LOL-v1/our485/high/210.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/212.png",
+      "low": "LOL-v1/our485/low/212.png",
+      "high": "LOL-v1/our485/high/212.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/216.png",
+      "low": "LOL-v1/our485/low/216.png",
+      "high": "LOL-v1/our485/high/216.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/220.png",
+      "low": "LOL-v1/our485/low/220.png",
+      "high": "LOL-v1/our485/high/220.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/229.png",
+      "low": "LOL-v1/our485/low/229.png",
+      "high": "LOL-v1/our485/high/229.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/235.png",
+      "low": "LOL-v1/our485/low/235.png",
+      "high": "LOL-v1/our485/high/235.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/238.png",
+      "low": "LOL-v1/our485/low/238.png",
+      "high": "LOL-v1/our485/high/238.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/244.png",
+      "low": "LOL-v1/our485/low/244.png",
+      "high": "LOL-v1/our485/high/244.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/248.png",
+      "low": "LOL-v1/our485/low/248.png",
+      "high": "LOL-v1/our485/high/248.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/259.png",
+      "low": "LOL-v1/our485/low/259.png",
+      "high": "LOL-v1/our485/high/259.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/262.png",
+      "low": "LOL-v1/our485/low/262.png",
+      "high": "LOL-v1/our485/high/262.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/328.png",
+      "low": "LOL-v1/our485/low/328.png",
+      "high": "LOL-v1/our485/high/328.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/330.png",
+      "low": "LOL-v1/our485/low/330.png",
+      "high": "LOL-v1/our485/high/330.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/39.png",
+      "low": "LOL-v1/our485/low/39.png",
+      "high": "LOL-v1/our485/high/39.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/40.png",
+      "low": "LOL-v1/our485/low/40.png",
+      "high": "LOL-v1/our485/high/40.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/47.png",
+      "low": "LOL-v1/our485/low/47.png",
+      "high": "LOL-v1/our485/high/47.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/474.png",
+      "low": "LOL-v1/our485/low/474.png",
+      "high": "LOL-v1/our485/high/474.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/475.png",
+      "low": "LOL-v1/our485/low/475.png",
+      "high": "LOL-v1/our485/high/475.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/476.png",
+      "low": "LOL-v1/our485/low/476.png",
+      "high": "LOL-v1/our485/high/476.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/48.png",
+      "low": "LOL-v1/our485/low/48.png",
+      "high": "LOL-v1/our485/high/48.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/482.png",
+      "low": "LOL-v1/our485/low/482.png",
+      "high": "LOL-v1/our485/high/482.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/499.png",
+      "low": "LOL-v1/our485/low/499.png",
+      "high": "LOL-v1/our485/high/499.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/502.png",
+      "low": "LOL-v1/our485/low/502.png",
+      "high": "LOL-v1/our485/high/502.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/511.png",
+      "low": "LOL-v1/our485/low/511.png",
+      "high": "LOL-v1/our485/high/511.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/532.png",
+      "low": "LOL-v1/our485/low/532.png",
+      "high": "LOL-v1/our485/high/532.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/533.png",
+      "low": "LOL-v1/our485/low/533.png",
+      "high": "LOL-v1/our485/high/533.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/542.png",
+      "low": "LOL-v1/our485/low/542.png",
+      "high": "LOL-v1/our485/high/542.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/543.png",
+      "low": "LOL-v1/our485/low/543.png",
+      "high": "LOL-v1/our485/high/543.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/548.png",
+      "low": "LOL-v1/our485/low/548.png",
+      "high": "LOL-v1/our485/high/548.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/549.png",
+      "low": "LOL-v1/our485/low/549.png",
+      "high": "LOL-v1/our485/high/549.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/564.png",
+      "low": "LOL-v1/our485/low/564.png",
+      "high": "LOL-v1/our485/high/564.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/565.png",
+      "low": "LOL-v1/our485/low/565.png",
+      "high": "LOL-v1/our485/high/565.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/571.png",
+      "low": "LOL-v1/our485/low/571.png",
+      "high": "LOL-v1/our485/high/571.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/572.png",
+      "low": "LOL-v1/our485/low/572.png",
+      "high": "LOL-v1/our485/high/572.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/578.png",
+      "low": "LOL-v1/our485/low/578.png",
+      "high": "LOL-v1/our485/high/578.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/594.png",
+      "low": "LOL-v1/our485/low/594.png",
+      "high": "LOL-v1/our485/high/594.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/595.png",
+      "low": "LOL-v1/our485/low/595.png",
+      "high": "LOL-v1/our485/high/595.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/614.png",
+      "low": "LOL-v1/our485/low/614.png",
+      "high": "LOL-v1/our485/high/614.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/615.png",
+      "low": "LOL-v1/our485/low/615.png",
+      "high": "LOL-v1/our485/high/615.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/620.png",
+      "low": "LOL-v1/our485/low/620.png",
+      "high": "LOL-v1/our485/high/620.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/621.png",
+      "low": "LOL-v1/our485/low/621.png",
+      "high": "LOL-v1/our485/high/621.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/633.png",
+      "low": "LOL-v1/our485/low/633.png",
+      "high": "LOL-v1/our485/high/633.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/634.png",
+      "low": "LOL-v1/our485/low/634.png",
+      "high": "LOL-v1/our485/high/634.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/639.png",
+      "low": "LOL-v1/our485/low/639.png",
+      "high": "LOL-v1/our485/high/639.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/640.png",
+      "low": "LOL-v1/our485/low/640.png",
+      "high": "LOL-v1/our485/high/640.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/658.png",
+      "low": "LOL-v1/our485/low/658.png",
+      "high": "LOL-v1/our485/high/658.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/659.png",
+      "low": "LOL-v1/our485/low/659.png",
+      "high": "LOL-v1/our485/high/659.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/67.png",
+      "low": "LOL-v1/our485/low/67.png",
+      "high": "LOL-v1/our485/high/67.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/674.png",
+      "low": "LOL-v1/our485/low/674.png",
+      "high": "LOL-v1/our485/high/674.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/675.png",
+      "low": "LOL-v1/our485/low/675.png",
+      "high": "LOL-v1/our485/high/675.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/676.png",
+      "low": "LOL-v1/our485/low/676.png",
+      "high": "LOL-v1/our485/high/676.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/677.png",
+      "low": "LOL-v1/our485/low/677.png",
+      "high": "LOL-v1/our485/high/677.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/68.png",
+      "low": "LOL-v1/our485/low/68.png",
+      "high": "LOL-v1/our485/high/68.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/682.png",
+      "low": "LOL-v1/our485/low/682.png",
+      "high": "LOL-v1/our485/high/682.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/683.png",
+      "low": "LOL-v1/our485/low/683.png",
+      "high": "LOL-v1/our485/high/683.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/73.png",
+      "low": "LOL-v1/our485/low/73.png",
+      "high": "LOL-v1/our485/high/73.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v1",
+      "image_id": "our485/low/74.png",
+      "low": "LOL-v1/our485/low/74.png",
+      "high": "LOL-v1/our485/high/74.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00007.png",
+      "low": "LOL-v2-Real/Train/Low/low00007.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00007.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00008.png",
+      "low": "LOL-v2-Real/Train/Low/low00008.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00008.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00011.png",
+      "low": "LOL-v2-Real/Train/Low/low00011.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00011.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00012.png",
+      "low": "LOL-v2-Real/Train/Low/low00012.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00012.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00013.png",
+      "low": "LOL-v2-Real/Train/Low/low00013.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00013.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00014.png",
+      "low": "LOL-v2-Real/Train/Low/low00014.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00014.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00017.png",
+      "low": "LOL-v2-Real/Train/Low/low00017.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00017.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00018.png",
+      "low": "LOL-v2-Real/Train/Low/low00018.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00018.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00029.png",
+      "low": "LOL-v2-Real/Train/Low/low00029.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00029.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00030.png",
+      "low": "LOL-v2-Real/Train/Low/low00030.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00030.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00039.png",
+      "low": "LOL-v2-Real/Train/Low/low00039.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00039.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00040.png",
+      "low": "LOL-v2-Real/Train/Low/low00040.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00040.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00047.png",
+      "low": "LOL-v2-Real/Train/Low/low00047.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00047.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00048.png",
+      "low": "LOL-v2-Real/Train/Low/low00048.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00048.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00065.png",
+      "low": "LOL-v2-Real/Train/Low/low00065.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00065.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00066.png",
+      "low": "LOL-v2-Real/Train/Low/low00066.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00066.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00067.png",
+      "low": "LOL-v2-Real/Train/Low/low00067.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00067.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00068.png",
+      "low": "LOL-v2-Real/Train/Low/low00068.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00068.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00073.png",
+      "low": "LOL-v2-Real/Train/Low/low00073.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00073.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00074.png",
+      "low": "LOL-v2-Real/Train/Low/low00074.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00074.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00101.png",
+      "low": "LOL-v2-Real/Train/Low/low00101.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00101.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00102.png",
+      "low": "LOL-v2-Real/Train/Low/low00102.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00102.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00127.png",
+      "low": "LOL-v2-Real/Train/Low/low00127.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00127.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00128.png",
+      "low": "LOL-v2-Real/Train/Low/low00128.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00128.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00139.png",
+      "low": "LOL-v2-Real/Train/Low/low00139.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00139.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00140.png",
+      "low": "LOL-v2-Real/Train/Low/low00140.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00140.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00141.png",
+      "low": "LOL-v2-Real/Train/Low/low00141.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00141.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00161.png",
+      "low": "LOL-v2-Real/Train/Low/low00161.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00161.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00162.png",
+      "low": "LOL-v2-Real/Train/Low/low00162.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00162.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00165.png",
+      "low": "LOL-v2-Real/Train/Low/low00165.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00165.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00169.png",
+      "low": "LOL-v2-Real/Train/Low/low00169.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00169.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00170.png",
+      "low": "LOL-v2-Real/Train/Low/low00170.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00170.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00178.png",
+      "low": "LOL-v2-Real/Train/Low/low00178.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00178.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00184.png",
+      "low": "LOL-v2-Real/Train/Low/low00184.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00184.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00185.png",
+      "low": "LOL-v2-Real/Train/Low/low00185.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00185.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00191.png",
+      "low": "LOL-v2-Real/Train/Low/low00191.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00191.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00193.png",
+      "low": "LOL-v2-Real/Train/Low/low00193.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00193.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00197.png",
+      "low": "LOL-v2-Real/Train/Low/low00197.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00197.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00200.png",
+      "low": "LOL-v2-Real/Train/Low/low00200.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00200.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00201.png",
+      "low": "LOL-v2-Real/Train/Low/low00201.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00201.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00202.png",
+      "low": "LOL-v2-Real/Train/Low/low00202.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00202.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00210.png",
+      "low": "LOL-v2-Real/Train/Low/low00210.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00210.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00212.png",
+      "low": "LOL-v2-Real/Train/Low/low00212.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00212.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00216.png",
+      "low": "LOL-v2-Real/Train/Low/low00216.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00216.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00220.png",
+      "low": "LOL-v2-Real/Train/Low/low00220.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00220.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00223.png",
+      "low": "LOL-v2-Real/Train/Low/low00223.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00223.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00229.png",
+      "low": "LOL-v2-Real/Train/Low/low00229.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00229.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00234.png",
+      "low": "LOL-v2-Real/Train/Low/low00234.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00234.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00235.png",
+      "low": "LOL-v2-Real/Train/Low/low00235.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00235.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00238.png",
+      "low": "LOL-v2-Real/Train/Low/low00238.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00238.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00244.png",
+      "low": "LOL-v2-Real/Train/Low/low00244.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00244.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00248.png",
+      "low": "LOL-v2-Real/Train/Low/low00248.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00248.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00259.png",
+      "low": "LOL-v2-Real/Train/Low/low00259.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00259.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00262.png",
+      "low": "LOL-v2-Real/Train/Low/low00262.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00262.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00275.png",
+      "low": "LOL-v2-Real/Train/Low/low00275.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00275.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00279.png",
+      "low": "LOL-v2-Real/Train/Low/low00279.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00279.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00280.png",
+      "low": "LOL-v2-Real/Train/Low/low00280.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00280.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00281.png",
+      "low": "LOL-v2-Real/Train/Low/low00281.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00281.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00282.png",
+      "low": "LOL-v2-Real/Train/Low/low00282.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00282.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00288.png",
+      "low": "LOL-v2-Real/Train/Low/low00288.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00288.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00289.png",
+      "low": "LOL-v2-Real/Train/Low/low00289.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00289.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00290.png",
+      "low": "LOL-v2-Real/Train/Low/low00290.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00290.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00324.png",
+      "low": "LOL-v2-Real/Train/Low/low00324.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00324.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00325.png",
+      "low": "LOL-v2-Real/Train/Low/low00325.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00325.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00326.png",
+      "low": "LOL-v2-Real/Train/Low/low00326.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00326.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00327.png",
+      "low": "LOL-v2-Real/Train/Low/low00327.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00327.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00328.png",
+      "low": "LOL-v2-Real/Train/Low/low00328.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00328.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00329.png",
+      "low": "LOL-v2-Real/Train/Low/low00329.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00329.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00330.png",
+      "low": "LOL-v2-Real/Train/Low/low00330.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00330.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00357.png",
+      "low": "LOL-v2-Real/Train/Low/low00357.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00357.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00358.png",
+      "low": "LOL-v2-Real/Train/Low/low00358.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00358.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00359.png",
+      "low": "LOL-v2-Real/Train/Low/low00359.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00359.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00361.png",
+      "low": "LOL-v2-Real/Train/Low/low00361.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00361.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00362.png",
+      "low": "LOL-v2-Real/Train/Low/low00362.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00362.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00363.png",
+      "low": "LOL-v2-Real/Train/Low/low00363.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00363.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00366.png",
+      "low": "LOL-v2-Real/Train/Low/low00366.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00366.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00367.png",
+      "low": "LOL-v2-Real/Train/Low/low00367.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00367.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00368.png",
+      "low": "LOL-v2-Real/Train/Low/low00368.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00368.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00396.png",
+      "low": "LOL-v2-Real/Train/Low/low00396.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00396.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00397.png",
+      "low": "LOL-v2-Real/Train/Low/low00397.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00397.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00398.png",
+      "low": "LOL-v2-Real/Train/Low/low00398.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00398.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00407.png",
+      "low": "LOL-v2-Real/Train/Low/low00407.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00407.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00408.png",
+      "low": "LOL-v2-Real/Train/Low/low00408.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00408.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00409.png",
+      "low": "LOL-v2-Real/Train/Low/low00409.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00409.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00410.png",
+      "low": "LOL-v2-Real/Train/Low/low00410.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00410.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00426.png",
+      "low": "LOL-v2-Real/Train/Low/low00426.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00426.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00457.png",
+      "low": "LOL-v2-Real/Train/Low/low00457.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00457.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00458.png",
+      "low": "LOL-v2-Real/Train/Low/low00458.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00458.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00459.png",
+      "low": "LOL-v2-Real/Train/Low/low00459.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00459.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00474.png",
+      "low": "LOL-v2-Real/Train/Low/low00474.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00474.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00475.png",
+      "low": "LOL-v2-Real/Train/Low/low00475.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00475.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00476.png",
+      "low": "LOL-v2-Real/Train/Low/low00476.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00476.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00482.png",
+      "low": "LOL-v2-Real/Train/Low/low00482.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00482.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00499.png",
+      "low": "LOL-v2-Real/Train/Low/low00499.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00499.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00502.png",
+      "low": "LOL-v2-Real/Train/Low/low00502.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00502.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00509.png",
+      "low": "LOL-v2-Real/Train/Low/low00509.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00509.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00511.png",
+      "low": "LOL-v2-Real/Train/Low/low00511.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00511.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00516.png",
+      "low": "LOL-v2-Real/Train/Low/low00516.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00516.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00519.png",
+      "low": "LOL-v2-Real/Train/Low/low00519.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00519.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00532.png",
+      "low": "LOL-v2-Real/Train/Low/low00532.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00532.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00533.png",
+      "low": "LOL-v2-Real/Train/Low/low00533.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00533.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00542.png",
+      "low": "LOL-v2-Real/Train/Low/low00542.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00542.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00543.png",
+      "low": "LOL-v2-Real/Train/Low/low00543.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00543.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00548.png",
+      "low": "LOL-v2-Real/Train/Low/low00548.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00548.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00549.png",
+      "low": "LOL-v2-Real/Train/Low/low00549.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00549.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00564.png",
+      "low": "LOL-v2-Real/Train/Low/low00564.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00564.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00565.png",
+      "low": "LOL-v2-Real/Train/Low/low00565.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00565.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00571.png",
+      "low": "LOL-v2-Real/Train/Low/low00571.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00571.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00572.png",
+      "low": "LOL-v2-Real/Train/Low/low00572.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00572.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00577.png",
+      "low": "LOL-v2-Real/Train/Low/low00577.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00577.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00578.png",
+      "low": "LOL-v2-Real/Train/Low/low00578.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00578.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00594.png",
+      "low": "LOL-v2-Real/Train/Low/low00594.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00594.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00595.png",
+      "low": "LOL-v2-Real/Train/Low/low00595.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00595.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00614.png",
+      "low": "LOL-v2-Real/Train/Low/low00614.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00614.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00615.png",
+      "low": "LOL-v2-Real/Train/Low/low00615.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00615.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00620.png",
+      "low": "LOL-v2-Real/Train/Low/low00620.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00620.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00621.png",
+      "low": "LOL-v2-Real/Train/Low/low00621.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00621.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00631.png",
+      "low": "LOL-v2-Real/Train/Low/low00631.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00631.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00632.png",
+      "low": "LOL-v2-Real/Train/Low/low00632.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00632.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00633.png",
+      "low": "LOL-v2-Real/Train/Low/low00633.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00633.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00634.png",
+      "low": "LOL-v2-Real/Train/Low/low00634.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00634.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00635.png",
+      "low": "LOL-v2-Real/Train/Low/low00635.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00635.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00636.png",
+      "low": "LOL-v2-Real/Train/Low/low00636.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00636.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00639.png",
+      "low": "LOL-v2-Real/Train/Low/low00639.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00639.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00640.png",
+      "low": "LOL-v2-Real/Train/Low/low00640.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00640.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00658.png",
+      "low": "LOL-v2-Real/Train/Low/low00658.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00658.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00659.png",
+      "low": "LOL-v2-Real/Train/Low/low00659.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00659.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00674.png",
+      "low": "LOL-v2-Real/Train/Low/low00674.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00674.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00675.png",
+      "low": "LOL-v2-Real/Train/Low/low00675.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00675.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00676.png",
+      "low": "LOL-v2-Real/Train/Low/low00676.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00676.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00677.png",
+      "low": "LOL-v2-Real/Train/Low/low00677.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00677.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00682.png",
+      "low": "LOL-v2-Real/Train/Low/low00682.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00682.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_real",
+      "image_id": "Train/Low/low00683.png",
+      "low": "LOL-v2-Real/Train/Low/low00683.png",
+      "high": "LOL-v2-Real/Train/Normal/normal00683.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r000da54ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r000da54ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r000da54ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r001d260dt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r001d260dt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r001d260dt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r00c0995ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r00c0995ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r00c0995ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0191aaf4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0191aaf4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0191aaf4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r01b3f004t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r01b3f004t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r01b3f004t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r01d0b83bt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r01d0b83bt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r01d0b83bt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r021429abt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r021429abt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r021429abt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0250eb80t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0250eb80t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0250eb80t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r033bb79dt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r033bb79dt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r033bb79dt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r033daaa0t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r033daaa0t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r033daaa0t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r038422cft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r038422cft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r038422cft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r038922cbt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r038922cbt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r038922cbt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r03b0c944t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r03b0c944t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r03b0c944t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r03bf5648t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r03bf5648t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r03bf5648t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r03cef811t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r03cef811t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r03cef811t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r03d2a758t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r03d2a758t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r03d2a758t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r040bf4a5t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r040bf4a5t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r040bf4a5t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r04160d64t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r04160d64t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r04160d64t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r04172edct.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r04172edct.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r04172edct.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r041c02cat.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r041c02cat.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r041c02cat.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r045be2act.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r045be2act.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r045be2act.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r04c566a0t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r04c566a0t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r04c566a0t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r050e1024t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r050e1024t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r050e1024t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r05647b9at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r05647b9at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r05647b9at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r056d6bebt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r056d6bebt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r056d6bebt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r059cae86t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r059cae86t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r059cae86t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r05bf2f53t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r05bf2f53t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r05bf2f53t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r05db7e7ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r05db7e7ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r05db7e7ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0648cff8t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0648cff8t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0648cff8t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r066358d3t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r066358d3t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r066358d3t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0670f47ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0670f47ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0670f47ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r07c47354t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r07c47354t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r07c47354t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r07c51648t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r07c51648t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r07c51648t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r07cf907dt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r07cf907dt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r07cf907dt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r07cfb432t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r07cfb432t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r07cfb432t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r07e242b7t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r07e242b7t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r07e242b7t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r08307e1at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r08307e1at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r08307e1at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0897d8aat.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0897d8aat.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0897d8aat.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r08abaa78t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r08abaa78t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r08abaa78t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r09c15af7t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r09c15af7t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r09c15af7t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r09d50960t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r09d50960t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r09d50960t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0a3c52a0t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0a3c52a0t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0a3c52a0t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0a64ce0bt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0a64ce0bt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0a64ce0bt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0aaa70c3t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0aaa70c3t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0aaa70c3t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0ab0a205t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0ab0a205t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0ab0a205t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0af5a8cct.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0af5a8cct.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0af5a8cct.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0b591bc3t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0b591bc3t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0b591bc3t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0b755540t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0b755540t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0b755540t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0b76b82ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0b76b82ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0b76b82ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0b985828t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0b985828t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0b985828t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0b99ac3ct.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0b99ac3ct.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0b99ac3ct.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0ba4c4c0t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0ba4c4c0t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0ba4c4c0t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0bc1a779t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0bc1a779t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0bc1a779t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0c0d0adct.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0c0d0adct.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0c0d0adct.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0c486c0at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0c486c0at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0c486c0at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0c5e9567t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0c5e9567t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0c5e9567t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0c6cf00bt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0c6cf00bt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0c6cf00bt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0c764979t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0c764979t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0c764979t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0cea5432t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0cea5432t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0cea5432t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0cfedd72t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0cfedd72t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0cfedd72t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0d796d4ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0d796d4ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0d796d4ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0db31c3ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0db31c3ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0db31c3ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0dd7b354t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0dd7b354t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0dd7b354t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0de97473t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0de97473t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0de97473t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0e1a6e2ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0e1a6e2ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0e1a6e2ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0e63ca9ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0e63ca9ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0e63ca9ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0ebb0bb4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0ebb0bb4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0ebb0bb4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0ebdd2d2t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0ebdd2d2t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0ebdd2d2t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0f137652t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0f137652t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0f137652t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0f3f14cbt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0f3f14cbt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0f3f14cbt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0f4ece9bt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0f4ece9bt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0f4ece9bt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0f5beb66t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0f5beb66t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0f5beb66t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0f6d3b31t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0f6d3b31t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0f6d3b31t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0f8e5907t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0f8e5907t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0f8e5907t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0fa077bet.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0fa077bet.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0fa077bet.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0fb0a690t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0fb0a690t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0fb0a690t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0fbe1b0ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0fbe1b0ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0fbe1b0ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0fc39b66t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0fc39b66t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0fc39b66t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0fd69c12t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0fd69c12t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0fd69c12t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0fdfc4f0t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0fdfc4f0t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0fdfc4f0t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r0fe7b1c6t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r0fe7b1c6t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r0fe7b1c6t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r101d6690t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r101d6690t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r101d6690t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1023c21et.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1023c21et.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1023c21et.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1069cdabt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1069cdabt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1069cdabt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1070b804t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1070b804t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1070b804t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r108ae9b6t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r108ae9b6t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r108ae9b6t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r108ba35et.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r108ba35et.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r108ba35et.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r10944b31t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r10944b31t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r10944b31t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r10ab8058t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r10ab8058t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r10ab8058t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r10f888c2t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r10f888c2t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r10f888c2t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r110cc74ct.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r110cc74ct.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r110cc74ct.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1126b615t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1126b615t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1126b615t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1138e1aft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1138e1aft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1138e1aft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r113ee9edt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r113ee9edt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r113ee9edt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r11a5b93dt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r11a5b93dt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r11a5b93dt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r11d981d2t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r11d981d2t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r11d981d2t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r11e26097t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r11e26097t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r11e26097t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1218b33at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1218b33at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1218b33at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r125f6e84t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r125f6e84t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r125f6e84t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r12638c95t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r12638c95t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r12638c95t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r128cc6fbt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r128cc6fbt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r128cc6fbt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r129f09b4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r129f09b4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r129f09b4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r129f24bet.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r129f24bet.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r129f24bet.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r12daa983t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r12daa983t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r12daa983t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r12ed2816t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r12ed2816t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r12ed2816t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1344c943t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1344c943t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1344c943t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r13493fa3t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r13493fa3t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r13493fa3t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r134ba6abt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r134ba6abt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r134ba6abt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r137bcd7at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r137bcd7at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r137bcd7at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r13a16a0at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r13a16a0at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r13a16a0at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r13a5bb6bt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r13a5bb6bt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r13a5bb6bt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r13bb381ct.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r13bb381ct.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r13bb381ct.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r13dab3c7t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r13dab3c7t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r13dab3c7t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r14a9a843t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r14a9a843t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r14a9a843t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r14bfe6f4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r14bfe6f4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r14bfe6f4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1567e512t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1567e512t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1567e512t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1570dd6at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1570dd6at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1570dd6at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1580c37ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1580c37ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1580c37ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1594b4b3t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1594b4b3t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1594b4b3t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r15dfc1b8t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r15dfc1b8t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r15dfc1b8t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r15f07f9dt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r15f07f9dt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r15f07f9dt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r16113cc8t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r16113cc8t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r16113cc8t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r16da5576t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r16da5576t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r16da5576t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r16dca6f2t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r16dca6f2t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r16dca6f2t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r17492cd5t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r17492cd5t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r17492cd5t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r177dd68et.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r177dd68et.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r177dd68et.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1828d94at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1828d94at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1828d94at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r184f08dat.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r184f08dat.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r184f08dat.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r186c09e4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r186c09e4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r186c09e4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r18d9feeat.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r18d9feeat.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r18d9feeat.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r18ea00c8t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r18ea00c8t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r18ea00c8t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r18fafe10t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r18fafe10t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r18fafe10t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1900f7c7t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1900f7c7t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1900f7c7t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r195f12adt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r195f12adt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r195f12adt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r198ea6a5t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r198ea6a5t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r198ea6a5t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1a0968bft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1a0968bft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1a0968bft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1a0f5585t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1a0f5585t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1a0f5585t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1a1d24b2t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1a1d24b2t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1a1d24b2t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1aa63558t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1aa63558t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1aa63558t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1ad3fa6dt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1ad3fa6dt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1ad3fa6dt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1ae12b3ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1ae12b3ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1ae12b3ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1b177fe1t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1b177fe1t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1b177fe1t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1b1c1019t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1b1c1019t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1b1c1019t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1b4e82c4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1b4e82c4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1b4e82c4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1bc355f2t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1bc355f2t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1bc355f2t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1bc3a653t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1bc3a653t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1bc3a653t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1bc3dd23t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1bc3dd23t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1bc3dd23t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1bc4e4act.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1bc4e4act.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1bc4e4act.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1bcfab73t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1bcfab73t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1bcfab73t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1bf4e594t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1bf4e594t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1bf4e594t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c070921t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c070921t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c070921t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c09b002t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c09b002t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c09b002t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c1fef8ft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c1fef8ft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c1fef8ft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c24a571t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c24a571t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c24a571t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c5a4928t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c5a4928t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c5a4928t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c5ec853t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c5ec853t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c5ec853t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c6b4a23t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c6b4a23t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c6b4a23t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c874ac4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c874ac4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c874ac4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1c9fc42at.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1c9fc42at.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1c9fc42at.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1cad9823t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1cad9823t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1cad9823t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1cde4afbt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1cde4afbt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1cde4afbt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1ced1907t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1ced1907t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1ced1907t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1cfe520bt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1cfe520bt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1cfe520bt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1d4377f7t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1d4377f7t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1d4377f7t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1d6e15d3t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1d6e15d3t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1d6e15d3t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1d99d1f3t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1d99d1f3t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1d99d1f3t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1d9eaf70t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1d9eaf70t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1d9eaf70t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1da851e4t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1da851e4t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1da851e4t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1db351a2t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1db351a2t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1db351a2t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1dd998dft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1dd998dft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1dd998dft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1de108dft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1de108dft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1de108dft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1e367d35t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1e367d35t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1e367d35t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1e698e5dt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1e698e5dt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1e698e5dt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1e79c6f9t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1e79c6f9t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1e79c6f9t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1ee65904t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1ee65904t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1ee65904t.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1eff17eft.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1eff17eft.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1eff17eft.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1f06581bt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1f06581bt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1f06581bt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1f1178cet.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1f1178cet.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1f1178cet.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1f16e2abt.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1f16e2abt.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1f16e2abt.png",
+      "split": "validation",
+      "kind": "paired"
+    },
+    {
+      "dataset": "lol_v2_syn",
+      "image_id": "Train/Low/r1f4f8a51t.png",
+      "low": "LOL-v2-Synthetic/Train/Low/r1f4f8a51t.png",
+      "high": "LOL-v2-Synthetic/Train/Normal/r1f4f8a51t.png",
+      "split": "validation",
+      "kind": "paired"
+    }
+  ]
+}
