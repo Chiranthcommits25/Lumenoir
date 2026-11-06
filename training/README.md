@@ -109,9 +109,21 @@ paths are dataset-relative and resolved against `--data-root`, so the same
 manifest can use `/kaggle/input/datasets/chiranth25x/lumenoir-low-light-datasets`
 on Kaggle. See [`experiments/README.md`](experiments/README.md).
 
-## Training (not implemented)
+## Fine-tuning (Zero-DCE++)
 
-Remote training notebooks and the fine-tuning configuration are still to be
-written. Model architecture, losses and hyper-parameters are fixed in
-`final_decision.md` §2 but no training has run. Trained weights are exported as
-`.pth` files into `backend/weights/` (git-ignored) and never committed.
+The reproducible fine-tuning entry point is `training.finetune`. It consumes
+the existing `training/splits/train.json` and `validation.json` manifests,
+keeps test images out, and writes fine-tuned checkpoints separately from the
+released checkpoint:
+
+```bash
+LUMENOIR_EVAL_DEVICE=cuda python -m training.finetune \
+  --config training/finetune/configs/zero_dce_plus_plus_lol.json \
+  --output-dir /kaggle/working/lumenoir-zero-dce-finetune-$(date +%Y%m%d-%H%M%S)
+```
+
+The config controls CUDA AMP, batch size, resume state, scheduler, early
+stopping and the documented loss terms. See [`finetune/README.md`](finetune/README.md).
+Training is zero-reference on the low-light paired inputs; ground truth is used
+only for validation PSNR/SSIM/LPIPS and checkpoint selection. No training is
+started by the test suite.
