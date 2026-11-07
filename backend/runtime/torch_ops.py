@@ -827,6 +827,35 @@ class TorchImageOps:
             )
         if eps <= 0:
             raise ValueError(f"eps must be positive, got {eps!r}.")
+        torch = self._torch
+        if guide.dtype == torch.float16:
+            # Statistics run in float32 even though the pipeline is float16.
+            # In float16 the box-filter round-off of variance is larger than
+            # eps (and eps itself can be subnormal), so variance + eps can hit
+            # zero or go negative for flat fused regions. Dividing there
+            # produces inf/nan, which is what crashed ExDark 2015_00018.
+            compute = torch.float32
+            work_guide = guide.to(compute)
+            work_source = source.to(compute)
+            floor = max(float(eps), float(torch.finfo(compute).tiny))
+            mean_guide = self.box_filter(work_guide, radius)
+            mean_source = self.box_filter(work_source, radius)
+            covariance = (
+                self.box_filter(work_guide * work_source, radius)
+                - mean_guide * mean_source
+            )
+            variance = (
+                self.box_filter(work_guide * work_guide, radius)
+                - mean_guide * mean_guide
+            )
+            a = covariance / (variance + floor).clamp_min(floor)
+            b = mean_source - a * mean_guide
+            result = (
+                self.box_filter(a, radius) * work_guide
+                + self.box_filter(b, radius)
+            )
+            return result.to(guide.dtype)
+
         mean_guide = self.box_filter(guide, radius)
         mean_source = self.box_filter(source, radius)
         covariance = self.box_filter(guide * source, radius) - mean_guide * mean_source

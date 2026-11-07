@@ -201,6 +201,41 @@ def test_blurs_and_pyramid_follow_the_operand_dtype(half_ops) -> None:
     assert half_ops.pyr_up(wide_down, (40, 32)).dtype == torch.float32
 
 
+def test_guided_filter_float16_never_returns_non_finite_for_flat_regions(
+    half_ops,
+) -> None:
+    """Regression: fp16 variance round-off must not divide by zero.
+
+    The denoiser's eps can be 1e-12 (sigma == 0) and is subnormal for noisy
+    images; flat fused regions used to make variance + eps == 0 in fp16.
+    """
+    torch = half_ops.torch
+    for level in (0.0, 0.25, 0.5, 1.0):
+        flat = torch.full(
+            (48, 64), level, dtype=torch.float16, device=half_ops.device
+        )
+        for eps in (1e-12, 3.05e-5, 1e-3):
+            out = half_ops.guided_filter(flat, flat, 4, eps)
+            assert bool(torch.isfinite(out).all())
+            assert torch.allclose(out.float(), flat.float(), atol=2e-3, rtol=0.0)
+
+
+def test_guided_filter_float16_tracks_float32(half_ops) -> None:
+    torch = half_ops.torch
+    rng = np.random.default_rng(29)
+    image = rng.random((40, 56), dtype=np.float32)
+    image[:20] = 0.4  # flat fused-like region
+    guide = torch.from_numpy(image).to(half_ops.device)
+    reference = TorchImageOps(
+        device=str(half_ops.device), precision="float32"
+    ).guided_filter(guide.float(), guide.float(), 4, 1e-5)
+    actual = half_ops.guided_filter(
+        guide.to(torch.float16), guide.to(torch.float16), 4, 1e-5
+    )
+    assert bool(torch.isfinite(actual).all())
+    assert float((actual.float() - reference).abs().max()) <= 5e-3
+
+
 def _fp16_accelerator() -> str | None:
     if torch.cuda.is_available():
         return "cuda"
