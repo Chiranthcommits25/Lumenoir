@@ -132,7 +132,9 @@ class ArtifactSchema(BaseModel):
     kind: str
     label: str
     description: str
+    produced_by: str | None = None
     available: bool
+    applicable: bool = True
     reason: str | None = None
     width: int | None = None
     height: int | None = None

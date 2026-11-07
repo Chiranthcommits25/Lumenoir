@@ -306,7 +306,7 @@ class EnhancementPipeline:
                     )
                 )
 
-        artifacts = self._artifacts(context.outputs)
+        artifacts = self._artifacts(context.outputs, mode=mode)
         final_image = context.outputs.get(ArtifactKind.FINAL_OUTPUT)
 
         status, message = self._outcome(reports, failed, mode)
@@ -382,31 +382,55 @@ class EnhancementPipeline:
             f"The '{stage.name.value}' stage is not implemented yet.",
         )
 
-    def artifact_capabilities(self) -> tuple[Artifact, ...]:
+    def artifact_capabilities(
+        self, mode: EnhancementMode | None = None
+    ) -> tuple[Artifact, ...]:
         """Describe every planned artifact before a run (nothing produced)."""
-        return self._artifacts({})
+        return self._artifacts({}, mode=mode)
 
     def _artifacts(
-        self, outputs: dict[ArtifactKind, Image.Image]
+        self,
+        outputs: dict[ArtifactKind, Image.Image],
+        *,
+        mode: EnhancementMode | None = None,
     ) -> tuple[Artifact, ...]:
+        required = (
+            set(REQUIRED_STAGES_BY_MODE[mode]) if mode in ENHANCEMENT_MODES else None
+        )
         artifacts: list[Artifact] = []
         for descriptor in PLANNED_ARTIFACTS:
+            applicable = (
+                True if required is None else descriptor.produced_by in required
+            )
             image = outputs.get(descriptor.kind)
             if image is not None:
                 artifacts.append(
-                    Artifact(descriptor=descriptor, available=True, image=image)
+                    Artifact(
+                        descriptor=descriptor,
+                        available=True,
+                        image=image,
+                        applicable=applicable,
+                    )
                 )
                 continue
 
-            producer = self._by_name.get(descriptor.produced_by)
-            if producer is None:
-                reason = "No stage produces this output yet."
-            elif producer.status is StageStatus.IMPLEMENTED:
-                reason = "This output was not produced for this image."
+            if not applicable:
+                reason = "Not part of the selected enhancement mode."
             else:
-                reason = self._pending_reason(producer)
+                producer = self._by_name.get(descriptor.produced_by)
+                if producer is None:
+                    reason = "No stage produces this output yet."
+                elif producer.status is StageStatus.IMPLEMENTED:
+                    reason = "This output was not produced for this image."
+                else:
+                    reason = self._pending_reason(producer)
             artifacts.append(
-                Artifact(descriptor=descriptor, available=False, reason=reason)
+                Artifact(
+                    descriptor=descriptor,
+                    available=False,
+                    reason=reason,
+                    applicable=applicable,
+                )
             )
 
         return tuple(artifacts)

@@ -62,19 +62,22 @@ def _artifact_schema(artifact: Artifact) -> ArtifactSchema:
     descriptor = artifact.descriptor
     image = artifact.image
 
+    base = dict(
+        kind=descriptor.kind.value,
+        label=descriptor.label,
+        description=descriptor.description,
+        produced_by=descriptor.produced_by.value,
+        applicable=artifact.applicable,
+    )
     if image is None:
         return ArtifactSchema(
-            kind=descriptor.kind.value,
-            label=descriptor.label,
-            description=descriptor.description,
+            **base,
             available=False,
             reason=artifact.reason,
         )
 
     return ArtifactSchema(
-        kind=descriptor.kind.value,
-        label=descriptor.label,
-        description=descriptor.description,
+        **base,
         available=True,
         width=image.width,
         height=image.height,
@@ -109,11 +112,15 @@ def _run_payload(result: PipelineResult) -> dict:
     summary="Report pipeline, model and mode availability",
 )
 def enhancement_status(
+    mode: str | None = None,
     settings: Settings = Depends(get_app_settings),
     pipeline: EnhancementPipeline = Depends(get_pipeline),
     manager: ModelManager = Depends(get_model_manager),
 ) -> PipelineStatusResponse:
     capabilities = pipeline.capabilities()
+    requested_mode = (mode or "hybrid").strip().lower() if mode else None
+    if requested_mode not in ENHANCEMENT_MODES:
+        requested_mode = None
 
     return PipelineStatusResponse(
         ready=capabilities.ready,
@@ -127,12 +134,12 @@ def enhancement_status(
         ],
         modes=[
             ModeCapabilitySchema(
-                mode=mode.mode,
-                label=mode.label,
-                available=mode.available,
-                required_stages=[name.value for name in mode.required_stages],
+                mode=capability.mode,
+                label=capability.label,
+                available=capability.available,
+                required_stages=[name.value for name in capability.required_stages],
             )
-            for mode in capabilities.modes
+            for capability in capabilities.modes
         ],
         model=_model_status(manager),
         inference=InferenceSettingsSchema(
@@ -143,7 +150,7 @@ def enhancement_status(
         ),
         artifacts=[
             _artifact_schema(artifact)
-            for artifact in pipeline.artifact_capabilities()
+            for artifact in pipeline.artifact_capabilities(requested_mode)
         ],
     )
 

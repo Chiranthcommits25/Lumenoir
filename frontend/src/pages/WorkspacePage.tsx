@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ComparisonSlider } from '../components/ComparisonSlider'
 import { ImageInfoCard } from '../components/ImageInfoCard'
 import { IntermediateGallery } from '../components/IntermediateGallery'
@@ -64,18 +64,25 @@ export function WorkspacePage() {
         // Keep the fallback limits; endpoints still validate server-side.
       })
 
-    fetchPipelineStatus()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    fetchPipelineStatus(mode)
       .then((next) => {
         if (active) setPipelineStatus(next)
       })
       .catch(() => {
-        // The panel falls back to "pending" wording without server details.
+        if (active) setPipelineStatus(null)
       })
 
     return () => {
       active = false
     }
-  }, [])
+  }, [mode])
 
   // Preview URLs are created when the selection changes, not in an effect, so
   // the browser never holds more than one object URL at a time.
@@ -220,7 +227,26 @@ export function WorkspacePage() {
   }
 
   const busy = status === 'validating' || status === 'processing'
-  const artifacts = result?.pipeline.artifacts ?? pipelineStatus?.artifacts ?? []
+  const activeMode = result?.pipeline.mode ?? mode
+  const artifacts = useMemo(() => {
+    const source = result?.pipeline.artifacts ?? pipelineStatus?.artifacts ?? []
+    const modeStages =
+      (pipelineStatus?.modes ?? []).find((item) => item.mode === activeMode)
+        ?.required_stages ?? null
+    if (!modeStages) return source
+    const required = new Set(modeStages)
+    return source.map((artifact) =>
+      artifact.available || !artifact.produced_by
+        ? artifact
+        : required.has(artifact.produced_by)
+          ? artifact
+          : {
+              ...artifact,
+              applicable: false,
+              reason: 'Not part of the selected enhancement mode.',
+            },
+    )
+  }, [activeMode, mode, pipelineStatus, result])
   const modes = pipelineStatus?.modes ?? []
 
   return (

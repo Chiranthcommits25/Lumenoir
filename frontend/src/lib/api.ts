@@ -74,7 +74,9 @@ export type PipelineArtifact = {
   kind: string
   label: string
   description: string
+  produced_by?: string | null
   available: boolean
+  applicable?: boolean
   reason: string | null
   width: number | null
   height: number | null
@@ -211,8 +213,9 @@ export function fetchUploadLimits(): Promise<UploadLimits> {
 }
 
 /** Read pipeline, model and mode availability. */
-export function fetchPipelineStatus(): Promise<PipelineStatus> {
-  return request<PipelineStatus>('/api/enhance/status')
+export function fetchPipelineStatus(mode?: EnhancementMode): Promise<PipelineStatus> {
+  const query = mode ? `?mode=${encodeURIComponent(mode)}` : ''
+  return request<PipelineStatus>(`/api/enhance/status${query}`)
 }
 
 /**

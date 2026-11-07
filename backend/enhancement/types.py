@@ -171,6 +171,7 @@ class Artifact:
     available: bool
     reason: str | None = None
     image: Image.Image | None = None
+    applicable: bool = True
 
 
 @dataclass(frozen=True)
