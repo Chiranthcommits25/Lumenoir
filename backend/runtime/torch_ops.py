@@ -266,6 +266,15 @@ class TorchImageOps:
         return cached
 
     def _conv(self, image, weight, stride: int = 1):
+        # Convolution has no implicit dtype promotion: a float16 kernel against
+        # a float32 operand raises "Input type and weight type should be the
+        # same". Blind the kernel to the operand instead of the operand to the
+        # kernel, so the deliberately float32 statistics paths keep their
+        # float32 accumulation and the float16 path never widens the image.
+        # The kernel is a few dozen taps and is cached per dtype, so this is
+        # at most one conversion per filter and precision.
+        if weight.dtype != image.dtype:
+            weight = weight.to(image.dtype)
         channels = image.shape[0]
         kernel = (
             weight.view(1, 1, *weight.shape)
@@ -352,7 +361,9 @@ class TorchImageOps:
         radius = size // 2
         padded = self._pad_chw(channels, radius, radius, reflect101=reflect101)
         values = np.full((size, size), 1.0 / (size * size), dtype=np.float32)
-        kernel = self._kernel(("box", size), values)
+        # Match the operand: callers such as noise_map pass a float32 tensor
+        # from filter2d while the pipeline works in float16.
+        kernel = self._kernel(("box", size), values, dtype=channels.dtype)
         result = self._conv(padded, kernel)
         return self._from_chw(result, ndim)
 
@@ -361,7 +372,7 @@ class TorchImageOps:
         taps = gaussian_kernel_1d(float(sigma))
         radius = len(taps) // 2
         padded = self._pad_chw(channels, radius, radius, reflect101=True)
-        kernel = self._kernel(("gaussian", float(sigma)), taps)
+        kernel = self._kernel(("gaussian", float(sigma)), taps, dtype=channels.dtype)
         result = self._conv(padded, kernel.view(1, -1))
         result = self._conv(result, kernel.view(-1, 1))
         return self._from_chw(result, ndim)
@@ -371,7 +382,7 @@ class TorchImageOps:
         values = laplacian_kernel_2d(int(ksize))
         radius = max(1, int(ksize) // 2)
         padded = self._pad_chw(channels, radius, radius, reflect101=True)
-        kernel = self._kernel(("laplacian", int(ksize)), values)
+        kernel = self._kernel(("laplacian", int(ksize)), values, dtype=channels.dtype)
         result = self._conv(padded, kernel)
         return self._from_chw(result, ndim)
 
@@ -453,7 +464,7 @@ class TorchImageOps:
     def pyr_down(self, image):
         channels, ndim = self._to_chw(image)
         padded = self._pad_chw(channels, 2, 2, reflect101=True)
-        kernel = self._kernel(("pyr_down",), PYR_DOWN_KERNEL)
+        kernel = self._kernel(("pyr_down",), PYR_DOWN_KERNEL, dtype=channels.dtype)
         result = self._conv(padded, kernel, stride=2)
         return self._from_chw(result, ndim)
 
@@ -470,11 +481,13 @@ class TorchImageOps:
                 f"{(width, height)}."
             )
         canvas = self._torch.zeros(
-            (count, dst_height, dst_width), dtype=self.dtype, device=self.device
+            (count, dst_height, dst_width),
+            dtype=channels.dtype,
+            device=channels.device,
         )
         canvas[:, 0 : 2 * height : 2, 0 : 2 * width : 2] = channels
         padded = self._pad_chw(canvas, 2, 2, reflect101=True)
-        kernel = self._kernel(("pyr_up",), PYR_UP_KERNEL)
+        kernel = self._kernel(("pyr_up",), PYR_UP_KERNEL, dtype=channels.dtype)
         result = self._conv(padded, kernel)
         return self._from_chw(result, ndim)
 
