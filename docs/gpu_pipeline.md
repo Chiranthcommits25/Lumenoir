@@ -160,6 +160,50 @@ A LumenFuse-only T4 benchmark was reported in an earlier session at 2304×1728
 reproduced here and no JSON for it is stored in the repository; treat it as
 unverified until it is re-run with the commands below.
 
+## GPU-only full-pipeline benchmark
+
+`training.benchmarks.benchmark_full_pipeline_gpu` measures the complete
+pipeline on one CUDA device, one mode at a time. It refuses `cpu`, `mps` and
+`auto`, synchronises CUDA around every timed call, and traps the NumPy/OpenCV
+stage entry points so a silent host fallback fails the run instead of being
+reported as a GPU number. No quality metric is computed.
+
+On Kaggle (GPU T4), from `/kaggle/working/LUMENOIR`:
+
+```bash
+# FP32 (primary measurement)
+!PYTHONPATH=/kaggle/working/LUMENOIR python -m training.benchmarks.benchmark_full_pipeline_gpu \
+    --device cuda --precision float32 \
+    --images datasets/raw/LOL-v2-Real/Test/Low --count 10 \
+    --warmups 3 --runs 1 \
+    --output-dir /kaggle/working/full_pipeline_gpu
+
+# FP16 (optional, separate run)
+!PYTHONPATH=/kaggle/working/LUMENOIR python -m training.benchmarks.benchmark_full_pipeline_gpu \
+    --device cuda --precision float16 \
+    --images datasets/raw/LOL-v2-Real/Test/Low --count 10 \
+    --warmups 3 --runs 1 \
+    --output-dir /kaggle/working/full_pipeline_gpu
+```
+
+`--images` accepts a directory, a single image or a JSON manifest (`low`,
+`input`, `path`, `image` keys). `--config` accepts a benchmark JSON or the
+`training.kaggle_eval` configurations, which contribute weights, modes, count,
+warm-ups and runs; explicit CLI flags win.
+
+Each run writes `full_pipeline_gpu_fp32.json` and `.md` (or `_fp16`) with:
+
+- mean, median, P90, min and max per-image latency, total processing time and
+  images/second;
+- peak CUDA allocated and reserved memory;
+- the pipeline's own per-stage mean/median; and
+- the device checks: resolved device, pipeline ops device, model tensor
+  devices, parameter count/dtypes and the CPU stage-call count.
+
+A report is valid only when it records `"device": "cuda:N"`, a `cuda:N` ops
+device and `"cpu_stage_calls": 0`. No CUDA run is stored in this repository
+yet; the command above is how one is produced.
+
 ## Tests
 
 Default tests run the CPU reference path. The GPU parity tests are unit tests

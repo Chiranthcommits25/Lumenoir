@@ -15,6 +15,8 @@ import numpy as np
 import pytest
 from PIL import Image
 
+from backend.inference.manager import ModelManager
+from backend.inference.registry import available_models
 from training.benchmarks import benchmark_full_pipeline_gpu as bench
 
 
@@ -236,3 +238,40 @@ def test_write_outputs_uses_the_precision_suffix(tmp_path: Path) -> None:
     payload = json.loads(json_path.read_text(encoding="utf-8"))
     assert payload["checks"]["cpu_fallback_allowed"] is False
     assert "hybrid" in markdown_path.read_text(encoding="utf-8")
+
+
+def test_importing_the_benchmark_registers_zero_dce_plus_plus() -> None:
+    assert bench.MODEL_ID == "zero_dce_plus_plus"
+    assert bench.MODEL_ID in available_models()
+
+
+def test_model_manager_loads_the_checkpoint() -> None:
+    if not bench.DEFAULT_WEIGHTS.is_file():
+        pytest.skip("the Zero-DCE++ checkpoint is not present")
+    from backend.config import InferenceSettings
+
+    try:
+        manager = ModelManager(
+            InferenceSettings(
+                model_id=bench.MODEL_ID,
+                weights_path=bench.DEFAULT_WEIGHTS,
+                device="cpu",
+            )
+        )
+    except TypeError as exc:  # pragma: no cover - signature guard
+        pytest.fail(f"InferenceSettings rejected the benchmark settings: {exc}")
+    try:
+        status = manager.load()
+    finally:
+        manager.close()
+    assert status.ready, status.message
+
+
+def test_missing_registration_is_reported_before_touching_cuda(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_image(tmp_path / "a.png")
+    monkeypatch.setattr(bench, "available_models", lambda: [])
+    args = bench.build_parser().parse_args(["--images", str(tmp_path)])
+    with pytest.raises(bench.GpuBenchmarkError, match="model registry"):
+        bench.run_benchmark(bench.settings_from_args(args))

@@ -84,6 +84,24 @@ latency, peak memory where available, utilization where measurable, and output
 quality differences. See [`../docs/fusion_benchmarks.md`](../docs/fusion_benchmarks.md)
 for measured local results and limitations; local MPS numbers are not T4 results.
 
+## Full-pipeline GPU benchmark
+
+`training.benchmarks.benchmark_full_pipeline_gpu` measures the complete
+pipeline (all stages, all three modes) on NVIDIA CUDA only. It refuses
+`cpu`/`mps`/`auto`, traps the CPU stage implementations so a silent fallback
+fails the run, and writes JSON plus a Markdown report:
+
+```bash
+python -m training.benchmarks.benchmark_full_pipeline_gpu \
+  --device cuda --precision float32 \
+  --images datasets/raw/LOL-v2-Real/Test/Low --count 10 \
+  --warmups 3 --runs 1 \
+  --output-dir training/reports/full_pipeline_gpu
+```
+
+See [`../docs/gpu_pipeline.md`](../docs/gpu_pipeline.md) for the T4 command,
+the reported statistics and the checks that must pass before a number is quoted.
+
 ## Kaggle evaluation
 
 ```bash

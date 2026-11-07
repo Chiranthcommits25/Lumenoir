@@ -51,12 +51,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:  # pragma: no cover - import bootstrap
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from backend import deep_learning  # noqa: E402,F401  (registers zero_dce_plus_plus)
 from backend.config import InferenceSettings  # noqa: E402
 from backend.enhancement.pipeline import (  # noqa: E402
     REQUIRED_STAGES_BY_MODE,
     EnhancementPipeline,
 )
 from backend.inference.manager import ModelManager  # noqa: E402
+from backend.inference.registry import available_models  # noqa: E402
 from backend.runtime.config import PipelineRuntime, resolve_runtime  # noqa: E402
 
 MODEL_ID = "zero_dce_plus_plus"
@@ -761,6 +763,17 @@ def image_facts(paths: list[Path]) -> list[dict[str, Any]]:
 
 def run_benchmark(settings: BenchmarkSettings) -> dict[str, Any]:
     """Measure every requested mode on CUDA and return the raw report."""
+    # Importing ``backend.deep_learning`` at module level registers the model;
+    # check it so a missing registration fails here rather than inside the
+    # model manager after the CUDA audit.
+    registered = available_models()
+    if MODEL_ID not in registered:
+        raise GpuBenchmarkError(
+            f"The model registry has no '{MODEL_ID}' implementation "
+            f"(registered: {', '.join(registered) or 'none'}). "
+            "backend.deep_learning must be imported before the checkpoint is loaded."
+        )
+
     images = collect_images(settings.images, settings.count)
     weights = (settings.weights or DEFAULT_WEIGHTS).expanduser()
     if not weights.is_file():
