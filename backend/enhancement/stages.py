@@ -31,6 +31,7 @@ from ..classical_cv.scan import LumenScanResult, scan
 from ..fusion.lumen_fuse import fuse as fuse_candidates
 from ..inference.errors import InferenceFailedError, ModelNotAvailableError
 from ..inference.manager import ModelManager
+from ..runtime.config import PipelineRuntime
 from .types import (
     ArtifactKind,
     EnhancementMode,
@@ -59,6 +60,14 @@ class StageContext:
     deep_learning: np.ndarray | None = None
     fused: np.ndarray | None = None
     enhanced: np.ndarray | None = None
+    runtime: PipelineRuntime | None = None
+    ops: object | None = None
+    rgb_tensor: object | None = None
+    classical_tensor: object | None = None
+    deep_learning_tensor: object | None = None
+    fused_tensor: object | None = None
+    enhanced_tensor: object | None = None
+    final_tensor: object | None = None
     model_manager: ModelManager | None = None
     capture_diagnostics: bool = False
     diagnostics: dict[str, object] = field(default_factory=dict)
@@ -165,17 +174,32 @@ class AnalysisStage(ImplementedStage):
 
     def run(self, context: StageContext) -> StageContext:
         context.rgb = _to_array(context.image)
-        context.scan_result = scan(context.rgb)
+        if context.ops is not None:
+            from ..classical_cv.torch_scan import scan_tensor
+
+            context.rgb_tensor = context.ops.ensure(context.rgb)
+            context.scan_result = scan_tensor(context.rgb_tensor, ops=context.ops)
+        else:
+            context.scan_result = scan(context.rgb)
         context.bypass = bool(context.scan_result.parameters.bypass_gate)
         if context.capture_diagnostics:
             context.diagnostics["scan"] = context.scan_result.as_dict()
 
         context.publish(ArtifactKind.ORIGINAL, context.image.copy())
+        illumination = (
+            context.ops.to_numpy(context.scan_result.illumination)
+            if context.ops is not None
+            else context.scan_result.illumination
+        )
+        noise = (
+            context.ops.to_numpy(context.scan_result.noise_map)
+            if context.ops is not None
+            else context.scan_result.noise_map
+        )
         context.publish(
             ArtifactKind.ILLUMINATION_MAP,
-            _map_to_pil(context.scan_result.illumination, vmax=1.0, name="illumination"),
+            _map_to_pil(illumination, vmax=1.0, name="illumination"),
         )
-        noise = context.scan_result.noise_map
         context.publish(
             ArtifactKind.NOISE_MAP,
             _map_to_pil(noise, vmax=max(float(noise.max()), 1e-6), name="noise map"),
@@ -195,12 +219,28 @@ class ClassicalStage(ImplementedStage):
         if context.bypass:
             context.classical = context.rgb
             context.enhanced = context.rgb
+            if context.ops is not None:
+                context.classical_tensor = context.rgb_tensor
+                context.enhanced_tensor = context.rgb_tensor
             return context
 
-        result = retinex_enhance(context.rgb, scan_result=context.scan_result)
-        context.classical = result.image
-        context.enhanced = result.image
-        context.publish(ArtifactKind.CLASSICAL_OUTPUT, _to_pil(result.image))
+        if context.ops is not None:
+            from ..classical_cv.torch_retinex import enhance_tensor
+
+            result = enhance_tensor(
+                context.rgb_tensor,
+                scan_result=context.scan_result,
+                ops=context.ops,
+            )
+            context.classical_tensor = result.image
+            context.enhanced_tensor = result.image
+            array = context.ops.to_numpy(result.image)
+        else:
+            result = retinex_enhance(context.rgb, scan_result=context.scan_result)
+            context.classical = result.image
+            context.enhanced = result.image
+            array = result.image
+        context.publish(ArtifactKind.CLASSICAL_OUTPUT, _to_pil(array))
         return context
 
 
@@ -215,6 +255,9 @@ class DeepLearningStage(ImplementedStage):
         if context.bypass:
             context.deep_learning = context.rgb
             context.enhanced = context.rgb
+            if context.ops is not None:
+                context.deep_learning_tensor = context.rgb_tensor
+                context.enhanced_tensor = context.rgb_tensor
             return context
 
         manager = context.model_manager
@@ -223,19 +266,37 @@ class DeepLearningStage(ImplementedStage):
                 "No inference model manager is configured for this pipeline."
             )
 
-        outcome = manager.infer(context.image)
-        try:
-            array = _to_array(outcome.image, name="model output")
-        finally:
-            outcome.image.close()
+        if context.ops is not None:
+            outcome = manager.infer_tensor(context.rgb_tensor)
+            tensor = outcome.image
+            if tuple(tensor.shape) != tuple(context.rgb.shape):
+                raise InferenceFailedError(
+                    f"The model returned {tuple(tensor.shape)}, expected "
+                    f"{context.rgb.shape}."
+                )
+            if context.capture_diagnostics and outcome.curve_alpha is not None:
+                alpha = outcome.curve_alpha
+                context.diagnostics["zero_dce_curve_alpha_range"] = [
+                    float(alpha.min()),
+                    float(alpha.max()),
+                ]
+            context.deep_learning_tensor = tensor
+            context.enhanced_tensor = tensor
+            array = context.ops.to_numpy(tensor)
+        else:
+            outcome = manager.infer(context.image)
+            try:
+                array = _to_array(outcome.image, name="model output")
+            finally:
+                outcome.image.close()
 
-        if array.shape != context.rgb.shape:
-            raise InferenceFailedError(
-                f"The model returned {array.shape}, expected {context.rgb.shape}."
-            )
+            if array.shape != context.rgb.shape:
+                raise InferenceFailedError(
+                    f"The model returned {array.shape}, expected {context.rgb.shape}."
+                )
 
-        context.deep_learning = array
-        context.enhanced = array
+            context.deep_learning = array
+            context.enhanced = array
         context.publish(ArtifactKind.DEEP_LEARNING_OUTPUT, _to_pil(array))
         return context
 
@@ -251,34 +312,68 @@ class FusionStage(ImplementedStage):
     def run(self, context: StageContext) -> StageContext:
         _require(context.rgb, "rgb")
         _require(context.scan_result, "scan_result")
-        _require(context.classical, "classical")
-        _require(context.deep_learning, "deep_learning")
+        if context.ops is not None:
+            _require(context.rgb_tensor, "rgb_tensor")
+            _require(context.classical_tensor, "classical_tensor")
+            _require(context.deep_learning_tensor, "deep_learning_tensor")
+        else:
+            _require(context.classical, "classical")
+            _require(context.deep_learning, "deep_learning")
 
         if context.bypass:
             context.fused = context.rgb
             context.enhanced = context.rgb
+            if context.ops is not None:
+                context.fused_tensor = context.rgb_tensor
+                context.enhanced_tensor = context.rgb_tensor
             return context
 
-        result = fuse_candidates(
-            context.rgb,
-            context.classical,
-            context.deep_learning,
-            scan_result=context.scan_result,
-            backend=os.getenv("LUMENOIR_FUSE_BACKEND", "auto"),
-            device=os.getenv("LUMENOIR_FUSE_DEVICE") or None,
-            precision=os.getenv("LUMENOIR_FUSE_PRECISION", "float32"),
-        )
-        context.fused = result.image
-        context.enhanced = result.image
-        if context.capture_diagnostics:
-            context.diagnostics["fusion"] = result.as_dict()
-            context.diagnostics["fusion_weights"] = result.weights.copy()
-            if result.initial_weights is not None:
-                context.diagnostics["fusion_weights_initial"] = (
-                    result.initial_weights.copy()
-                )
-        context.publish(ArtifactKind.FUSION_OUTPUT, _to_pil(result.image))
-        strength = 1.0 - result.weights[..., 0]
+        if context.ops is not None:
+            from ..fusion.lumen_fuse import fuse_tensors
+
+            result = fuse_tensors(
+                context.rgb_tensor,
+                context.classical_tensor,
+                context.deep_learning_tensor,
+                noise_map=context.scan_result.noise_map,
+                parameters=context.scan_result.parameters,
+                ops=context.ops,
+                sigma=float(context.scan_result.features.noise_sigma),
+            )
+            context.fused_tensor = result.image
+            context.enhanced_tensor = result.image
+            array = context.ops.to_numpy(result.image)
+            weights = context.ops.to_numpy(result.weights)
+            if context.capture_diagnostics:
+                context.diagnostics["fusion"] = {
+                    "shape": list(array.shape),
+                    "levels": result.levels,
+                    "sigma": result.sigma,
+                }
+                context.diagnostics["fusion_weights"] = weights
+        else:
+            result = fuse_candidates(
+                context.rgb,
+                context.classical,
+                context.deep_learning,
+                scan_result=context.scan_result,
+                backend=os.getenv("LUMENOIR_FUSE_BACKEND", "auto"),
+                device=os.getenv("LUMENOIR_FUSE_DEVICE") or None,
+                precision=os.getenv("LUMENOIR_FUSE_PRECISION", "float32"),
+            )
+            context.fused = result.image
+            context.enhanced = result.image
+            array = result.image
+            weights = result.weights
+            if context.capture_diagnostics:
+                context.diagnostics["fusion"] = result.as_dict()
+                context.diagnostics["fusion_weights"] = result.weights.copy()
+                if result.initial_weights is not None:
+                    context.diagnostics["fusion_weights_initial"] = (
+                        result.initial_weights.copy()
+                    )
+        context.publish(ArtifactKind.FUSION_OUTPUT, _to_pil(array))
+        strength = 1.0 - weights[..., 0]
         context.publish(
             ArtifactKind.ENHANCEMENT_STRENGTH_MAP,
             _map_to_pil(strength, vmax=1.0, name="enhancement strength"),
@@ -293,21 +388,39 @@ class DenoisingStage(ImplementedStage):
     def run(self, context: StageContext) -> StageContext:
         _require(context.rgb, "rgb")
         _require(context.scan_result, "scan_result")
-        _require(context.enhanced, "enhanced")
+        if context.ops is not None:
+            _require(context.enhanced_tensor, "enhanced_tensor")
+        else:
+            _require(context.enhanced, "enhanced")
 
         if context.bypass:
             context.enhanced = context.rgb
+            if context.ops is not None:
+                context.enhanced_tensor = context.rgb_tensor
             return context
 
-        result = edge_guard_denoise(
-            context.enhanced,
-            context.rgb,
-            scan_result=context.scan_result,
-        )
-        context.enhanced = result.image
+        if context.ops is not None:
+            from ..classical_cv.torch_edge_guard import denoise_tensor
+
+            result = denoise_tensor(
+                context.enhanced_tensor,
+                context.rgb_tensor,
+                scan_result=context.scan_result,
+                ops=context.ops,
+            )
+            context.enhanced_tensor = result.image
+            array = context.ops.to_numpy(result.image)
+        else:
+            result = edge_guard_denoise(
+                context.enhanced,
+                context.rgb,
+                scan_result=context.scan_result,
+            )
+            context.enhanced = result.image
+            array = result.image
         if context.capture_diagnostics:
             context.diagnostics["edge_guard"] = result.as_dict()
-            context.diagnostic_images["edge_guard"] = _to_pil(result.image)
+            context.diagnostic_images["edge_guard"] = _to_pil(array)
         return context
 
 
@@ -317,18 +430,33 @@ class ColourCorrectionStage(ImplementedStage):
 
     def run(self, context: StageContext) -> StageContext:
         _require(context.scan_result, "scan_result")
-        _require(context.enhanced, "enhanced")
+        if context.ops is not None:
+            _require(context.enhanced_tensor, "enhanced_tensor")
+        else:
+            _require(context.enhanced, "enhanced")
 
         if context.bypass:
             return context
 
-        result = hue_lock_correct(
-            context.enhanced, scan_result=context.scan_result
-        )
-        context.enhanced = result.image
+        if context.ops is not None:
+            from ..classical_cv.torch_hue_lock import correct_tensor
+
+            result = correct_tensor(
+                context.enhanced_tensor,
+                scan_result=context.scan_result,
+                ops=context.ops,
+            )
+            context.enhanced_tensor = result.image
+            array = context.ops.to_numpy(result.image)
+        else:
+            result = hue_lock_correct(
+                context.enhanced, scan_result=context.scan_result
+            )
+            context.enhanced = result.image
+            array = result.image
         if context.capture_diagnostics:
             context.diagnostics["hue_lock"] = result.as_dict()
-            context.diagnostic_images["hue_lock"] = _to_pil(result.image)
+            context.diagnostic_images["hue_lock"] = _to_pil(array)
         return context
 
 
@@ -342,9 +470,36 @@ class QualityAssessmentStage(ImplementedStage):
     def run(self, context: StageContext) -> StageContext:
         _require(context.rgb, "rgb")
         _require(context.scan_result, "scan_result")
-        _require(context.enhanced, "enhanced")
+        if context.ops is not None:
+            _require(context.rgb_tensor, "rgb_tensor")
+            _require(context.enhanced_tensor, "enhanced_tensor")
+        else:
+            _require(context.enhanced, "enhanced")
 
-        if context.bypass:
+        if context.ops is not None:
+            if context.bypass:
+                alpha = 0.0
+            else:
+                alpha = float(context.scan_result.parameters.output_blend_alpha)
+            if context.capture_diagnostics:
+                context.diagnostics["output_blend_alpha"] = alpha
+            if alpha <= 0.0:
+                final_tensor = context.rgb_tensor
+            else:
+                final_tensor = (
+                    (1.0 - alpha) * context.rgb_tensor
+                    + alpha * context.enhanced_tensor
+                ).clamp(0.0, 1.0)
+            if tuple(final_tensor.shape) != tuple(context.rgb.shape):
+                raise RuntimeError(
+                    f"Final blend shape {tuple(final_tensor.shape)} != "
+                    f"{context.rgb.shape}."
+                )
+            context.final_tensor = final_tensor
+            final_image = _to_pil(
+                context.ops.to_numpy(final_tensor), name="final output"
+            )
+        elif context.bypass:
             final_image = context.image.copy()
             if context.capture_diagnostics:
                 context.diagnostics["output_blend_alpha"] = 0.0

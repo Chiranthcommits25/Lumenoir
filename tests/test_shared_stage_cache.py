@@ -296,6 +296,7 @@ def test_runner_outputs_are_identical_with_and_without_sharing(
         for row in rows:
             row.pop("processing_time_ms", None)
             row.pop("stage_timings_ms", None)
+            row.pop("metric_time_ms", None)
         return rows
 
     assert stable(tmp_path / "with-sharing") == stable(tmp_path / "without-sharing")

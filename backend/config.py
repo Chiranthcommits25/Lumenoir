@@ -74,6 +74,7 @@ class InferenceSettings:
     weights_dir: Path = DEFAULT_WEIGHTS_DIR
     weights_path: Path | None = None
     device: str = "cpu"
+    precision: str = "float32"
     # Longest edge used for inference. Set conservatively so a 40 MP upload
     # does not have to be processed at full resolution on a small CPU box.
     max_edge: int = 1600
@@ -125,7 +126,13 @@ def get_settings() -> Settings:
         model_id=_env_str("LUMENOIR_MODEL_ID", ""),
         weights_dir=Path(_env_str("LUMENOIR_WEIGHTS_DIR", str(DEFAULT_WEIGHTS_DIR))),
         weights_path=Path(weights_raw) if weights_raw else None,
-        device=_env_str("LUMENOIR_INFERENCE_DEVICE", "cpu"),
+        device=_env_str(
+            "LUMENOIR_INFERENCE_DEVICE", _env_str("LUMENOIR_DEVICE", "cpu")
+        ),
+        precision=_env_str(
+            "LUMENOIR_INFERENCE_PRECISION",
+            _env_str("LUMENOIR_PRECISION", "float32"),
+        ),
         max_edge=_env_int("LUMENOIR_INFERENCE_MAX_EDGE", 1600),
         max_inference_pixels=_env_int("LUMENOIR_INFERENCE_MAX_PIXELS", 4_000_000),
         load_on_startup=_env_bool("LUMENOIR_LOAD_MODEL_ON_STARTUP", True),

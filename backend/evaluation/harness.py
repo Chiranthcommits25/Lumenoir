@@ -8,6 +8,7 @@ reported with ``value=None`` and a note; it never invents a number.
 from __future__ import annotations
 
 import math
+import time
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
@@ -90,30 +91,49 @@ def evaluate_arrays(
 
         if definition.requires_reference and reference_array is None:
             results[definition.key] = MetricValue(
-                value=None, notes="A reference image is required.", **base
+                value=None,
+                notes="A reference image is required.",
+                metric_time_ms=0.0,
+                **base,
             )
             continue
 
+        started = time.perf_counter()
         try:
             value = definition.function(metric_input)
         except MetricDependencyError as exc:
-            results[definition.key] = MetricValue(value=None, notes=str(exc), **base)
+            results[definition.key] = MetricValue(
+                value=None,
+                notes=str(exc),
+                metric_time_ms=round((time.perf_counter() - started) * 1000.0, 3),
+                **base,
+            )
         except MetricInputError as exc:
             results[definition.key] = MetricValue(
-                value=None, notes=f"invalid input: {exc}", **base
+                value=None,
+                notes=f"invalid input: {exc}",
+                metric_time_ms=round((time.perf_counter() - started) * 1000.0, 3),
+                **base,
             )
         except Exception as exc:  # defensive: one metric must not kill a report
             results[definition.key] = MetricValue(
-                value=None, notes=f"metric failed: {exc}", **base
+                value=None,
+                notes=f"metric failed: {exc}",
+                metric_time_ms=round((time.perf_counter() - started) * 1000.0, 3),
+                **base,
             )
         else:
+            elapsed = round((time.perf_counter() - started) * 1000.0, 3)
             note = None
             if value is None:
                 note = "undefined for this input"
             elif not math.isfinite(float(value)):
                 note = "non-finite value"
             results[definition.key] = MetricValue(
-                value=None if value is None else float(value), notes=note, **base
+                value=None if value is None else float(value),
+                notes=note,
+                metric_time_ms=elapsed,
+                **base,
             )
 
     return results

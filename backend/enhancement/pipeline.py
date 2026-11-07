@@ -12,14 +12,17 @@ pool; the Zero-DCE++ ModelManager serialises model inference internally.
 from __future__ import annotations
 
 import logging
+import threading
 from collections.abc import Sequence
+from contextlib import nullcontext
 from dataclasses import dataclass
 
 from PIL import Image
 
 from ..config import Settings
-from ..inference.errors import InferenceError
+from ..inference.errors import DeviceUnavailableError, InferenceError
 from ..inference.manager import ModelManager
+from ..runtime.config import PipelineRuntime, resolve_runtime
 from ..timing import Stopwatch
 from .shared import SHARED_STAGES, CachedStage, SharedStageCache
 from .stages import PipelineStage, StageContext, StageNotImplemented, default_stages
@@ -91,16 +94,41 @@ class EnhancementPipeline:
         stages: Sequence[PipelineStage] | None = None,
         model_manager: ModelManager | None = None,
         settings: Settings | None = None,
+        runtime: PipelineRuntime | None = None,
     ) -> None:
         self._stages: tuple[PipelineStage, ...] = tuple(
             stages if stages is not None else default_stages()
         )
         self.model_manager = model_manager
         self.settings = settings
+        self._runtime = runtime
+        self._ops = None
+        self._runtime_lock = threading.Lock()
+        self._execution_lock = threading.Lock()
 
         self._by_name = {stage.name: stage for stage in self._stages}
         if len(self._by_name) != len(self._stages):
             raise ValueError("Pipeline stages must be unique.")
+
+    def _execution_ops(self):
+        """Resolve the backend lazily so importing the API never imports torch."""
+        try:
+            if self._runtime is None:
+                with self._runtime_lock:
+                    if self._runtime is None:
+                        self._runtime = resolve_runtime()
+            if not self._runtime.is_gpu:
+                return None
+            if self._ops is None:
+                with self._runtime_lock:
+                    if self._ops is None:
+                        from ..runtime.torch_ops import TorchImageOps
+
+                        self._ops = TorchImageOps(self._runtime)
+            return self._ops
+        except Exception as exc:
+            target = getattr(self._runtime, "device", None) or "accelerator"
+            raise DeviceUnavailableError(target, str(exc)) from exc
 
     # -- introspection -----------------------------------------------------
 
@@ -170,14 +198,31 @@ class EnhancementPipeline:
         if mode not in ENHANCEMENT_MODES:
             raise ValueError(f"Unsupported enhancement mode: {mode!r}.")
 
-        watches = Stopwatch()
+        ops = self._execution_ops()
+        lock = self._execution_lock if ops is not None else nullcontext()
         context = StageContext(
             image=image,
             mode=mode,
             original_size=(image.width, image.height),
             model_manager=self.model_manager,
             capture_diagnostics=capture_diagnostics,
+            runtime=self._runtime,
+            ops=ops,
         )
+        with lock:
+            return self._run_locked(
+                context, mode=mode, cache=cache, ops=ops
+            )
+
+    def _run_locked(
+        self,
+        context: StageContext,
+        *,
+        mode: EnhancementMode,
+        cache: SharedStageCache | None,
+        ops,
+    ) -> PipelineResult:
+        watches = Stopwatch()
         reports: list[StageReport] = []
 
         failed: str | None = None
@@ -223,6 +268,8 @@ class EnhancementPipeline:
             try:
                 with watches.measure(stage.name.value):
                     stage.run(context)
+                    if ops is not None:
+                        context.runtime.synchronize()
             except StageNotImplemented as exc:
                 reports.append(
                     StageReport(name=stage.name, status=stage.status, detail=str(exc))
@@ -270,9 +317,11 @@ class EnhancementPipeline:
             total_ms=watches.total_ms,
             final_image=final_image,
             message=message,
-            diagnostics=dict(context.diagnostics) if capture_diagnostics else {},
+            diagnostics=dict(context.diagnostics)
+            if context.capture_diagnostics
+            else {},
             diagnostic_images=dict(context.diagnostic_images)
-            if capture_diagnostics
+            if context.capture_diagnostics
             else {},
         )
 

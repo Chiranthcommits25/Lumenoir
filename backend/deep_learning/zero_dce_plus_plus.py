@@ -68,6 +68,14 @@ class PreparedInput:
 
 
 @dataclass(frozen=True)
+class TensorModelOutput:
+    """Device tensors returned by :meth:`infer_tensor`."""
+
+    image: Any
+    curve_alpha: Any
+
+
+@dataclass(frozen=True)
 class RawOutput:
     """Network output before it is converted back to an image."""
 
@@ -121,6 +129,7 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
         self._torch: Any | None = None
         self._numpy: Any | None = None
         self._net: Any | None = None
+        self._precision = "float32"
 
     # -- lifecycle ---------------------------------------------------------
 
@@ -146,6 +155,8 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
 
         try:
             net.to(self.device).eval()
+            dtype = torch.float16 if self._precision == "float16" else torch.float32
+            net.to(dtype=dtype)
         except Exception as exc:
             raise InferenceFailedError(
                 f"Could not move Zero-DCE++ to device '{self.device}': {exc}"
@@ -170,7 +181,90 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
             except Exception:  # pragma: no cover - best effort cleanup
                 logger.debug("MPS cache cleanup failed", exc_info=True)
 
+    def set_precision(self, precision: str) -> None:
+        """Select float32 or float16 inference for the loaded network."""
+        name = (precision or "float32").strip().lower()
+        aliases = {
+            "fp32": "float32",
+            "float": "float32",
+            "fp16": "float16",
+            "half": "float16",
+        }
+        name = aliases.get(name, name)
+        if name not in {"float32", "float16"}:
+            raise ValueError(
+                f"Unsupported inference precision {precision!r}; "
+                "use 'float32' or 'float16'."
+            )
+        if name == "float16" and self.device == "cpu":
+            raise RuntimeError(
+                "float16 inference is not supported on the CPU device."
+            )
+        self._precision = name
+        if self._net is not None:
+            self._require_torch()
+            self._net.to(dtype=self._torch_dtype())
+
+    def _torch_dtype(self):
+        torch = self._require_torch()
+        return torch.float16 if self._precision == "float16" else torch.float32
+
     # -- model stages ------------------------------------------------------
+
+    def infer_tensor(self, tensor):
+        """Run Zero-DCE++ on an HxWx3 RGB tensor and return device tensors."""
+        torch = self._require_torch()
+        net = self._require_net()
+        if not hasattr(tensor, "shape") or tensor.ndim != 3 or tensor.shape[2] != 3:
+            raise InferenceFailedError(
+                "Zero-DCE++ expected an HxWx3 tensor for tensor inference."
+            )
+        if not tensor.is_floating_point():
+            raise InferenceFailedError(
+                "Zero-DCE++ tensor input must use a floating-point dtype."
+            )
+
+        work = tensor.to(device=self.device, dtype=self._torch_dtype())
+        height, width = work.shape[:2]
+        pad_bottom = (-height) % self.scale_factor
+        pad_right = (-width) % self.scale_factor
+        chw = work.permute(2, 0, 1).unsqueeze(0)
+        if pad_bottom or pad_right:
+            mode = (
+                "reflect"
+                if pad_bottom < height and pad_right < width
+                else "replicate"
+            )
+            chw = torch.nn.functional.pad(
+                chw, (0, pad_right, 0, pad_bottom), mode=mode
+            )
+
+        try:
+            with torch.inference_mode():
+                enhanced, raw_alpha = net(chw)
+            image = (
+                enhanced[0, :, :height, :width].clamp(0.0, 1.0)
+                .permute(1, 2, 0)
+                .float()
+                .contiguous()
+            )
+            alpha = (
+                (-raw_alpha)[0, :, :height, :width]
+                .permute(1, 2, 0)
+                .float()
+                .contiguous()
+            )
+        except Exception as exc:
+            raise InferenceFailedError(
+                f"Zero-DCE++ tensor inference failed: {exc}"
+            ) from exc
+
+        if tuple(image.shape) != (height, width, 3):
+            raise InferenceFailedError(
+                f"Zero-DCE++ returned {tuple(image.shape)}, expected "
+                f"{(height, width, 3)}."
+            )
+        return TensorModelOutput(image=image, curve_alpha=alpha)
 
     def preprocess(self, image: Image.Image) -> PreparedInput:
         torch = self._require_torch()
@@ -206,7 +300,9 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
         net = self._require_net()
 
         with torch.inference_mode():
-            enhanced, raw_alpha = net(prepared.tensor)
+            enhanced, raw_alpha = net(
+                prepared.tensor.to(dtype=self._torch_dtype())
+            )
 
         return RawOutput(
             enhanced=enhanced,
@@ -227,7 +323,9 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
         width, height = output.original_size
 
         try:
-            enhanced = output.enhanced[0, :, :height, :width].clamp(0.0, 1.0)
+            enhanced = (
+                output.enhanced[0, :, :height, :width].clamp(0.0, 1.0).float()
+            )
             array = (
                 enhanced.mul(255.0)
                 .round()
@@ -344,7 +442,12 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
         try:
             with torch.inference_mode():
                 sample = torch.zeros(
-                    1, 3, _WARM_UP_SIZE, _WARM_UP_SIZE, device=self.device
+                    1,
+                    3,
+                    _WARM_UP_SIZE,
+                    _WARM_UP_SIZE,
+                    device=self.device,
+                    dtype=self._torch_dtype(),
                 )
                 net(sample)
         except Exception as exc:

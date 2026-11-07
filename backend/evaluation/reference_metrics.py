@@ -38,6 +38,11 @@ def _check_pair_shapes(reference: np.ndarray, output: np.ndarray) -> None:
 
 def compute_psnr(metric_input: MetricInput) -> float:
     """PSNR in dB against the reference, data_range = 1."""
+    from .gpu_metrics import compute_psnr as gpu_psnr
+    from .gpu_metrics import gpu_metrics_available
+
+    if gpu_metrics_available():
+        return gpu_psnr(metric_input)
     reference = metric_input.require_reference()
     _check_pair_shapes(reference, metric_input.image)
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -49,6 +54,11 @@ def compute_psnr(metric_input: MetricInput) -> float:
 
 def compute_ssim(metric_input: MetricInput) -> float:
     """SSIM against the reference, computed per channel and averaged."""
+    from .gpu_metrics import compute_ssim as gpu_ssim
+    from .gpu_metrics import gpu_metrics_available
+
+    if gpu_metrics_available():
+        return gpu_ssim(metric_input)
     reference = metric_input.require_reference()
     _check_ssim_size(reference)
     _check_ssim_size(metric_input.image)

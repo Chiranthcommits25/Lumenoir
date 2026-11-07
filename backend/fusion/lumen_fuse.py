@@ -480,11 +480,12 @@ def _compute_weights_core(candidates, noise_map, parameters, config, ops):
 def _fuse_core(candidates, refined, levels: int, ops):
     """Backend-agnostic multiscale fusion shared by CPU and torch."""
     weight_pyramids = [
-        ops.gaussian_pyramid(refined[..., index], levels)
+        _gaussian_pyramid_core(refined[..., index], levels, ops)
         for index in range(CANDIDATE_COUNT)
     ]
     candidate_pyramids = [
-        ops.laplacian_pyramid(candidate, levels) for candidate in candidates
+        _laplacian_pyramid_core(candidate, levels, ops)
+        for candidate in candidates
     ]
 
     fused_laplacian = []
@@ -500,7 +501,75 @@ def _fuse_core(candidates, refined, levels: int, ops):
             )
         fused_laplacian.append(blended)
 
-    return ops.clip(ops.collapse_pyramid(fused_laplacian), 0.0, 1.0)
+    return ops.clip(_collapse_pyramid_core(fused_laplacian, ops), 0.0, 1.0)
+
+
+@dataclass(frozen=True)
+class TorchFusionResult:
+    """Device tensors produced by :func:`fuse_tensors`."""
+
+    image: object
+    weights: object
+    levels: int
+    parameters: LumenParameters
+    sigma: float
+    initial_weights: object | None = None
+
+
+def fuse_tensors(
+    original,
+    classical,
+    deep_learning,
+    *,
+    noise_map,
+    parameters: LumenParameters,
+    ops,
+    sigma: float | None = None,
+    config: LumenFuseConfig | None = None,
+) -> TorchFusionResult:
+    """Fuse device tensors, reusing the shared CPU/torch fusion core."""
+    config = config or LumenFuseConfig()
+    _validate_config(config)
+    _validate_parameters(parameters)
+
+    candidates = (
+        original.to(ops.dtype),
+        classical.to(ops.dtype),
+        deep_learning.to(ops.dtype),
+    )
+    shape = candidates[0].shape
+    if any(candidate.shape != shape for candidate in candidates[1:]):
+        raise ValueError("All fusion candidates must have the same shape.")
+    if noise_map.shape != shape[:2]:
+        raise ValueError(
+            f"noise_map shape {tuple(noise_map.shape)} does not match "
+            f"the candidates {tuple(shape[:2])}."
+        )
+    if len(shape) != 3 or shape[2] != CANDIDATE_COUNT:
+        raise ValueError(f"fusion candidates must be HxWx3, got {tuple(shape)}.")
+
+    height, width = shape[:2]
+    levels = pyramid_levels(width, height, config.max_levels)
+    with ops.context():
+        initial, refined = _compute_weights_core(
+            candidates, noise_map.to(ops.dtype), parameters, config, ops
+        )
+        fused = _fuse_core(candidates, refined, levels, ops)
+        fused = ops.finalize_image(fused)
+
+    if tuple(fused.shape) != tuple(shape):
+        raise RuntimeError(
+            f"LumenFuse changed the image shape: {tuple(shape)} -> "
+            f"{tuple(fused.shape)}."
+        )
+    return TorchFusionResult(
+        image=fused,
+        weights=refined,
+        levels=levels,
+        parameters=parameters,
+        sigma=float(sigma) if sigma is not None else 0.0,
+        initial_weights=initial,
+    )
 
 
 def _select_ops(backend: str, device: str | None, precision: str):
@@ -677,9 +746,11 @@ __all__ = [
     "FusionWeights",
     "LumenFuseConfig",
     "LumenFuseResult",
+    "TorchFusionResult",
     "collapse_pyramid",
     "compute_weights",
     "fuse",
+    "fuse_tensors",
     "gaussian_pyramid",
     "laplacian_pyramid",
     "normalize_weights",

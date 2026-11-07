@@ -108,6 +108,7 @@ class ModelStatusSchema(BaseModel):
 
 class InferenceSettingsSchema(BaseModel):
     device: str
+    precision: str = "float32"
     max_edge: int
     max_inference_pixels: int
 

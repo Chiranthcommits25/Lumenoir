@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 import io
+import os
+
+os.environ.setdefault("LUMENOIR_DEVICE", "cpu")
+os.environ.setdefault("LUMENOIR_FUSE_BACKEND", "cpu")
+os.environ.setdefault("LUMENOIR_INFERENCE_DEVICE", "cpu")
 
 import numpy as np
 import pytest
@@ -37,6 +42,19 @@ class StubModelManager:
         self.calls += 1
         output = self.transform(image.copy()) if self.transform else image.copy()
         return InferenceOutcome(image=output, duration_ms=1.0, model_id="stub")
+
+    def infer_tensor(self, tensor):
+        import torch
+
+        from backend.deep_learning.zero_dce_plus_plus import TensorModelOutput
+
+        if not self.status.ready:
+            raise ModelNotAvailableError("Stub model is not ready.")
+        self.calls += 1
+        image = tensor.clone()
+        return TensorModelOutput(
+            image=image, curve_alpha=torch.zeros_like(image)
+        )
 
     def close(self) -> None:
         pass

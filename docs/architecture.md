@@ -14,7 +14,12 @@ research system. Anything not listed as implemented is a placeholder.
 | Safe resizing | `backend/preprocessing/resize.py` | Aspect-preserving, longest-edge cap, never upscales |
 | Stage timing | `backend/timing.py` | `perf_counter` measurements per stage |
 | Pipeline orchestration | `backend/enhancement/pipeline.py` | Ordered stages, per-mode stage sets, timing, failure isolation |
-| Stage implementations | `backend/enhancement/stages.py` | Thin wrappers over LumenScan, LumenRetinex, Zero-DCE++, LumenFuse, EdgeGuard, HueLock and the alpha blend |
+| Stage implementations | `backend/enhancement/stages.py` | Thin wrappers over LumenScan, LumenRetinex, Zero-DCE++, LumenFuse, EdgeGuard, HueLock and the alpha blend; CPU arrays or device tensors |
+| Pipeline runtime | `backend/runtime/config.py` | Unified `LUMENOIR_DEVICE`/`LUMENOIR_PRECISION` resolution, CPU fallback for `auto`, explicit-device errors |
+| Torch primitives | `backend/runtime/torch_ops.py` | LAB LUT, CLAHE, resize, filters, noise, guided filter, pyramids, colour spaces, bilateral |
+| GPU classical stages | `backend/classical_cv/torch_*.py`, `backend/fusion/lumen_fuse.py` | Tensor implementations of scan, Retinex, EdgeGuard, HueLock and fusion; shared rules/parameters |
+| GPU evaluation | `backend/evaluation/gpu_metrics.py` | Torch PSNR/SSIM selected by `LUMENOIR_EVAL_DEVICE`; CPU skimage default |
+| Pipeline benchmark | `training/benchmarks/benchmark_pipeline.py` | CPU/CUDA/MPS wall time, stage medians, RSS and accelerator memory |
 | Model interface | `backend/inference/base.py` | `preprocess → infer → postprocess` template + output validation |
 | Model registry | `backend/inference/registry.py` | `register_model` / `create_model`; registers `zero_dce_plus_plus` |
 | Model manager | `backend/inference/manager.py` | Load-once at startup, device resolution, missing-weights handling, serial inference, timing |
@@ -47,7 +52,7 @@ research system. Anything not listed as implemented is a placeholder.
 | `analysis` | LumenScan | Features, illumination and noise maps, rule-based parameters, do-no-harm bypass decision |
 | `classical_cv` | LumenRetinex | Adaptive gain, highlight shoulder, CLAHE on L\* → candidate C |
 | `deep_learning` | Zero-DCE++ through ModelManager | Curve-network inference → candidate D; skipped when the bypass gate fires |
-| `fusion` | LumenFuse | Pixel-wise noise-aware weights, guided refinement, Laplacian-pyramid blend → F; OpenCV CPU or PyTorch CUDA backend |
+| `fusion` | LumenFuse | Pixel-wise noise-aware weights, guided refinement, Laplacian-pyramid blend → F; NumPy CPU or torch tensor backend |
 | `denoising` | EdgeGuard | Gain-aware luma guided filter and chroma bilateral filter → F′ |
 | `colour_correction` | HueLock | Guarded LAB cast correction → F″ |
 | `quality_assessment` | Adaptive alpha blend | `out = (1−α)I + αF″`, or the original when α = 0 / bypass; final size/range validation |
@@ -58,11 +63,14 @@ not used by `default_stages()`.
 
 LumenFuse has one shared algorithm implementation in `fusion/lumen_fuse.py` and
 two primitive backends: the original NumPy/OpenCV CPU path and a PyTorch path in
-`fusion/torch_backend.py`. The hybrid stage requests `backend="auto"`, which
-uses CUDA when PyTorch reports it available and otherwise the CPU path. The
-`LUMENOIR_FUSE_BACKEND`, `LUMENOIR_FUSE_DEVICE` and `LUMENOIR_FUSE_PRECISION`
-environment variables override this for deployment and benchmarking. The torch
-module is imported lazily, so importing the pipeline never requires PyTorch.
+`fusion/torch_backend.py`. The unified pipeline resolves one runtime for the
+whole request (`LUMENOIR_DEVICE`, default `auto`): when it resolves to CUDA or
+MPS, every stage uses device tensors through `backend/runtime/torch_ops.py`;
+otherwise the CPU reference path runs. `fuse()` still accepts the legacy
+`LUMENOIR_FUSE_BACKEND`/`LUMENOIR_FUSE_DEVICE`/`LUMENOIR_FUSE_PRECISION`
+variables for standalone callers and benchmarks. Torch is imported lazily, so
+importing the pipeline or API never requires PyTorch and CPU tests stay
+torch-free. Full details: [`gpu_pipeline.md`](gpu_pipeline.md).
 
 ## Not implemented
 
@@ -94,9 +102,10 @@ startup (lifespan)
 
 request (POST /api/enhance)
   └─ run_in_threadpool(pipeline.run)
-        ├─ analysis/classical/fusion/denoise/colour/final (CPU)
-        └─ deep_learning → manager.infer(image)
-                             # serialised, wrapped errors, measured duration
+        ├─ runtime resolved lazily (LUMENOIR_DEVICE/PRECISION)
+        ├─ CPU   → NumPy/OpenCV stages, manager.infer(PIL)
+        └─ CUDA/MPS → TorchImageOps, all stages on device tensors,
+                       manager.infer_tensor(tensor), stage sync for timing
 ```
 
 The selected architecture, Zero-DCE++, is registered in

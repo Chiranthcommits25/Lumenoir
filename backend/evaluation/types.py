@@ -40,6 +40,9 @@ class MetricInput:
     timings_ms: Mapping[str, float] = field(default_factory=dict)
     peak_rss_mb: float | None = None
     extras: Mapping[str, float] = field(default_factory=dict)
+    cache: dict[str, object] = field(
+        default_factory=dict, compare=False, repr=False
+    )
 
     def require_reference(self) -> np.ndarray:
         if self.reference is None:
@@ -64,6 +67,7 @@ class MetricValue:
     unit: str | None = None
     higher_is_better: bool | None = None
     notes: str | None = None
+    metric_time_ms: float | None = None
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -73,6 +77,7 @@ class MetricValue:
             "unit": self.unit,
             "higher_is_better": self.higher_is_better,
             "notes": self.notes,
+            "metric_time_ms": self.metric_time_ms,
         }
 
 

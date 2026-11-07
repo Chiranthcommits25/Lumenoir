@@ -71,6 +71,16 @@ class InferenceOutcome:
     model_id: str
 
 
+@dataclass(frozen=True)
+class TensorInferenceOutcome:
+    """Device tensors plus the measured tensor inference duration."""
+
+    image: object
+    curve_alpha: object | None
+    duration_ms: float
+    model_id: str
+
+
 class ModelManager:
     """Owns the single loaded model instance for the process."""
 
@@ -174,6 +184,9 @@ class ModelManager:
                 model = create_model(
                     settings.model_id, weights, device=resolved_device
                 )
+                setter = getattr(model, "set_precision", None)
+                if callable(setter):
+                    setter(settings.precision)
                 model.load()
             except InferenceError as exc:
                 self._status = self._failure_status(str(weights), exc.message)
@@ -255,6 +268,45 @@ class ModelManager:
 
         return InferenceOutcome(
             image=result,
+            duration_ms=duration_ms,
+            model_id=status.model_id,
+        )
+
+    def infer_tensor(self, tensor) -> TensorInferenceOutcome:
+        """Run the model on a device tensor, serially and with timing."""
+        status = self._status
+        if not status.ready or self._model is None:
+            raise ModelNotAvailableError(
+                status.message or "No enhancement model is available.",
+                code=self._unavailable_code(status),
+                status_code=503,
+            )
+        runner = getattr(self._model, "infer_tensor", None)
+        if not callable(runner):
+            raise InferenceFailedError(
+                "The loaded model does not implement tensor inference."
+            )
+
+        with self._infer_lock:
+            started = time.perf_counter()
+            try:
+                result = runner(tensor)
+            except InferenceError:
+                raise
+            except MemoryError as exc:  # pragma: no cover - environment dependent
+                raise InferenceFailedError(
+                    "Inference ran out of memory for this image."
+                ) from exc
+            except Exception as exc:
+                raise InferenceFailedError(f"Inference failed: {exc}") from exc
+            duration_ms = round((time.perf_counter() - started) * 1000.0, 3)
+
+        image = getattr(result, "image", result)
+        if image is None:
+            raise InferenceFailedError("The model returned no tensor output.")
+        return TensorInferenceOutcome(
+            image=image,
+            curve_alpha=getattr(result, "curve_alpha", None),
             duration_ms=duration_ms,
             model_id=status.model_id,
         )

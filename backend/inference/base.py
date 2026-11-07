@@ -70,6 +70,14 @@ class EnhancementModel(ABC):
         """Release model resources. The default only clears the loaded flag."""
         self._loaded = False
 
+    def set_precision(self, precision: str) -> None:
+        """Select a torch precision for models that support reduced precision.
+
+        The default is an explicit no-op so third-party models only implementing
+        the image interface keep working unchanged; they ignore the hint.
+        """
+        return None
+
     # -- model stages ------------------------------------------------------
 
     @abstractmethod

@@ -8,13 +8,14 @@ and receive a restored result. It is designed to stay lightweight enough for
 affordable CPU-based cloud deployment and responsive on phones, tablets and
 desktops.
 
-> **Status: full enhancement pipeline integrated.**
+> **Status: full enhancement pipeline integrated, CPU and accelerator paths.**
 > Upload validation, LumenScan, LumenRetinex, pretrained Zero-DCE++ inference,
 > LumenFuse, EdgeGuard, HueLock, the adaptive alpha blend, the dataset pipeline,
 > the evaluation framework, the **Kaggle evaluation runner** and the frontend
 > workspace are implemented. **`POST /api/enhance` now returns an enhanced
-> PNG.** Classical mode works without a model; deep-learning and hybrid modes
-> require a ready Zero-DCE++ checkpoint. Local datasets are present under
+> PNG.** The accelerator path runs every stage on CUDA/MPS tensors; CPU remains
+> the reference and fallback. Classical mode works without a model;
+> deep-learning and hybrid modes require a ready Zero-DCE++ checkpoint. Local datasets are present under
 > `datasets/raw` (LOL-v1, LOL-v2 Real/Synthetic, SICE_Paired and the additional
 > NPE/LIME/MEF/VV folders); ExDark and DICM are not local. No full evaluation
 > has been run.
@@ -40,6 +41,9 @@ desktops.
 | Full pipeline: scan → Retinex/DL → fuse → denoise → colour → α blend | **Implemented** |
 | Adaptive alpha blend and do-no-harm bypass | **Implemented** |
 | Device selection (CPU / CUDA / Apple Silicon MPS / auto) | **Implemented** |
+| GPU-first pipeline (scan → Retinex/DL → fuse → denoise → colour → α blend) | **Implemented** (CUDA/MPS tensor path; CPU fallback) |
+| GPU PSNR/SSIM evaluation | **Implemented** (`LUMENOIR_EVAL_DEVICE`) |
+| Pipeline benchmark (CPU/accelerator, stage timings, memory) | **Implemented** (`training/benchmarks/benchmark_pipeline.py`; no T4 run yet) |
 | Missing-weights, checkpoint, device and inference-failure handling | **Implemented** |
 | API: health, limits, upload, pipeline status, enhance, metrics | **Implemented** |
 | Frontend: upload, methods, comparison, intermediate gallery, downloads | **Implemented** |
@@ -279,7 +283,24 @@ config format, outputs, metric definitions, limitations, and
 for a ready-to-run notebook. `example_config.json` and sample report formats are
 in the same directory.
 
-### 7. Docker (backend only)
+### 7. GPU-first pipeline and benchmark
+
+```bash
+# CUDA deployment (T4 or similar)
+LUMENOIR_DEVICE=cuda LUMENOIR_PRECISION=float32 \
+LUMENOIR_INFERENCE_DEVICE=cuda LUMENOIR_MODEL_ID=zero_dce_plus_plus \
+python -m uvicorn backend.main:app
+
+# Full CPU/accelerator benchmark (writes JSON; no fabricated device rows)
+python -m training.benchmarks.benchmark_pipeline \
+    --devices cpu,cuda --sizes 256x256,640x480,1280x960,2304x1728 \
+    --warmup 1 --repeat 3
+```
+
+See [`docs/gpu_pipeline.md`](docs/gpu_pipeline.md) for the stage mapping,
+parity tolerances, measured local numbers and the pending T4 validation.
+
+### 8. Docker (backend only)
 
 ```bash
 docker build -t lumenoir-api .
@@ -302,7 +323,11 @@ Environment variables are read at startup and can be placed in `.env`
 | `LUMENOIR_MODEL_ID` | *(empty)* | Registered model id; `zero_dce_plus_plus` enables NoirNet; empty means none |
 | `LUMENOIR_MODEL_WEIGHTS` | *(empty)* | Explicit checkpoint path |
 | `LUMENOIR_WEIGHTS_DIR` | `backend/weights` | Where `.pth` files are looked up |
-| `LUMENOIR_INFERENCE_DEVICE` | `cpu` | `cpu`, `mps`, `cuda`, `cuda:N` or `auto` (MPS → CUDA → CPU) |
+| `LUMENOIR_DEVICE` | `auto` | Whole-pipeline backend: `auto` (CUDA else CPU), `cpu`, `mps`, `cuda`, `cuda:N` |
+| `LUMENOIR_PRECISION` | `float32` | `float32` or `float16` on CUDA/MPS; CPU is always float32 |
+| `LUMENOIR_INFERENCE_DEVICE` | follows `LUMENOIR_DEVICE` | `cpu`, `mps`, `cuda`, `cuda:N` or `auto` (MPS → CUDA → CPU) |
+| `LUMENOIR_INFERENCE_PRECISION` | follows `LUMENOIR_PRECISION` | Zero-DCE++ tensor precision |
+| `LUMENOIR_EVAL_DEVICE` | `cpu` | GPU PSNR/SSIM: `cuda`, `cuda:N`, `mps` or `auto` |
 | `LUMENOIR_ZERODCE_SCALE_FACTOR` | `12` | Zero-DCE++ downscale factor, 1–12 |
 | `LUMENOIR_INFERENCE_MAX_EDGE` | `1600` | Longest edge used for inference |
 | `LUMENOIR_INFERENCE_MAX_PIXELS` | `4000000` | Hard ceiling before a request is rejected |

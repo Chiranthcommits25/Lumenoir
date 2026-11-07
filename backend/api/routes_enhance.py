@@ -137,6 +137,7 @@ def enhancement_status(
         model=_model_status(manager),
         inference=InferenceSettingsSchema(
             device=settings.inference.device,
+            precision=settings.inference.precision,
             max_edge=settings.inference.max_edge,
             max_inference_pixels=settings.inference.max_inference_pixels,
         ),

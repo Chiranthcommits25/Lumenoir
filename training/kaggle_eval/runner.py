@@ -65,6 +65,7 @@ class MetricRecord:
     metric_notes: dict[str, str] = field(default_factory=dict)
     processing_time_ms: float | None = None
     stage_timings_ms: dict[str, float] = field(default_factory=dict)
+    metric_time_ms: float | None = None
     error: str | None = None
     subgroup: str | None = None
 
@@ -82,6 +83,7 @@ class MetricRecord:
             "metric_notes": self.metric_notes,
             "processing_time_ms": self.processing_time_ms,
             "stage_timings_ms": self.stage_timings_ms,
+            "metric_time_ms": self.metric_time_ms,
             "error": self.error,
         }
 
@@ -262,14 +264,16 @@ def _evaluate(
     )
     metrics: dict[str, float | None] = {}
     notes: dict[str, str] = {}
+    metric_time_ms = 0.0
     for key, metric in values.items():
+        metric_time_ms += float(metric.metric_time_ms or 0.0)
         value, note = _finite(metric.value)
         metrics[key] = value
         if metric.notes:
             notes[key] = metric.notes
         elif note:
             notes[key] = note
-    return metrics, notes
+    return metrics, notes, round(metric_time_ms, 3)
 
 
 def _write_jsonl(path: Path, records: list[dict[str, object]]) -> None:
@@ -293,6 +297,7 @@ def _write_records_csv(records: list[MetricRecord], path: Path) -> None:
         "mode",
         "success",
         "processing_time_ms",
+        "metric_time_ms",
         "error",
         *metric_keys,
     ]
@@ -311,6 +316,7 @@ def _write_records_csv(records: list[MetricRecord], path: Path) -> None:
                 "mode": record.mode,
                 "success": record.success,
                 "processing_time_ms": record.processing_time_ms,
+                "metric_time_ms": record.metric_time_ms,
                 "error": record.error,
             }
             for key in metric_keys:
@@ -852,7 +858,7 @@ def _run_record(
                     output = to_float32_rgb(result.final_image)
                     result.release()
 
-                metrics, notes = _evaluate(
+                metrics, notes, metric_time_ms = _evaluate(
                     output,
                     low,
                     reference,
@@ -873,6 +879,7 @@ def _run_record(
                         metric_notes=notes,
                         processing_time_ms=processing_time,
                         stage_timings_ms=timings,
+                        metric_time_ms=metric_time_ms,
                     )
                 )
 

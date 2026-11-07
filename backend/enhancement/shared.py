@@ -31,9 +31,19 @@ SHARED_STAGES: frozenset[StageName] = frozenset(
 """Prefix stages reused by more than one mode for the same image."""
 
 _STAGE_STATE_FIELDS: dict[StageName, tuple[str, ...]] = {
-    StageName.ANALYSIS: ("rgb", "scan_result", "bypass"),
-    StageName.CLASSICAL_CV: ("classical", "enhanced"),
-    StageName.DEEP_LEARNING: ("deep_learning", "enhanced"),
+    StageName.ANALYSIS: ("rgb", "rgb_tensor", "scan_result", "bypass"),
+    StageName.CLASSICAL_CV: (
+        "classical",
+        "classical_tensor",
+        "enhanced",
+        "enhanced_tensor",
+    ),
+    StageName.DEEP_LEARNING: (
+        "deep_learning",
+        "deep_learning_tensor",
+        "enhanced",
+        "enhanced_tensor",
+    ),
 }
 """Context attributes each shared stage owns.
 
