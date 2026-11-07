@@ -43,15 +43,15 @@ export function MethodSelector({
               aria-checked={selected}
               disabled={disabled}
               onClick={() => onChange(option.mode)}
-              className={`flex min-h-10 flex-col items-center justify-center rounded-full px-2 py-1.5 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent/60 sm:text-sm ${
+              className={`flex min-h-11 flex-col items-center justify-center rounded-full px-2 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent/60 sm:text-[15px] ${
                 selected
                   ? 'bg-ink-700 text-mist-50'
                   : 'text-mist-400 hover:text-mist-200'
               } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
             >
-              <span className="font-medium">{option.label}</span>
+              <span className="font-medium leading-tight">{option.label}</span>
               <span
-                className={`text-[10px] tracking-[0.1em] uppercase ${
+                className={`mt-0.5 text-[11px] leading-tight tracking-[0.1em] uppercase ${
                   option.available ? 'text-emerald-400/90' : 'text-mist-500'
                 }`}
               >

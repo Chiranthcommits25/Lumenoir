@@ -1,5 +1,8 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
+const DEFAULT_TIMEOUT_MS = 30_000
+const ENHANCE_TIMEOUT_MS = 180_000
+
 export type EnhancementMode = 'classical' | 'deep_learning' | 'hybrid'
 
 export type ChannelStatistics = {
@@ -166,28 +169,71 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+type RequestOptions = RequestInit & { timeoutMs?: number }
+
+async function request<T>(path: string, init: RequestOptions = {}): Promise<T> {
+  const { timeoutMs = DEFAULT_TIMEOUT_MS, signal, ...rest } = init
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort('timeout'), timeoutMs)
+  const abortFromCaller = () => controller.abort(signal?.reason)
+  if (signal) {
+    if (signal.aborted) controller.abort(signal.reason)
+    else signal.addEventListener('abort', abortFromCaller, { once: true })
+  }
+
   let response: Response
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, init)
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...rest,
+      signal: controller.signal,
+    })
   } catch {
+    if (controller.signal.aborted) {
+      if (controller.signal.reason === 'timeout') {
+        throw new ApiError(
+          'The LUMENOIR API did not respond in time. Try again or check the backend.',
+          'timeout',
+          0,
+        )
+      }
+      throw new ApiError('Request cancelled.', 'cancelled', 0)
+    }
+    const offline = typeof navigator !== 'undefined' && navigator.onLine === false
     throw new ApiError(
-      'Could not reach the LUMENOIR API. Check that the backend is running.',
+      offline
+        ? 'You appear to be offline. Reconnect and try again.'
+        : 'Could not reach the LUMENOIR API. Check that the backend URL is configured and the backend is running.',
       'network_error',
       0,
     )
+  } finally {
+    clearTimeout(timeout)
+    signal?.removeEventListener('abort', abortFromCaller)
   }
 
-  const payload = (await response.json().catch(() => null)) as
-    | ErrorPayload
-    | null
+  let payload: ErrorPayload | null = null
+  const contentType = response.headers.get('content-type') ?? ''
+  if (contentType.includes('application/json') || !response.ok) {
+    payload = (await response.json().catch(() => null)) as ErrorPayload | null
+  }
 
   if (!response.ok) {
     throw new ApiError(
-      payload?.error?.message ?? `Request failed (${response.status}).`,
+      payload?.error?.message ??
+        (response.status >= 500
+          ? 'The LUMENOIR API returned a server error. Try again.'
+          : `Request failed (${response.status}).`),
       payload?.error?.code ?? 'request_failed',
       response.status,
       payload,
+    )
+  }
+
+  if (payload === null) {
+    throw new ApiError(
+      'The LUMENOIR API returned an invalid response.',
+      'invalid_response',
+      response.status,
     )
   }
 
@@ -236,6 +282,7 @@ export function enhanceImage(
   return request<EnhancementResult>('/api/enhance', {
     method: 'POST',
     body,
+    timeoutMs: ENHANCE_TIMEOUT_MS,
   })
 }
 

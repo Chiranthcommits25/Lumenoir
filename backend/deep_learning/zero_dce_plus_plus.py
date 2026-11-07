@@ -51,6 +51,9 @@ SCALE_FACTOR_ENV = "LUMENOIR_ZERODCE_SCALE_FACTOR"
 MIN_SCALE_FACTOR = 1
 MAX_SCALE_FACTOR = 12
 
+MAX_GAIN = 12.0
+HIGHLIGHT_START = 0.92
+
 EXPECTED_PARAMETERS = 10_561
 EXPECTED_TENSORS = 28
 EXPECTED_CHECKPOINT_BYTES = 52_395
@@ -84,6 +87,7 @@ class RawOutput:
     curve_alpha: Any
     original_size: tuple[int, int]
     padded_size: tuple[int, int]
+    original: Any
 
 
 def _resolve_scale_factor(explicit: int | None) -> int:
@@ -242,12 +246,15 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
         try:
             with torch.inference_mode():
                 enhanced, raw_alpha = net(chw)
-            image = (
-                enhanced[0, :, :height, :width].clamp(0.0, 1.0)
-                .permute(1, 2, 0)
-                .float()
-                .contiguous()
-            )
+            original = work[:, :, :height, :width].permute(1, 2, 0).float().contiguous()
+            enhanced = enhanced[0, :, :height, :width].clamp(0.0, 1.0).permute(1, 2, 0).float().contiguous()
+            gain = (enhanced / original.clamp(min=1e-4)).clamp(min=1.0, max=MAX_GAIN)
+            enhanced = (original * gain).clamp(0.0, 1.0)
+            lum = (0.2126 * original[..., 0] + 0.7152 * original[..., 1] + 0.0722 * original[..., 2]).clamp(0.0, 1.0)
+            highlight_weight = ((lum - HIGHLIGHT_START) / (1.0 - HIGHLIGHT_START)).clamp(0.0, 1.0)
+            enhanced = enhanced * (1.0 - highlight_weight.unsqueeze(-1)) + original * highlight_weight.unsqueeze(-1)
+            enhanced = enhanced.clamp(0.0, 1.0).contiguous()
+            image = enhanced
             alpha = (
                 (-raw_alpha)[0, :, :height, :width]
                 .permute(1, 2, 0)
@@ -310,6 +317,7 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
             curve_alpha=-raw_alpha,
             original_size=prepared.original_size,
             padded_size=prepared.padded_size,
+            original=prepared.tensor,
         )
 
     def postprocess(self, output: RawOutput, target_size: tuple[int, int]) -> Image.Image:
@@ -323,17 +331,17 @@ class ZeroDCEPlusPlusModel(EnhancementModel):
         width, height = output.original_size
 
         try:
-            enhanced = (
-                output.enhanced[0, :, :height, :width].clamp(0.0, 1.0).float()
-            )
-            array = (
-                enhanced.mul(255.0)
-                .round()
-                .to(torch.uint8)
-                .permute(1, 2, 0)
-                .cpu()
-                .numpy()
-            )
+            import numpy as np
+
+            original = output.original[0, :, :height, :width].permute(1, 2, 0).float().cpu().numpy()
+            enhanced = output.enhanced[0, :, :height, :width].clamp(0.0, 1.0).permute(1, 2, 0).float().cpu().numpy()
+            gain = np.clip(enhanced / np.clip(original, 1e-4, None), 1.0, MAX_GAIN)
+            enhanced = np.clip(original * gain, 0.0, 1.0)
+            lum = 0.2126 * original[..., 0] + 0.7152 * original[..., 1] + 0.0722 * original[..., 2]
+            highlight_weight = np.clip((lum - HIGHLIGHT_START) / (1.0 - HIGHLIGHT_START), 0.0, 1.0)[..., None]
+            enhanced = enhanced * (1.0 - highlight_weight) + original * highlight_weight
+            enhanced = np.clip(enhanced, 0.0, 1.0)
+            array = np.round(enhanced * 255.0).astype("uint8")
         except Exception as exc:
             raise InferenceFailedError(
                 f"Could not convert the Zero-DCE++ output to an image: {exc}"

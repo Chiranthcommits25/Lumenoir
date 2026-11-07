@@ -103,16 +103,16 @@ export function UploadDropzone({
         </svg>
       </span>
 
-      <div className="space-y-1">
-        <p className="text-base font-medium text-mist-50">
+      <div className="space-y-1.5">
+        <p className="text-base font-medium leading-snug text-mist-50 sm:text-lg">
           {busy ? 'Validating image…' : 'Drop a low-light photo here'}
         </p>
-        <p className="text-sm text-mist-400">
+        <p className="text-[15px] leading-relaxed text-mist-400 sm:text-base">
           or tap to browse your device
         </p>
       </div>
 
-      <p className="text-xs text-mist-500">
+      <p className="text-sm leading-relaxed text-mist-500">
         {formatExtensions(acceptedExtensions)} · up to {formatBytes(maxSizeBytes)}
       </p>
     </div>

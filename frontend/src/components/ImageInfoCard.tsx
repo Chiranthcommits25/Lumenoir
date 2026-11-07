@@ -33,14 +33,14 @@ export function ImageInfoCard({ info }: ImageInfoCardProps) {
 
   return (
     <section className="rounded-2xl border border-ink-700 bg-ink-850 p-4 sm:p-5">
-      <div className="flex items-start justify-between gap-3">
+      <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
         <div className="min-w-0">
-          <h2 className="text-sm font-medium text-mist-50">Image information</h2>
-          <p className="mt-1 truncate text-xs text-mist-500" title={info.filename}>
+          <h2 className="text-sm font-medium leading-snug text-mist-50 sm:text-base">Image information</h2>
+          <p className="mt-1 truncate text-sm text-mist-500" title={info.filename}>
             {info.filename}
           </p>
         </div>
-        <span className="shrink-0 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[11px] tracking-[0.14em] text-accent-soft uppercase">
+        <span className="inline-flex w-fit max-w-full items-center justify-self-start whitespace-normal break-words rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[11px] leading-tight tracking-[0.14em] text-accent-soft uppercase sm:justify-self-end">
           Valid
         </span>
       </div>
@@ -59,7 +59,7 @@ export function ImageInfoCard({ info }: ImageInfoCardProps) {
 
       {histogram.length ? (
         <figure className="mt-4">
-          <figcaption className="text-xs text-mist-500">
+          <figcaption className="text-sm text-mist-500">
             Luminance distribution ({histogram.length} bins)
           </figcaption>
           <div
@@ -78,7 +78,7 @@ export function ImageInfoCard({ info }: ImageInfoCardProps) {
         </figure>
       ) : null}
 
-      <p className="mt-3 text-xs leading-relaxed text-mist-500">
+      <p className="mt-3 text-sm leading-relaxed text-mist-500">
         Nothing is stored: the image is validated in memory and discarded.
       </p>
     </section>

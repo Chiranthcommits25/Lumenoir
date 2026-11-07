@@ -82,12 +82,21 @@ class InferenceSettings:
     load_on_startup: bool = True
 
     def resolved_weights_path(self) -> Path | None:
-        """Explicit weights path wins; otherwise ``<weights_dir>/<model_id>.pth``."""
+        """Explicit weights path wins; otherwise search weights_dir."""
         if self.weights_path is not None:
             return self.weights_path
         if not self.model_id:
             return None
-        return self.weights_dir / f"{self.model_id}.pth"
+        candidate = self.weights_dir / f"{self.model_id}.pth"
+        if candidate.is_file():
+            return candidate
+        # Support common aliases if present in weights directory
+        if self.model_id == "zero_dce_plus_plus":
+            for alias in ("zero_dce_file.pth", "zero_dce++.pth"):
+                alt = self.weights_dir / alias
+                if alt.is_file():
+                    return alt
+        return candidate
 
 
 @dataclass(frozen=True)
@@ -118,13 +127,29 @@ class Settings:
     cors_origins: tuple[str, ...] = DEFAULT_CORS_ORIGINS
 
 
+def _detect_default_model_id(weights_dir: Path) -> str:
+    """Auto-detect Zero-DCE++ model if a compatible checkpoint is present."""
+    for filename in ("zero_dce_plus_plus.pth", "zero_dce_file.pth", "zero_dce++.pth"):
+        if (weights_dir / filename).is_file():
+            return "zero_dce_plus_plus"
+    return ""
+
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     """Return cached settings, with environment overrides applied."""
     weights_raw = _env_str("LUMENOIR_MODEL_WEIGHTS", "")
+    weights_dir = Path(_env_str("LUMENOIR_WEIGHTS_DIR", str(DEFAULT_WEIGHTS_DIR)))
+    default_model_id = _detect_default_model_id(weights_dir)
+    env_model_id = os.getenv("LUMENOIR_MODEL_ID")
+    if env_model_id is not None:
+        model_id = env_model_id.strip()
+    else:
+        model_id = default_model_id
+
     inference = InferenceSettings(
-        model_id=_env_str("LUMENOIR_MODEL_ID", ""),
-        weights_dir=Path(_env_str("LUMENOIR_WEIGHTS_DIR", str(DEFAULT_WEIGHTS_DIR))),
+        model_id=model_id,
+        weights_dir=weights_dir,
         weights_path=Path(weights_raw) if weights_raw else None,
         device=_env_str(
             "LUMENOIR_INFERENCE_DEVICE", _env_str("LUMENOIR_DEVICE", "cpu")

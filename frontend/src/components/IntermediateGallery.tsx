@@ -21,8 +21,8 @@ const STATE_LABEL: Record<ArtifactState, string> = {
 
 const STATE_CLASS: Record<ArtifactState, string> = {
   available: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
-  not_applicable: 'border-ink-600 bg-ink-800/60 text-mist-500',
-  pending: 'border-amber-400/25 bg-amber-400/5 text-amber-200/80',
+  not_applicable: 'border-ink-600 bg-ink-800/60 text-mist-400',
+  pending: 'border-accent/30 bg-accent/10 text-accent-soft',
 }
 
 /**
@@ -37,7 +37,7 @@ export function IntermediateGallery({
 }: IntermediateGalleryProps) {
   if (!artifacts.length) {
     return (
-      <p className="text-sm text-mist-500">
+      <p className="text-[15px] leading-relaxed text-mist-500 sm:text-base">
         Intermediate outputs are not available yet.
       </p>
     )
@@ -59,12 +59,12 @@ export function IntermediateGallery({
               state === 'not_applicable' ? 'border-ink-700/70' : 'border-ink-700'
             }`}
           >
-            <div className="flex items-center justify-between gap-2 border-b border-ink-700 px-3 py-2">
-              <p className="min-w-0 truncate text-xs font-medium text-mist-200">
+            <div className="grid grid-cols-1 gap-x-2 gap-y-1.5 border-b border-ink-700 px-3.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+              <p className="min-w-0 text-sm font-medium leading-snug text-mist-200">
                 {artifact.label}
               </p>
               <span
-                className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] tracking-[0.1em] uppercase ${STATE_CLASS[state]}`}
+                className={`inline-flex w-fit max-w-full items-center justify-self-start whitespace-normal break-words rounded-full border px-2.5 py-1 text-[11px] leading-tight tracking-[0.1em] uppercase sm:justify-self-end ${STATE_CLASS[state]}`}
               >
                 {STATE_LABEL[state]}
               </span>
@@ -77,9 +77,9 @@ export function IntermediateGallery({
                 className="max-h-48 w-full bg-ink-950 object-contain"
               />
             ) : (
-              <div className="flex min-h-24 flex-col justify-center gap-1 px-3 py-4">
+              <div className="flex min-h-24 flex-col justify-center gap-1 px-3.5 py-4">
                 <p
-                  className={`text-xs leading-relaxed ${
+                  className={`text-sm leading-relaxed ${
                     state === 'not_applicable' ? 'text-mist-500' : 'text-mist-400'
                   }`}
                 >

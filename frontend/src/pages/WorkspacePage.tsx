@@ -246,19 +246,19 @@ export function WorkspacePage() {
               reason: 'Not part of the selected enhancement mode.',
             },
     )
-  }, [activeMode, mode, pipelineStatus, result])
+  }, [activeMode, pipelineStatus, result])
   const modes = pipelineStatus?.modes ?? []
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-1 py-8 sm:py-10">
+      <div className="flex flex-col gap-2 py-8 sm:py-10">
         <h1 className="text-2xl font-medium tracking-tight text-mist-50 sm:text-3xl">
           Workspace
         </h1>
         <p className="max-w-2xl text-sm leading-relaxed text-mist-400 sm:text-base">
-          Upload a low-light photograph to inspect it and run it through the
-          pipeline. Enhancement stages are reported honestly while the algorithms
-          are still being researched.
+          Upload a low-light photograph, choose an enhancement mode, and run the
+          pipeline. Compare the original and enhanced images, inspect available
+          intermediate outputs, and download the result.
         </p>
       </div>
 
@@ -267,7 +267,7 @@ export function WorkspacePage() {
           {error ? (
             <div
               role="alert"
-              className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+              className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm leading-relaxed text-red-200"
             >
               <svg
                 aria-hidden="true"
@@ -292,7 +292,7 @@ export function WorkspacePage() {
               <button
                 type="button"
                 onClick={() => setError(null)}
-                className="ml-auto shrink-0 rounded text-xs text-red-300/80 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-red-300/60"
+                className="ml-auto shrink-0 rounded px-1 text-xs font-medium text-red-300/80 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-red-300/60"
               >
                 Dismiss
               </button>
@@ -352,16 +352,16 @@ export function WorkspacePage() {
           )}
 
           <section className="rounded-2xl border border-ink-700 bg-ink-850 p-4 sm:p-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
               <div className="min-w-0">
-                <h2 className="text-sm font-medium text-mist-50">Enhancement</h2>
-                <p className="mt-1 text-sm leading-relaxed text-mist-400">
-                  Choose a method and run the pipeline. While stages are pending
-                  the API returns the exact list rather than an invented image.
+                <h2 className="text-sm font-medium leading-snug text-mist-50 sm:text-base">Enhancement</h2>
+                <p className="mt-1.5 text-sm leading-relaxed text-mist-400">
+                  Select a method, then run enhancement. Results and intermediate
+                  outputs reflect the selected mode.
                 </p>
               </div>
-              <span className="w-fit shrink-0 rounded-full border border-ink-600 px-2.5 py-1 text-[10px] tracking-[0.14em] text-mist-500 uppercase">
-                {pipelineStatus?.ready ? 'Available' : 'Pending'}
+              <span className="inline-flex w-fit max-w-full items-center justify-self-start whitespace-normal break-words rounded-full border border-ink-600 px-2.5 py-1 text-[11px] leading-tight tracking-[0.14em] text-mist-500 uppercase sm:justify-self-end">
+                {busy ? 'Processing' : pipelineStatus?.ready ? 'Ready' : 'Checking'}
               </span>
             </div>
 
@@ -379,7 +379,7 @@ export function WorkspacePage() {
                 type="button"
                 onClick={handleEnhance}
                 disabled={!file || busy}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-mist-50 px-5 text-sm font-medium text-ink-950 transition-colors outline-none hover:bg-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-850 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-mist-50 px-5 text-sm font-medium text-ink-950 transition-colors outline-none hover:bg-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-850 disabled:cursor-not-allowed disabled:opacity-40 sm:text-[15px]"
               >
                 {status === 'processing' ? 'Processing…' : 'Run enhancement'}
               </button>
@@ -390,9 +390,9 @@ export function WorkspacePage() {
                 title={
                   result
                     ? 'Download the enhanced image'
-                    : 'Available once the enhancement pipeline is implemented'
+                    : 'Run enhancement to produce a downloadable image'
                 }
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink-600 px-5 text-sm text-mist-200 transition-colors outline-none hover:border-ink-500 hover:text-mist-50 focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink-600 px-5 text-sm text-mist-200 transition-colors outline-none hover:border-ink-500 hover:text-mist-50 focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-40 sm:text-[15px]"
               >
                 Download enhanced
               </button>
@@ -410,18 +410,18 @@ export function WorkspacePage() {
           </section>
 
           <section className="rounded-2xl border border-ink-700 bg-ink-850 p-4 sm:p-5">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
               <div className="min-w-0">
-                <h2 className="text-sm font-medium text-mist-50">
+                <h2 className="text-sm font-medium leading-snug text-mist-50 sm:text-base">
                   Before / after comparison
                 </h2>
-                <p className="mt-1 text-sm leading-relaxed text-mist-400">
+                <p className="mt-1.5 text-sm leading-relaxed text-mist-400">
                   {result
                     ? 'Drag the handle to compare the original with the processed image.'
                     : 'The comparison uses a placeholder pair until a real enhancement result exists.'}
                 </p>
               </div>
-              <span className="w-fit shrink-0 rounded-full border border-ink-600 px-2.5 py-1 text-[10px] tracking-[0.14em] text-mist-500 uppercase">
+              <span className="inline-flex w-fit max-w-full items-center justify-self-start whitespace-normal break-words rounded-full border border-ink-600 px-2.5 py-1 text-[11px] leading-tight tracking-[0.14em] text-mist-500 uppercase sm:justify-self-end">
                 {result ? 'Real output' : 'Placeholder'}
               </span>
             </div>
@@ -440,6 +440,27 @@ export function WorkspacePage() {
               fit={result ? 'contain' : 'cover'}
             />
 
+            {result ? (
+              <dl className="mt-4 grid gap-x-4 gap-y-1.5 text-sm leading-relaxed text-mist-400 sm:grid-cols-3">
+                <div className="flex items-baseline justify-between gap-2 sm:justify-start">
+                  <dt className="text-mist-500">Mode</dt>
+                  <dd className="text-mist-200">{result.pipeline.mode}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-2 sm:justify-start">
+                  <dt className="text-mist-500">Dimensions</dt>
+                  <dd className="text-mist-200">
+                    {result.image.width}×{result.image.height} px
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-2 sm:justify-start">
+                  <dt className="text-mist-500">Processing</dt>
+                  <dd className="text-mist-200">
+                    {Math.round(result.processing_time_ms)} ms
+                  </dd>
+                </div>
+              </dl>
+            ) : null}
+
             <p className="mt-3 text-xs text-mist-500">
               Drag the handle, tap anywhere on the image, or focus it and use the
               arrow keys.
@@ -447,12 +468,12 @@ export function WorkspacePage() {
           </section>
 
           <section className="rounded-2xl border border-ink-700 bg-ink-850 p-4 sm:p-5">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
               <div className="min-w-0">
-                <h2 className="text-sm font-medium text-mist-50">
+                <h2 className="text-sm font-medium leading-snug text-mist-50 sm:text-base">
                   Intermediate outputs
                 </h2>
-                <p className="mt-1 text-sm leading-relaxed text-mist-400">
+                <p className="mt-1.5 text-sm leading-relaxed text-mist-400">
                   The explainable processing view. Each panel fills in only when
                   the backend actually produces that image.
                 </p>
@@ -468,7 +489,7 @@ export function WorkspacePage() {
             <ImageInfoCard info={info} />
           ) : (
             <section className="rounded-2xl border border-ink-700 bg-ink-850 p-4 sm:p-5">
-              <h2 className="text-sm font-medium text-mist-50">
+              <h2 className="text-sm font-medium leading-snug text-mist-50 sm:text-base">
                 Awaiting an upload
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-mist-400">
@@ -479,7 +500,7 @@ export function WorkspacePage() {
           )}
 
           <section className="rounded-2xl border border-ink-700 bg-ink-850 p-4 sm:p-5">
-            <h2 className="text-sm font-medium text-mist-50">Upload limits</h2>
+            <h2 className="text-sm font-medium leading-snug text-mist-50 sm:text-base">Upload limits</h2>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex items-baseline justify-between gap-4">
                 <dt className="text-mist-500">Formats</dt>
@@ -510,7 +531,7 @@ export function WorkspacePage() {
           </section>
 
           <section className="rounded-2xl border border-ink-700 bg-ink-900 p-4 sm:p-5">
-            <h2 className="text-sm font-medium text-mist-50">Inference</h2>
+            <h2 className="text-sm font-medium leading-snug text-mist-50 sm:text-base">Inference</h2>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex items-baseline justify-between gap-4">
                 <dt className="text-mist-500">Model</dt>
@@ -538,8 +559,8 @@ export function WorkspacePage() {
               </div>
             </dl>
             <p className="mt-3 text-xs leading-relaxed text-mist-500">
-              Architecture, weights and inference path are pending research. The
-              loader, interface and CPU configuration are in place.
+              Status reflects the backend response for the selected mode and
+              configured inference device.
             </p>
           </section>
         </aside>

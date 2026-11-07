@@ -26,19 +26,19 @@ function App() {
               aria-hidden="true"
               className="h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_14px_2px] shadow-accent/40"
             />
-            <span className="text-sm font-medium tracking-[0.32em] text-mist-50">
+            <span className="text-[15px] font-medium tracking-[0.32em] text-mist-50 sm:text-base">
               LUMENOIR
             </span>
           </button>
 
-          <nav aria-label="Primary" className="flex items-center gap-1">
+          <nav aria-label="Primary" className="flex items-center gap-1.5">
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.view}
                 type="button"
                 onClick={() => setView(item.view)}
                 aria-current={view === item.view ? 'page' : undefined}
-                className={`rounded-full px-3 py-1.5 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${
+                className={`rounded-full px-3.5 py-2 text-[15px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent/60 sm:text-base ${
                   view === item.view
                     ? 'bg-ink-800 text-mist-50'
                     : 'text-mist-400 hover:text-mist-50'
@@ -60,9 +60,9 @@ function App() {
       </main>
 
       <footer className="border-t border-ink-700/80">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-6 text-xs text-mist-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-1.5 px-4 py-6 text-sm leading-relaxed text-mist-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>LUMENOIR · Low-light image restoration</p>
-          <p>Foundation build — enhancement engine not implemented yet.</p>
+          <p>Upload, enhance, compare and download results.</p>
         </div>
       </footer>
     </div>

@@ -102,10 +102,10 @@ export function ComparisonSlider({
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
         onPointerLeave={handlePointerEnd}
-        style={aspectRatio ? { aspectRatio: String(aspectRatio) } : undefined}
+        style={aspectRatio ? { aspectRatio: String(aspectRatio), maxHeight: '70vh' } : { maxHeight: '70vh' }}
         className={`relative w-full touch-pan-y select-none bg-ink-950 ${
           aspectRatio ? '' : 'aspect-[4/3]'
-        }`}
+        } max-h-[70vh]`}
       >
         <img
           src={beforeSrc}

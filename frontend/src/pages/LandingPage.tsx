@@ -12,19 +12,19 @@ const CAPABILITIES = [
   {
     title: 'Interactive comparison',
     body: 'A touch-friendly before/after slider for inspecting a result at any position, with keyboard support.',
-    status: 'Implemented · placeholder imagery',
+    status: 'Implemented',
     active: true,
   },
   {
-    title: 'Model-ready pipeline',
-    body: 'Stages, a model registry, load-once weights handling and safe resizing are in place; the algorithms that fill them are still pending research.',
-    status: 'Architecture ready',
-    active: false,
+    title: 'Enhancement pipeline',
+    body: 'Classical, deep learning and hybrid modes run through the backend pipeline. Mode selection controls which stages and intermediate outputs are produced.',
+    status: 'Available',
+    active: true,
   },
   {
     title: 'Explainable outputs',
     body: 'Illumination, noise, classical, deep learning and fusion panels are wired end to end, and only ever show images the backend really produced.',
-    status: 'Wired · awaiting outputs',
+    status: 'Mode-aware',
     active: true,
   },
 ]
@@ -34,15 +34,15 @@ export function LandingPage({ onOpenWorkspace }: LandingPageProps) {
     <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
       <section className="py-14 sm:py-20 lg:py-28">
         <div className="flex max-w-2xl flex-col items-start gap-6">
-          <span className="inline-flex items-center gap-2 rounded-full border border-ink-600 px-3 py-1 text-[11px] tracking-[0.18em] text-mist-400 uppercase">
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-1.5 rounded-full bg-accent"
-            />
-            Foundation build
-          </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-ink-600 px-3.5 py-1.5 text-xs tracking-[0.18em] text-mist-400 uppercase sm:text-[13px]">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-accent"
+              />
+              Image restoration workspace
+            </span>
 
-          <h1 className="text-4xl leading-[1.05] font-medium tracking-tight text-mist-50 sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl leading-[1.08] font-medium tracking-tight text-mist-50 sm:text-5xl lg:text-6xl">
             Light, restored.
             <br />
             <span className="text-mist-400">Detail, preserved.</span>
@@ -58,11 +58,11 @@ export function LandingPage({ onOpenWorkspace }: LandingPageProps) {
             <button
               type="button"
               onClick={onOpenWorkspace}
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-mist-50 px-6 text-sm font-medium text-ink-950 transition-colors outline-none hover:bg-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-mist-50 px-7 text-[15px] font-medium text-ink-950 transition-colors outline-none hover:bg-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950 sm:text-base"
             >
               Open the workspace
             </button>
-            <span className="text-xs text-mist-500 sm:text-sm">
+            <span className="text-sm leading-relaxed text-mist-500">
               JPG, JPEG or PNG · up to 10 MB
             </span>
           </div>
@@ -76,14 +76,14 @@ export function LandingPage({ onOpenWorkspace }: LandingPageProps) {
         {CAPABILITIES.map((capability) => (
           <article
             key={capability.title}
-            className="flex flex-col gap-3 rounded-2xl border border-ink-700 bg-ink-850 p-5"
+            className="flex min-w-0 flex-col gap-3 rounded-2xl border border-ink-700 bg-ink-850 p-5"
           >
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="text-sm font-medium text-mist-50">
+            <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+              <h2 className="min-w-0 text-sm font-medium leading-snug text-mist-50 sm:text-base">
                 {capability.title}
               </h2>
               <span
-                className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] tracking-[0.12em] uppercase ${
+                className={`inline-flex w-fit max-w-full items-center justify-self-start whitespace-normal break-words rounded-full border px-2.5 py-1 text-[11px] leading-tight tracking-[0.12em] uppercase sm:justify-self-end ${
                   capability.active
                     ? 'border-accent/30 bg-accent/10 text-accent-soft'
                     : 'border-ink-600 text-mist-500'
@@ -101,15 +101,15 @@ export function LandingPage({ onOpenWorkspace }: LandingPageProps) {
 
       <section className="border-t border-ink-700/70 py-10">
         <div className="rounded-2xl border border-ink-700 bg-ink-900 p-5 sm:p-6">
-          <h2 className="text-sm font-medium text-mist-50">
-            What this build does not do yet
+          <h2 className="text-sm font-medium text-mist-50 sm:text-base">
+            How to use the workspace
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-mist-400">
-            No enhancement has been implemented or simulated. The Retinex
-            variant, denoising method, deep learning architecture, dataset and
-            training strategy, adaptive fusion weights, parameter selection and
-            evaluation methodology are still open research decisions. Those
-            modules exist as documented placeholders only.
+            Upload a JPG, JPEG or PNG image, choose Classical, Deep Learning or
+            Hybrid mode, then run enhancement. Compare the original and enhanced
+            images with the slider, inspect available intermediate outputs and
+            download the result. If the backend is unavailable or a request fails,
+            the interface reports the error and keeps the last valid state.
           </p>
         </div>
       </section>
