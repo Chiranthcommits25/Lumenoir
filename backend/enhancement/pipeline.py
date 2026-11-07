@@ -185,6 +185,7 @@ class EnhancementPipeline:
         mode: EnhancementMode = "hybrid",
         capture_diagnostics: bool = False,
         cache: SharedStageCache | None = None,
+        ablation: object | None = None,
     ) -> PipelineResult:
         """Run the stages required by ``mode`` and describe the outcome.
 
@@ -193,10 +194,14 @@ class EnhancementPipeline:
 
         ``cache`` reuses mode-independent prefix stages (analysis, classical,
         deep learning and fusion) already computed for the same image. Create one
-        cache per image; it must never span images.
+        cache per image; it must never span images. Shared caching is
+        automatically disabled during ablation to prevent cross-run pollution.
         """
         if mode not in ENHANCEMENT_MODES:
             raise ValueError(f"Unsupported enhancement mode: {mode!r}.")
+
+        # Disable shared-stage caching during ablation experiments
+        effective_cache = None if (ablation is not None and getattr(ablation, "is_active", True)) else cache
 
         ops = self._execution_ops()
         lock = self._execution_lock if ops is not None else nullcontext()
@@ -208,10 +213,11 @@ class EnhancementPipeline:
             capture_diagnostics=capture_diagnostics,
             runtime=self._runtime,
             ops=ops,
+            ablation=ablation,
         )
         with lock:
             return self._run_locked(
-                context, mode=mode, cache=cache, ops=ops
+                context, mode=mode, cache=effective_cache, ops=ops
             )
 
     def _run_locked(

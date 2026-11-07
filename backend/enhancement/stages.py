@@ -72,6 +72,7 @@ class StageContext:
     capture_diagnostics: bool = False
     diagnostics: dict[str, object] = field(default_factory=dict)
     diagnostic_images: dict[str, Image.Image] = field(default_factory=dict)
+    ablation: object | None = None
 
     def publish(self, kind: ArtifactKind, image: Image.Image) -> None:
         """Record an intermediate result so it can be reported to the client."""
@@ -174,6 +175,42 @@ class AnalysisStage(ImplementedStage):
 
     def run(self, context: StageContext) -> StageContext:
         context.rgb = _to_array(context.image)
+        ablation = getattr(context, "ablation", None)
+        if ablation is not None and getattr(ablation, "disable_lumen_scan", False):
+            from .ablation import create_fixed_scan_result
+
+            if context.ops is not None:
+                context.rgb_tensor = context.ops.ensure(context.rgb)
+                context.scan_result = create_fixed_scan_result(
+                    context.rgb.shape[:2], device_ops=context.ops
+                )
+            else:
+                context.scan_result = create_fixed_scan_result(context.rgb.shape[:2])
+            context.bypass = False
+            if context.capture_diagnostics:
+                context.diagnostics["scan"] = context.scan_result.as_dict()
+
+            context.publish(ArtifactKind.ORIGINAL, context.image.copy())
+            illumination = (
+                context.ops.to_numpy(context.scan_result.illumination)
+                if context.ops is not None
+                else context.scan_result.illumination
+            )
+            noise = (
+                context.ops.to_numpy(context.scan_result.noise_map)
+                if context.ops is not None
+                else context.scan_result.noise_map
+            )
+            context.publish(
+                ArtifactKind.ILLUMINATION_MAP,
+                _map_to_pil(illumination, vmax=1.0, name="illumination"),
+            )
+            context.publish(
+                ArtifactKind.NOISE_MAP,
+                _map_to_pil(noise, vmax=max(float(noise.max()), 1e-6), name="noise map"),
+            )
+            return context
+
         if context.ops is not None:
             from ..classical_cv.torch_scan import scan_tensor
 
@@ -215,6 +252,16 @@ class ClassicalStage(ImplementedStage):
     def run(self, context: StageContext) -> StageContext:
         _require(context.rgb, "rgb")
         _require(context.scan_result, "scan_result")
+
+        ablation = getattr(context, "ablation", None)
+        if ablation is not None and getattr(ablation, "disable_lumen_retinex", False):
+            context.classical = context.rgb
+            context.enhanced = context.rgb
+            if context.ops is not None:
+                context.classical_tensor = context.rgb_tensor
+                context.enhanced_tensor = context.rgb_tensor
+            context.publish(ArtifactKind.CLASSICAL_OUTPUT, _to_pil(context.rgb))
+            return context
 
         if context.bypass:
             context.classical = context.rgb
@@ -320,6 +367,35 @@ class FusionStage(ImplementedStage):
             _require(context.classical, "classical")
             _require(context.deep_learning, "deep_learning")
 
+        ablation = getattr(context, "ablation", None)
+        if ablation is not None and getattr(ablation, "disable_lumen_fuse", False):
+            if context.ops is not None:
+                torch = context.ops.torch
+                fused_tensor = torch.clamp(
+                    0.5 * context.classical_tensor + 0.5 * context.deep_learning_tensor,
+                    min=0.0,
+                    max=1.0,
+                ).to(context.classical_tensor.dtype)
+                context.fused_tensor = fused_tensor
+                context.enhanced_tensor = fused_tensor
+                array = context.ops.to_numpy(fused_tensor)
+            else:
+                fused = np.clip(
+                    0.5 * context.classical + 0.5 * context.deep_learning,
+                    0.0,
+                    1.0,
+                ).astype(np.float32)
+                context.fused = fused
+                context.enhanced = fused
+                array = fused
+            context.publish(ArtifactKind.FUSION_OUTPUT, _to_pil(array))
+            uniform_strength = np.full(array.shape[:2], 0.5, dtype=np.float32)
+            context.publish(
+                ArtifactKind.ENHANCEMENT_STRENGTH_MAP,
+                _map_to_pil(uniform_strength, vmax=1.0, name="enhancement strength"),
+            )
+            return context
+
         if context.bypass:
             context.fused = context.rgb
             context.enhanced = context.rgb
@@ -393,6 +469,14 @@ class DenoisingStage(ImplementedStage):
         else:
             _require(context.enhanced, "enhanced")
 
+        ablation = getattr(context, "ablation", None)
+        if (
+            ablation is not None
+            and getattr(ablation, "disable_edge_guard", False)
+        ):
+            # Bypass denoising; enhanced image passes through untouched
+            return context
+
         if context.bypass:
             context.enhanced = context.rgb
             if context.ops is not None:
@@ -434,6 +518,14 @@ class ColourCorrectionStage(ImplementedStage):
             _require(context.enhanced_tensor, "enhanced_tensor")
         else:
             _require(context.enhanced, "enhanced")
+
+        ablation = getattr(context, "ablation", None)
+        if (
+            ablation is not None
+            and getattr(ablation, "disable_hue_lock", False)
+        ):
+            # Bypass colour correction; enhanced image passes through untouched
+            return context
 
         if context.bypass:
             return context
