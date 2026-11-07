@@ -102,6 +102,27 @@ python -m training.benchmarks.benchmark_full_pipeline_gpu \
 See [`../docs/gpu_pipeline.md`](../docs/gpu_pipeline.md) for the T4 command,
 the reported statistics and the checks that must pass before a number is quoted.
 
+## FP32 vs FP16 parity validation
+
+`training.benchmarks.validate_fp16_parity_gpu` runs the same images through the
+full pipeline in float32 and in float16 on one CUDA device and compares the
+final images for all three modes: MAE, maximum absolute difference, PSNR and
+SSIM, per image and aggregated, plus an `input | float32 | float16 | |diff| x8`
+panel per image. It measures agreement between precisions, not enhancement
+quality, and does not time anything.
+
+```bash
+python -m training.benchmarks.validate_fp16_parity_gpu \
+  --device cuda \
+  --images datasets/raw/LOL-v2-Real/Test/Low --count 10 \
+  --output-dir /kaggle/working/fp16_parity
+```
+
+It writes `fp32_vs_fp16_parity.json`, `fp32_vs_fp16_parity.md` and
+`panels/<mode>/`. A report is only meaningful when the execution checks show
+zero CPU stage calls and the audited parameter dtypes are `torch.float32` for
+the reference run and `torch.float16` for the candidate.
+
 ## Kaggle evaluation
 
 ```bash
